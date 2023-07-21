@@ -1,0 +1,96 @@
+.w25 {
+    flex-basis: 25%;
+    max-width: 20%;
+}
+
+.w50 {
+    flex-basis: 50%;
+}
+
+.w75 {
+    flex-basis: 75%;
+}
+
+textarea {
+    height: 200px;
+}
+
+.hover-darken {
+    &:hover {
+        filter: brightness(.9);
+    }
+
+    &:active {
+        filter: brightness(.8);
+    }
+}
+
+button {
+    margin-top: 1rem;
+    color: white;
+    background-color: #6666ff;
+    padding: 5px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.flex-row {
+    display: flex;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.flex-align-center {
+    justify-content: center;
+    text-align: center;
+}
+
+.flex-align-right {
+    justify-content: end;
+    text-align: right;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+.widthfull {
+    max-width: 75%;
+}
+
+img {
+    max-width: 150px;
+    margin: auto;
+    cursor: pointer;
+}
+
+.card-container {
+    margin: 1rem;
+}
+
+.preview-container {
+    margin-left: 1rem;    
+
+    .preview-description {
+        margin-left: 1rem;
+        padding: 5px; 
+    }
+}
+
+.previewCardListToggle {
+    border-block: 2px solid #00000090;
+    margin: 10px;
+    padding: 5px;
+    font-size: 20pt;
+    text-align: center;
+}

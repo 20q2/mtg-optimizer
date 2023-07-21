@@ -1,0 +1,34 @@
+<div class="page-container flex-column">
+  <div class="flex-row">
+    <div class="flex-column w25">
+      <textarea [(ngModel)]="deckList" placeholder="Enter your decklist"></textarea>
+      <button class="hover-darken" (click)="parseDeckList()">Parse Decklist</button>
+    </div>
+    <div *ngIf="previewCard" class="flex-row flex-align-end w50 preview-container">
+      <div class="flex-column">
+        <img class="preview-card" [src]="previewCard['image_uris']['small']" />
+      </div>
+      <div class="flex-column preview-description">
+        <h2>{{previewCard.name}}</h2>
+        <h3>{{previewCard.type_line}}</h3>
+        <h3>{{previewCard.oracle_text}}</h3>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="cards.length > 0">
+    <div *ngIf="previewCard" class="previewCardListToggle hover-darken" (click)="previewCardList = !previewCardList">Preview Card Details</div>
+    <div *ngIf="previewCard" class=" grid-container flex-row flex-wrap" >
+    </div>
+
+    <div class="previewCardListToggle hover-darken" (click)="previewCardList = !previewCardList">Card List</div>
+    <div *ngIf="previewCardList" class=" grid-container flex-row flex-wrap" >
+      <div *ngFor="let card of cards" class="flex-column">
+        <img *ngIf="card && card['image_uris'] && card['image_uris']['small']" [src]="card['image_uris']['small']" (click)="previewCard = card; onCardClick()" />
+        <div class="flex-column flex-align-center">
+          <div>{{ card.name }}</div>
+          <div>{{ card.type_line }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
