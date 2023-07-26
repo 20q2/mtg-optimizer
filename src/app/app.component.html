@@ -1,30 +1,92 @@
+<mat-spinner class="app-loading-spinner" *ngIf="appIsLoading"></mat-spinner>
 <div class="page-container flex-column">
-  <div class="flex-row">
+  <div class="background"></div>
+  <!-- Navbar -->
+  <div class="flex-row flex-align-start navbar">
+    <img src="../assets/logo-transparent.png" height="32px" />
+    <div class="title white">MTG: Deck Optimizer</div>
+  </div>
+  
+  <!-- top card preview row -->
+  <div class="flex-row m16">
     <div class="flex-column w25">
       <textarea [(ngModel)]="deckList" placeholder="Enter your decklist"></textarea>
-      <button class="hover-darken" (click)="parseDeckList()">Parse Decklist</button>
+      <button class="hover-darken parse-button" (click)="parseDeckList()">Parse Decklist</button>
     </div>
-    <div *ngIf="previewCard" class="flex-row flex-align-end w50 preview-container">
+    <!-- color picker col -->
+    <div class="flex-column color-column">
+      <div class="title">Color Identity</div>
+      <mat-checkbox color="primary" [(ngModel)]="colorIdentity['G']">
+        Green
+      </mat-checkbox>
+      <mat-checkbox [(ngModel)]="colorIdentity['R']">
+        Red
+      </mat-checkbox>
+      <mat-checkbox [(ngModel)]="colorIdentity['W']">
+        White
+      </mat-checkbox>
+      <mat-checkbox [(ngModel)]="colorIdentity['U']">
+        Blue
+      </mat-checkbox>
+      <mat-checkbox [(ngModel)]="colorIdentity['B']">
+        Black
+      </mat-checkbox>
+    </div>
+    <div *ngIf="previewCard" class="flex-row flex-align-end  preview-container">
+      <!-- Preview card image -->
       <div class="flex-column">
-        <img class="preview-card" [src]="previewCard['image_uris']['small']" />
+        <img class="preview-card card" [src]="previewCard['image_uris']['small']" />
       </div>
       <div class="flex-column preview-description">
         <h2>{{previewCard.name}}</h2>
         <h3>{{previewCard.type_line}}</h3>
         <h3>{{previewCard.oracle_text}}</h3>
+
+        <!-- Tags -->
+        <div class="flex-row">
+          <ng-container *ngFor="let tag of previewCardTagInfo; let i=index" >
+            <div class="tag"*ngIf="tag['tag']['namespace'] === 'card'" style="animation-delay: {{i * 10}}ms"  (click)="onTagClick(tag)">
+              {{tag['tag']['slug']}}
+            </div>
+          </ng-container>
+        </div>
+
       </div>
     </div>
   </div>
-  <div *ngIf="cards.length > 0">
-    <div *ngIf="previewCard" class="previewCardListToggle hover-darken" (click)="previewCardList = !previewCardList">Preview Card Details</div>
-    <div *ngIf="previewCard" class=" grid-container flex-row flex-wrap" >
-    </div>
 
-    <div class="previewCardListToggle hover-darken" (click)="previewCardList = !previewCardList">Card List</div>
-    <div *ngIf="previewCardList" class=" grid-container flex-row flex-wrap" >
-      <div *ngFor="let card of cards" class="flex-column">
-        <img *ngIf="card && card['image_uris'] && card['image_uris']['small']" [src]="card['image_uris']['small']" (click)="previewCard = card; onCardClick()" />
-        <div class="flex-column flex-align-center">
+  <!-- Related cards by tag -->
+  <div *ngIf="cards.length > 0">
+    <ng-container *ngIf="relatedCardsByTag.length > 0">
+      <div class="previewCardListToggle hover-darken title" (click)="previewCardList = !previewCardList">
+        Related Cards By Tag: <span class="accent">{{ selectedTag }}</span> -- Limited to colors: {{lastSearchedColors}}
+      </div>
+      <div class="sort-row flex-row">
+        <div class="white">{{relatedCardsByTag.length}} cards </div>
+        <button mat-raised-button color="primary" (click)="sortRelatedBy($event)" value="name">Name</button>
+        <button mat-raised-button color="accent" (click)="sortRelatedBy($event)" value="cmc">CMC</button>
+        <button mat-raised-button (click)="sortRelatedBy($event)" value="color">COlor</button>
+      </div>
+      <div class="grid-container flex-row flex-wrap">
+        <div class="card-container" *ngFor="let relatedCard of relatedCardsByTag">
+          <img class="card card-container" *ngIf="relatedCard && relatedCard['image_uris'] && relatedCard['image_uris']['small']" [src]="relatedCard['image_uris']['small']" 
+            (click)="previewCard = relatedCard; onCardClick()" />
+          <div class="flex-column flex-align-center card-description">
+            <div>{{ relatedCard.name }}</div>
+            <div>{{ relatedCard.type_line }}</div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <div class="previewCardListToggle hover-darken flex-align-center flex-row" (click)="previewCardList = !previewCardList">
+      <div class="title">Card List</div>
+      <div></div>
+    </div>
+    <div *ngIf="previewCardList" class="grid-container flex-row flex-wrap" >
+      <div  *ngFor="let card of cards" class="flex-column card-container">
+        <img class="card" *ngIf="card && card['image_uris'] && card['image_uris']['small']" [src]="card['image_uris']['small']" (click)="previewCard = card; onCardClick()" />
+        <div class="flex-column flex-align-center card-description">
           <div>{{ card.name }}</div>
           <div>{{ card.type_line }}</div>
         </div>

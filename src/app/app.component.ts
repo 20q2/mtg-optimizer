@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { CardTagObject } from './tag-objects';
 
 @Component({
   selector: 'app-root',
@@ -11,16 +12,30 @@ export class AppComponent {
   cards: any[] = [];
   
   previewCard: any;
-  previewCardTagInfo: any;
-  
+  previewCardTagInfo: CardTagObject[] = [];
   previewCardList = true;
 
+  relatedCardsByTag: any[] = [];
+  selectedTag = '';
+
+  colorIdentity: {[key: string]: boolean } = {
+    'G': true,
+    'R': false,
+    'W': false,
+    'U': false,
+    'B': true,
+  }
+  lastSearchedColors = '';
 
 
   xCsrfToken: string = '';
   sessionToken: string = '';
 
   serverUrl = 'http://127.0.0.1:5000';
+  scryfallSearchUrl = "https://api.scryfall.com/cards/search";
+
+  appIsLoading = false;
+  lastSortMode = '';
 
   constructor(private http: HttpClient) { }
 
@@ -42,8 +57,10 @@ export class AppComponent {
   }
 
   fetchCardData(cardName: string) {
+    this.appIsLoading = true;
     this.http.get<any>('https://api.scryfall.com/cards/named?fuzzy=' + cardName).subscribe(
       (response) => {
+        this.appIsLoading = false;
         if (response.object === 'card') {          
           this.cards.push(response);
         } else {
@@ -51,16 +68,19 @@ export class AppComponent {
         }
       },
       (error) => {
+        this.appIsLoading = false;
         console.log('Error fetching card data:', error);
       }
     );
   }
 
   async fetchPreviewCardTags(cardSetName: string, cardCollectorNumber: string) {
+    this.appIsLoading = true;
     const callUrl = this.serverUrl + '/gettag?setname=' + cardSetName + '&number=' + cardCollectorNumber;
 
     this.http.get(callUrl).subscribe((result: any) => {
       this.previewCardTagInfo = result['data']['card']['taggings'];
+      this.appIsLoading = false;
     });
   }
 
@@ -71,51 +91,61 @@ export class AppComponent {
   }
 
   onCardClick() {
-    this.fetchPreviewCardTags(this.previewCard['set'], this.previewCard['collector_number'])
+    this.fetchPreviewCardTags(this.previewCard['set'], this.previewCard['collector_number']);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.previewCardTagInfo = [];
+
+  }
+
+  onTagClick(tag: CardTagObject) {
+    // make a scryfall call using the tags name and any commander color identity
+    let colorString = '';
+    this.selectedTag = tag.tag.slug;
+    for (let key of Object.keys(this.colorIdentity)) {
+      if (this.colorIdentity[key]) {
+        colorString += key;
+      }
+    }
+    const sub = this.http.get(this.scryfallSearchUrl, {
+      params: {
+        q: `otag:${tag.tag.slug} ${colorString ? 'id<=' + colorString : ''}`
+      }
+    })
+
+    this.appIsLoading = true;
+    this.lastSearchedColors = colorString;
+
+    sub.subscribe((result: any) => {
+      this.appIsLoading = false;
+      this.relatedCardsByTag = result.data;
+    })
+  }
+
+  sortRelatedBy(event: MouseEvent) {
+    const value = (event.target as HTMLButtonElement).value;
+
+    if (value === 'cmc') {
+      this.relatedCardsByTag.sort((a, b) => {
+        return a['cmc'] - b['cmc']
+      })
+    } else if (value === 'name') {
+      this.relatedCardsByTag.sort((a, b) => {
+        return (a['name'] as string).localeCompare(b['name'])
+      })
+    } else if (value === 'color') {
+      this.relatedCardsByTag.sort((a, b) => {
+        return (a['color_identity'] as string[]).join('').localeCompare((b['color_identity'] as string[]).join(''))
+      })
+    }
+
+    if (value === this.lastSortMode) {
+      this.relatedCardsByTag.reverse();
+      this.lastSortMode = '';
+    } else {
+      this.lastSortMode = value;
+    }
+
+    
   }
     
 }
-
-  // this.getTaggerAuthToken(cardSetName, cardCollectorNumber);
-    // https://tagger.scryfall.com/card/{set}/{collector_number}
-    //https://cors-proxy.htmldriven.com/?url=https://tagger.scryfall.com/card/${cardSetName}/${cardCollectorNumber}
-    //https://cors-proxy.htmldriven.com/?url=https://tagger.scryfall.com/card/c21/59
-    //https://thingproxy.freeboard.io/fetch/https://tagger.scryfall.com/card/c21/59
-
-    //https://tagger.scryfall.com/graphql
-    // while (this.xCsrfToken === '') {
-    //   await this.delay(1000);
-    // }
-    
-    // const requestPayload = {
-    //   operationName: "FetchCard",
-    //   query: "query FetchCard($set:String! $number:String! $back:Boolean=false $moderatorView:Boolean=false){card:cardBySet(set:$set number:$number back:$back){...CardAttrs backside layout scryfallUrl sideNames twoSided rotatedLayout taggings(moderatorView:$moderatorView){...TaggingAttrs tag{...TagAttrs ancestorTags{...TagAttrs}}}relationships(moderatorView:$moderatorView){...RelationshipAttrs}}}fragment CardAttrs on Card{artImageUrl backside cardImageUrl collectorNumber id illustrationId name oracleId printingId set}fragment RelationshipAttrs on Relationship{classifier classifierInverse annotation subjectId subjectName createdAt creatorId foreignKey id name pendingRevisions relatedId relatedName status type}fragment TagAttrs on Tag{category createdAt creatorId id name namespace pendingRevisions slug status type}fragment TaggingAttrs on Tagging{annotation subjectId createdAt creatorId foreignKey id pendingRevisions type status weight}",
-    //   variables: {
-    //     set: cardSetName,
-    //     number: cardCollectorNumber,
-    //     back: false,
-    //     moderatorView: false
-    //   },
-    //   back: false,
-    //   moderatorView: false,
-    //   number: cardCollectorNumber,
-    //   set: cardSetName,
-    // };
-    // const taggerSessionToken = '';
-
-    // let headers = new HttpHeaders({
-    //   'Content-Type': 'application/json',
-    //   'Cookie': '_scryfall_tagger_session=' + taggerSessionToken,
-    //   'X-CSRF-Token': this.xCsrfToken });
-    // let options = { headers: headers, withCredentials: true };
-
-    // this.http.post(`https://thingproxy.freeboard.io/fetch/https://tagger.scryfall.com/graphql`, requestPayload, options).subscribe(
-    //   (response) => {
-    //     if (response) {
-    //       console.log(response);
-    //     }        
-    //   },
-    //   (error) => {
-    //     console.log('Error fetching card data:', error);
-    //   }
-    // );
