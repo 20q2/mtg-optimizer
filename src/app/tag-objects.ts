@@ -8,7 +8,7 @@ export interface CardTagObject {
     status: string,
     subjectId: string,
     tag: {
-        ancestorTags: any[],
+        ancestorTags: TagInformation[],
         category: boolean,
         createdAt: string,
         creatorId: string,
@@ -26,4 +26,17 @@ export interface CardTagObject {
     slug: string,
     type: string,
     weight: string,
+}
+
+export interface TagInformation {
+    category: boolean,
+    createdAt: string,
+    creatorId: string,
+    id: string,
+    name: string,
+    namespace: string,
+    pendingRevisions: boolean,
+    slug: string,
+    status: string,
+    type: string,
 }

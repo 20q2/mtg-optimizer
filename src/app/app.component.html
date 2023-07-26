@@ -44,10 +44,12 @@
 
         <!-- Tags -->
         <div class="flex-row">
-          <ng-container *ngFor="let tag of previewCardTagInfo; let i=index" >
-            <div class="tag"*ngIf="tag['tag']['namespace'] === 'card'" style="animation-delay: {{i * 10}}ms"  (click)="onTagClick(tag)">
-              {{tag['tag']['slug']}}
+          <ng-container *ngFor="let tag of compressCardTags(previewCardTagInfo); let i=index" >
+            <div class="tag" style="animation-delay: {{i * 10}}ms"  (click)="onTagClick(tag)">
+              {{tag}}
             </div>
+           
+           
           </ng-container>
         </div>
 
@@ -84,12 +86,21 @@
       <div></div>
     </div>
     <div *ngIf="previewCardList" class="grid-container flex-row flex-wrap" >
-      <div  *ngFor="let card of cards" class="flex-column card-container">
+      <div *ngFor="let card of cards" class="flex-column card-container" tabindex="0"
+        (mouseover)="card.showingTags = true" (mouseleave)="card.showingTags = false" (focus)="card.showingTags = true" (blur)="card.showingTags = false">
         <img class="card" *ngIf="card && card['image_uris'] && card['image_uris']['small']" [src]="card['image_uris']['small']" (click)="previewCard = card; onCardClick()" />
         <div class="flex-column flex-align-center card-description">
           <div>{{ card.name }}</div>
           <div>{{ card.type_line }}</div>
         </div>
+        <!-- Card tags: Only show on hover -->
+        <!-- <div class="card-tags" *ngIf="card.showingTags" >
+          <div *ngFor="let tag of card.tags; let i=index">
+            <div class="tag" *ngIf="tag['tag']['namespace'] === 'card'" style="animation-delay: {{i * 10}}ms">
+              {{tag['tag']['slug']}}
+            </div>
+          </div>
+        </div> -->
       </div>
     </div>
   </div>

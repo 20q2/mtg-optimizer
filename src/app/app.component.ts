@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { CardTagObject } from './tag-objects';
+import { CardTagObject, TagInformation } from './tag-objects';
 
 @Component({
   selector: 'app-root',
@@ -43,6 +43,7 @@ export class AppComponent {
     this.cards = [];
 
     const lines = this.deckList.split('\n');
+    this.appIsLoading = true;
     for (let line of lines) {
       line = line.trim();
       const match = line.match(/(\d+x?)\s+([^(\n]+)/);
@@ -54,15 +55,15 @@ export class AppComponent {
         });
       }
     }
+    this.appIsLoading = false;
   }
 
   fetchCardData(cardName: string) {
-    this.appIsLoading = true;
     this.http.get<any>('https://api.scryfall.com/cards/named?fuzzy=' + cardName).subscribe(
       (response) => {
-        this.appIsLoading = false;
         if (response.object === 'card') {          
           this.cards.push(response);
+          this.fetchCardTags(response);
         } else {
           console.error(response);
         }
@@ -84,6 +85,14 @@ export class AppComponent {
     });
   }
 
+  async fetchCardTags(card: any) {
+    const callUrl = this.serverUrl + '/gettag?setname=' + card['set'] + '&number=' + card['collector_number'];
+    this.http.get(callUrl).subscribe(((result: any) => {
+      card.tags = result['data']['card']['taggings'];
+      card.showingTags = false;
+    }))
+  }
+
 
 
   delay(ms: number) {
@@ -97,10 +106,9 @@ export class AppComponent {
 
   }
 
-  onTagClick(tag: CardTagObject) {
-    // make a scryfall call using the tags name and any commander color identity
+  onTagClick(tagSlug: string) {
     let colorString = '';
-    this.selectedTag = tag.tag.slug;
+    this.selectedTag = tagSlug;
     for (let key of Object.keys(this.colorIdentity)) {
       if (this.colorIdentity[key]) {
         colorString += key;
@@ -108,7 +116,7 @@ export class AppComponent {
     }
     const sub = this.http.get(this.scryfallSearchUrl, {
       params: {
-        q: `otag:${tag.tag.slug} ${colorString ? 'id<=' + colorString : ''}`
+        q: `otag:${tagSlug} ${colorString ? 'id<=' + colorString : ''}`
       }
     })
 
@@ -146,6 +154,25 @@ export class AppComponent {
     }
 
     
+  }
+
+  compressCardTags(tags: CardTagObject[]): string[] {
+    const ret = [];
+    for (let tag of tags) {
+      if (tag.tag.status !== 'REJECTED' && tag.tag.namespace === 'card') {
+        ret.push(tag.tag.slug)
+      }
+      
+      if (tag.tag.ancestorTags) {
+        for (let ancestor of tag.tag.ancestorTags) {
+          if (ancestor.status !== 'REJECTED' && ancestor.namespace === 'card') {
+            ret.push(ancestor.slug)
+          }
+        }
+      }
+    }
+
+    return ret;
   }
     
 }

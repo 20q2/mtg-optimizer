@@ -180,6 +180,18 @@ img.card {
 .card-container {
     margin: 1rem;
     z-index: 1;
+    position: relative;
+
+    .card-tags {
+        position: absolute;
+        inset: 0 0 0 0;
+        z-index: 1;
+        gap: 5px;
+
+        .tag {
+            background-color: #ffff66cc;
+        }
+    }
 }
 
 .preview-container {
@@ -210,7 +222,7 @@ img.card {
     gap: 10px;
 
     button {
-        background:#960f7f; 
+        background:#98cae7; 
     }
 }
 
