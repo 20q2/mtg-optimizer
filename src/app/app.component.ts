@@ -1,18 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CardTagObject, TagInformation } from './tag-objects';
+import { ECharts, EChartsOption } from 'echarts';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+  @ViewChild('echart')
+  echart!: ECharts;
+  
   deckList = '';
   cards: any[] = [];
+  cardsToDisplay: any[] = [];
   
   previewCard: any;
-  previewCardTagInfo: CardTagObject[] = [];
+  previewCardTagList: CardTagObject[] = [];
   previewCardList = true;
 
   relatedCardsByTag: any[] = [];
@@ -37,7 +42,32 @@ export class AppComponent {
   appIsLoading = false;
   lastSortMode = '';
 
+  /** All the tags of the deck, aggregated */
+  tags: {[key: string]: number} = {};
+  chartOptions!: EChartsOption;
+
+  topTags: { key: string, instances: number }[] = [];
+
+
   constructor(private http: HttpClient) { }
+
+  ngOnInit(): void {
+    this.chartOptions = {
+      xAxis: {
+        type: 'category',
+        data: ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'],
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: [
+        {
+          data: [10, 20, 15, 30, 25],
+          type: 'bar',
+        },
+      ],
+    };
+  }
 
   async parseDeckList() {
     this.cards = [];
@@ -56,6 +86,11 @@ export class AppComponent {
       }
     }
     this.appIsLoading = false;
+    this.calculateDifferentCardTypes();
+    this.populateChart();
+    this.topTags = this.findTop10Tags();
+
+    this.cardsToDisplay = this.cards.slice(0);
   }
 
   fetchCardData(cardName: string) {
@@ -80,7 +115,7 @@ export class AppComponent {
     const callUrl = this.serverUrl + '/gettag?setname=' + cardSetName + '&number=' + cardCollectorNumber;
 
     this.http.get(callUrl).subscribe((result: any) => {
-      this.previewCardTagInfo = result['data']['card']['taggings'];
+      this.previewCardTagList = result['data']['card']['taggings'];
       this.appIsLoading = false;
     });
   }
@@ -102,7 +137,7 @@ export class AppComponent {
   onCardClick() {
     this.fetchPreviewCardTags(this.previewCard['set'], this.previewCard['collector_number']);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    this.previewCardTagInfo = [];
+    this.previewCardTagList = [];
 
   }
 
@@ -156,23 +191,99 @@ export class AppComponent {
     
   }
 
-  compressCardTags(tags: CardTagObject[]): string[] {
+  compressAllCardTags(tagObjectList: CardTagObject[]): string[] {
+    if (!tagObjectList) {
+      return [];
+    }
+    
     const ret = [];
-    for (let tag of tags) {
-      if (tag.tag.status !== 'REJECTED' && tag.tag.namespace === 'card') {
-        ret.push(tag.tag.slug)
-      }
-      
-      if (tag.tag.ancestorTags) {
-        for (let ancestor of tag.tag.ancestorTags) {
-          if (ancestor.status !== 'REJECTED' && ancestor.namespace === 'card') {
-            ret.push(ancestor.slug)
+    for (let tagObject of tagObjectList) {
+      const tag = tagObject.tag;
+        if (tag.status !== 'REJECTED' && tag.namespace === 'card') {
+          ret.push(tag.slug)
+        }
+        
+        if (tag.ancestorTags && tag.ancestorTags.length > 0) {
+          for (let ancestor of tag.ancestorTags) {
+            if (ancestor.status !== 'REJECTED' && ancestor.namespace === 'card') {
+              ret.push(ancestor.slug)
+            }
           }
         }
-      }
+      
     }
 
     return ret;
   }
+
+  calculateDifferentCardTypes() {    
+    for (let card of this.cards) {
+      const condensed = this.compressAllCardTags(card.tags)
+      for (let tag of condensed) {
+        if (!this.tags[tag]) {
+          this.tags[tag] = 1;
+        } else {
+          this.tags[tag] += 1;
+        }
+      }
+    }
+
+    return this.tags;
+  }
+
+  populateChart() {
+    const xAxisLabels = [];
+
+    const tagKeys = Object.keys(this.tags);
+    for (const key of tagKeys) {
+      xAxisLabels.push(key);
+    }
+
+    console.log(this.findTop10Tags());
+    // this.echart.setOption({xAxis: { type: 'category', data: xAxisLabels }});
+
+  }
+
+
+
+  findTop10Tags(): { key: string, instances: number }[] {
+    let topTags: { key: string, instances: number }[] = [];
+    const tagKeys = Object.keys(this.tags);
+
+    for (let key of tagKeys) {
+      const found = topTags.find(item => item.instances <= this.tags[key]);
+      if (found || topTags.length < 10) {
+        topTags = topTags.filter(item => item !== found);
+        topTags.push({instances: this.tags[key], key: key});
+      }
+    }
+
+    topTags.sort((a,b) => b.instances - a.instances)
+    return topTags;
+  }
+
+  activeFilters: string[] = [];
+  filterDeckByTag(tagSlug: string) {
+    if (!this.activeFilters.includes(tagSlug)) {
+      this.activeFilters.push(tagSlug);
+    } else {
+      this.activeFilters = this.activeFilters.filter(item => item !== tagSlug);
+    }
+
+    this.cardsToDisplay = this.cards.filter(item => {
+      for (const filter of this.activeFilters) {
+        const allCardTags = this.compressAllCardTags(item.tags);
+        if (!allCardTags.includes(filter)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+
+  getTagSlug(tag: any) {
+    return tag.tag.slug;
+  }
+  
     
 }

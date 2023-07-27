@@ -19,7 +19,7 @@ export interface CardTagObject {
         slug: string,
         status: string,
         type: string,
-    }
+    },
     category: boolean,
     name: string,
     namespace: string,

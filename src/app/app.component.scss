@@ -133,12 +133,16 @@ button.parse-button {
     text-align: right;
 }
 
+.gap-10 {
+    gap: 10px;
+}
+
 .grid-container {
     display: grid;
     position: relative;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 10px;
-    margin: -10px -24px;
+    margin-inline: -24px;
     padding: 10px;
     background: url('../assets/background2.png') no-repeat;
     background-size: cover;
@@ -181,6 +185,9 @@ img.card {
     margin: 1rem;
     z-index: 1;
     position: relative;
+    // background-color: #ffffffee;
+    // border-radius: 5px;
+    // padding: 10px; 
 
     .card-tags {
         position: absolute;
@@ -195,7 +202,7 @@ img.card {
 }
 
 .preview-container {
-    margin-left: 1rem;    
+    margin-left: 1rem;   
 
     .preview-description {
         margin-left: 1rem;
@@ -207,7 +214,7 @@ img.card {
     background-color: #00000090;
     color: white;
     border-block: 2px solid #ffff00;
-    margin: 10px -24px;
+    margin-inline: -24px;
     padding: 5px;
     font-size: 20pt;
     text-align: center;
@@ -222,7 +229,7 @@ img.card {
     gap: 10px;
 
     button {
-        background:#98cae7; 
+        background:#0f6496; 
     }
 }
 
@@ -234,6 +241,7 @@ img.card {
     margin: 0 0.5rem;
     background-color: #ffff6660;
     padding: 5px;
+    line-height: 24px;
     cursor: pointer;
 
     &:hover, &:focus-visible {
@@ -242,6 +250,11 @@ img.card {
 
     &:active {
         filter: brightness(0.7);
+    }
+
+    &.active {
+        background-color: #66ff6680;
+        border-color: gold;
     }
 }
 
@@ -275,4 +288,15 @@ img.card {
     from { opacity: 0; transform: translateX(-100%) }
     to { opacity: 1; transform: translate(0);}
     
+}
+
+.chart {
+    height: 400px;
+  }
+
+.top-tags-container {
+    background-color: #444;
+    padding: 10px;
+    margin-inline: -24px;
+    border-bottom: 2px gold solid;
 }
