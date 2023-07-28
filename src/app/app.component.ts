@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CardTagObject, ScryfallCardObject, TagInformation } from './tag-objects';
 import { ECharts, EChartsOption } from 'echarts';
+import { toIgnore } from './proper-words';
 
 @Component({
   selector: 'app-root',
@@ -71,6 +72,7 @@ export class AppComponent implements OnInit {
 
   async parseDeckList() {
     this.cards = [];
+    this.tags = {};
 
     const lines = this.deckList.split('\n');
     this.appIsLoading = true;
@@ -166,7 +168,7 @@ export class AppComponent implements OnInit {
   }
 
   sortRelatedBy(event: MouseEvent) {
-    const value = (event.target as HTMLButtonElement).value;
+    const value = ((event.target as HTMLButtonElement).parentElement as any).value;
 
     if (value === 'cmc') {
       this.relatedCardsByTag.sort((a, b) => {
@@ -253,7 +255,7 @@ export class AppComponent implements OnInit {
 
     for (let key of tagKeys) {
       const found = topTags.find(item => item.instances <= this.tags[key]);
-      if (found || topTags.length < 10) {
+      if ((found || topTags.length < 10) && !toIgnore.includes(key)) {
         topTags = topTags.filter(item => item !== found);
         topTags.push({instances: this.tags[key], key: key});
       }
