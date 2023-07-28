@@ -4,7 +4,8 @@ export const toIgnore = [
     'cycle',
     'cycle-land',
     'stronger-in-singleton-formats',
-    'meme'
+    'meme',
+    'alliteration',
 ]
 
 export const toPrioritize = [

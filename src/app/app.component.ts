@@ -19,10 +19,11 @@ export class AppComponent implements OnInit {
   
   previewCard!: ScryfallCardObject;
   previewCardTagList: CardTagObject[] = [];
-  previewCardList = true;
+  displayCardList = true;
 
   relatedCardsByTag: ScryfallCardObject[] = [];
-  selectedTag = '';
+  selectedTags: string[] = [];
+  displayRelatedCards = true;
 
   colorIdentity: {[key: string]: boolean } = {
     'G': true,
@@ -145,8 +146,23 @@ export class AppComponent implements OnInit {
   }
 
   onTagClick(tagSlug: string) {
+    if (this.selectedTags.includes(tagSlug)) {
+      this.selectedTags.filter(item => item !== tagSlug);
+    } else {
+      this.selectedTags.push(tagSlug);
+    }  
+
+    this.loadRecommendedCardsByTag();
+  }
+
+  loadRecommendedCardsByTag() {
     let colorString = '';
-    this.selectedTag = tagSlug;
+    let tagString = '';
+    
+    this.selectedTags.forEach(tag => {
+      tagString += 'otag:' + tag + ' ';
+    })
+
     for (let key of Object.keys(this.colorIdentity)) {
       if (this.colorIdentity[key]) {
         colorString += key;
@@ -154,7 +170,7 @@ export class AppComponent implements OnInit {
     }
     const sub = this.http.get(this.scryfallSearchUrl, {
       params: {
-        q: `otag:${tagSlug} ${colorString ? 'id<=' + colorString : ''}`
+        q: `${tagString} ${colorString ? 'id<=' + colorString : ''}`
       }
     })
 
@@ -199,17 +215,21 @@ export class AppComponent implements OnInit {
       return [];
     }
     
-    const ret = [];
+    const ret: string[] = [];
     for (let tagObject of tagObjectList) {
       const tag = tagObject.tag;
         if (tag.status !== 'REJECTED' && tag.namespace === 'card') {
-          ret.push(tag.slug)
+          if (!ret.includes(tag.slug)) {
+            ret.push(tag.slug)
+          }
         }
         
         if (tag.ancestorTags && tag.ancestorTags.length > 0) {
           for (let ancestor of tag.ancestorTags) {
             if (ancestor.status !== 'REJECTED' && ancestor.namespace === 'card') {
-              ret.push(ancestor.slug)
+              if (!ret.includes(ancestor.slug)) {
+                ret.push(ancestor.slug)
+              }
             }
           }
         }

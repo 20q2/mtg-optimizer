@@ -45,7 +45,7 @@
         <!-- Tags -->
         <div class="flex-row">
           <ng-container *ngFor="let tag of compressAllCardTags(previewCardTagList); let i=index" >
-            <div class="tag" style="animation-delay: {{i * 10}}ms"  (click)="onTagClick(tag)">
+            <div class="tag" style="animation-delay: {{i * 10}}ms"  (click)="onTagClick(tag)" [ngClass]="{'active': selectedTags.includes(tag)}">
               {{tag}}
             </div>
            
@@ -63,16 +63,20 @@
   <!-- Related cards by tag -->
   <div *ngIf="cardsToDisplay.length > 0 || activeFilters.length > 0">
     <ng-container *ngIf="relatedCardsByTag.length > 0">
-      <div class="previewCardListToggle hover-darken title" (click)="previewCardList = !previewCardList">
-        Related Cards By Tag: <span class="accent">{{ selectedTag }}</span> -- Limited to colors: {{lastSearchedColors}}
+      <div class="previewCardListToggle hover-darken title" (click)="displayRelatedCards = !displayRelatedCards">
+        Related Cards By Tag:
+        <span class="accent hover-darken" *ngFor="let selectedTag of selectedTags" (click)="onTagClick(selectedTag)">
+          {{ selectedTag }}
+        </span> 
+        -- Limited to colors: {{lastSearchedColors}} <mat-icon>{{displayRelatedCards ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon>
       </div>
-      <div class="sort-row flex-row">
+      <div class="sort-row flex-row" *ngIf="displayRelatedCards">
         <div class="white">{{relatedCardsByTag.length}} cards </div>
         <button mat-raised-button color="primary" (click)="sortRelatedBy($event)" value="name">Name</button>
         <button mat-raised-button color="accent" (click)="sortRelatedBy($event)" value="cmc">CMC</button>
         <button mat-raised-button (click)="sortRelatedBy($event)" value="color">Color</button>
       </div>
-      <div class="grid-container flex-row flex-wrap">
+      <div class="grid-container flex-row flex-wrap" *ngIf="displayRelatedCards">
         <div class="card-container" *ngFor="let relatedCard of relatedCardsByTag">
           <img class="card card-container" *ngIf="relatedCard && relatedCard['image_uris'] && relatedCard['image_uris']['small']" [src]="relatedCard['image_uris']['small']" 
             (click)="previewCard = relatedCard; onCardClick()" />
@@ -85,10 +89,10 @@
     </ng-container>
 
     <!-- Deck Card List -->
-    <div class="previewCardListToggle hover-darken flex-align-center flex-row" (click)="previewCardList = !previewCardList">
-      <div class="title">Card List</div>
+    <div class="previewCardListToggle hover-darken flex-align-center flex-row" (click)="displayCardList = !displayCardList">
+      <div class="title">Card List <mat-icon>{{displayCardList ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon></div>
     </div>
-    <div *ngIf="topTags.length > 0 && previewCardList" class="flex-column top-tags-container">
+    <div *ngIf="topTags.length > 0 && displayCardList" class="flex-column top-tags-container">
       <div class="title white">Top Deck Tags (10)</div>
       <div class="flex-row gap-10">
         <div
@@ -102,7 +106,7 @@
       </div>
     </div>
 
-    <div *ngIf="previewCardList" class="grid-container flex-row flex-wrap" >
+    <div *ngIf="displayCardList" class="grid-container flex-row flex-wrap" >
       <div *ngFor="let card of cardsToDisplay" class="flex-column card-container" tabindex="0"
         (mouseover)="card.showingTags = true" (mouseleave)="card.showingTags = false" (focus)="card.showingTags = true" (blur)="card.showingTags = false">
         <img class="card" *ngIf="card && card['image_uris'] && card['image_uris']['small']" [src]="card['image_uris']['small']" (click)="previewCard = card; onCardClick()" />
