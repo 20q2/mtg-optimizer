@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { CardTagObject, TagInformation } from './tag-objects';
+import { HttpClient } from '@angular/common/http';
+import { CardTagObject, ScryfallCardObject, TagInformation } from './tag-objects';
 import { ECharts, EChartsOption } from 'echarts';
 
 @Component({
@@ -13,14 +13,14 @@ export class AppComponent implements OnInit {
   echart!: ECharts;
   
   deckList = '';
-  cards: any[] = [];
-  cardsToDisplay: any[] = [];
+  cards: ScryfallCardObject[] = [];
+  cardsToDisplay: ScryfallCardObject[] = [];
   
-  previewCard: any;
+  previewCard!: ScryfallCardObject;
   previewCardTagList: CardTagObject[] = [];
   previewCardList = true;
 
-  relatedCardsByTag: any[] = [];
+  relatedCardsByTag: ScryfallCardObject[] = [];
   selectedTag = '';
 
   colorIdentity: {[key: string]: boolean } = {
@@ -120,7 +120,7 @@ export class AppComponent implements OnInit {
     });
   }
 
-  async fetchCardTags(card: any) {
+  async fetchCardTags(card: ScryfallCardObject) {
     const callUrl = this.serverUrl + '/gettag?setname=' + card['set'] + '&number=' + card['collector_number'];
     this.http.get(callUrl).subscribe(((result: any) => {
       card.tags = result['data']['card']['taggings'];
@@ -138,6 +138,7 @@ export class AppComponent implements OnInit {
     this.fetchPreviewCardTags(this.previewCard['set'], this.previewCard['collector_number']);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     this.previewCardTagList = [];
+    console.dir(this.previewCard);
 
   }
 
