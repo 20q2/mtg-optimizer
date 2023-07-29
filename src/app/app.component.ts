@@ -147,7 +147,7 @@ export class AppComponent implements OnInit {
 
   onTagClick(tagSlug: string) {
     if (this.selectedTags.includes(tagSlug)) {
-      this.selectedTags.filter(item => item !== tagSlug);
+      this.selectedTags = this.selectedTags.filter(item => item !== tagSlug);
     } else {
       this.selectedTags.push(tagSlug);
     }  

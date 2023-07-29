@@ -17,19 +17,19 @@
     <div class="flex-column color-column">
       <div class="title">Color Identity</div>
       <mat-checkbox color="primary" [(ngModel)]="colorIdentity['G']">
-        Green
+        <span class="mana-symbol green"></span>Green
       </mat-checkbox>
       <mat-checkbox [(ngModel)]="colorIdentity['R']">
-        Red
+        <span class="mana-symbol red"></span>Red
       </mat-checkbox>
       <mat-checkbox [(ngModel)]="colorIdentity['W']">
-        White
+        <span class="mana-symbol white"></span>White
       </mat-checkbox>
       <mat-checkbox [(ngModel)]="colorIdentity['U']">
-        Blue
+        <span class="mana-symbol blue"></span>Blue
       </mat-checkbox>
       <mat-checkbox [(ngModel)]="colorIdentity['B']">
-        Black
+        <span class="mana-symbol black"></span>Black
       </mat-checkbox>
     </div>
     <div *ngIf="previewCard" class="flex-row flex-align-end preview-container">
@@ -65,7 +65,7 @@
     <ng-container *ngIf="relatedCardsByTag.length > 0">
       <div class="previewCardListToggle hover-darken title" (click)="displayRelatedCards = !displayRelatedCards">
         Related Cards By Tag:
-        <span class="accent hover-darken" *ngFor="let selectedTag of selectedTags" (click)="onTagClick(selectedTag)">
+        <span class="accent hover-darken" *ngFor="let selectedTag of selectedTags" (click)="onTagClick(selectedTag);$event.stopPropagation()">
           {{ selectedTag }}
         </span> 
         -- Limited to colors: {{lastSearchedColors}} <mat-icon>{{displayRelatedCards ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon>
