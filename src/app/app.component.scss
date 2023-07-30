@@ -76,6 +76,13 @@
     margin-left: 1rem;
 }
 
+.header {
+    border-bottom: 1px solid #00000090;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
 .white {
     color: white;
 }
@@ -215,9 +222,6 @@ img.card {
     margin: 1rem;
     z-index: 1;
     position: relative;
-    // background-color: #ffffffee;
-    // border-radius: 5px;
-    // padding: 10px; 
 
     .card-tags {
         position: absolute;
@@ -273,6 +277,7 @@ img.card {
     padding: 5px;
     line-height: 24px;
     cursor: pointer;
+    transition: .3s;
 
     &:hover, &:focus-visible {
         filter: brightness(.8);

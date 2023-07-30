@@ -26,14 +26,13 @@ export class AppComponent implements OnInit {
   displayRelatedCards = true;
 
   colorIdentity: {[key: string]: boolean } = {
-    'G': true,
+    'G': false,
     'R': false,
     'W': false,
     'U': false,
-    'B': true,
+    'B': false,
   }
   lastSearchedColors = '';
-
 
   xCsrfToken: string = '';
   sessionToken: string = '';
@@ -43,6 +42,8 @@ export class AppComponent implements OnInit {
 
   appIsLoading = false;
   lastSortMode = '';
+
+  suggestedCommanders: ScryfallCardObject[] = [];
 
   /** All the tags of the deck, aggregated */
   tags: {[key: string]: number} = {};
@@ -81,7 +82,6 @@ export class AppComponent implements OnInit {
       line = line.trim();
       const match = line.match(/(\d+x?)\s+([^(\n]+)/);
       if (match) {
-        const quantity = parseInt(match[1], 10);
         const cardName = match[2];
         this.fetchCardData(cardName);
         await this.delay(50).then(() => {          
@@ -89,11 +89,37 @@ export class AppComponent implements OnInit {
       }
     }
     this.appIsLoading = false;
+    this.cards.sort((a,b) => a.name.localeCompare(b.name));
+    this.assignColorIdentity();
     this.calculateDifferentCardTypes();
     this.populateChart();
     this.topTags = this.findTop10Tags();
 
     this.cardsToDisplay = this.cards.slice(0);
+  }
+
+  assignColorIdentity() {
+    let mostColors: string[] = [];
+    this.cards.forEach(card => {
+      if (card.color_identity.length > mostColors.length) {
+        mostColors = card.color_identity;
+      }
+    });
+    this.resetColorIdentity();
+
+    mostColors.forEach(color => {
+      this.colorIdentity[color] = true;
+    })
+  }
+
+  resetColorIdentity() {
+    this.colorIdentity = {
+      'G': false,
+      'R': false,
+      'W': false,
+      'U': false,
+      'B': false,
+    }
   }
 
   fetchCardData(cardName: string) {
@@ -159,6 +185,11 @@ export class AppComponent implements OnInit {
     let colorString = '';
     let tagString = '';
     
+    if (this.selectedTags.length === 0) {
+      this.relatedCardsByTag = [];
+      return;
+    }
+
     this.selectedTags.forEach(tag => {
       tagString += 'otag:' + tag + ' ';
     })
@@ -179,8 +210,13 @@ export class AppComponent implements OnInit {
 
     sub.subscribe((result: any) => {
       this.appIsLoading = false;
-      this.relatedCardsByTag = result.data;
-    })
+      this.relatedCardsByTag = [];
+      for (let card of result.data) {
+        if ((card as ScryfallCardObject).games.includes('paper')) {
+          this.relatedCardsByTag.push(card);
+        }
+      }
+    });
   }
 
   sortRelatedBy(event: MouseEvent) {
@@ -275,7 +311,7 @@ export class AppComponent implements OnInit {
 
     for (let key of tagKeys) {
       const found = topTags.find(item => item.instances <= this.tags[key]);
-      if ((found || topTags.length < 10) && !toIgnore.includes(key)) {
+      if ((found || topTags.length < 10) && !toIgnore.includes(key) && !(/cycle-/.test(key))) {
         topTags = topTags.filter(item => item !== found);
         topTags.push({instances: this.tags[key], key: key});
       }

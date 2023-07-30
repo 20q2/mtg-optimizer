@@ -14,7 +14,7 @@
       <button class="hover-darken parse-button" (click)="parseDeckList()">Parse Decklist</button>
     </div>
     <!-- color picker col -->
-    <div class="flex-column color-column">
+    <div class="flex-column color-column" *ngIf="cards.length > 0">
       <div class="title">Color Identity</div>
       <mat-checkbox color="primary" [(ngModel)]="colorIdentity['G']">
         <span class="mana-symbol green"></span>Green
@@ -36,6 +36,8 @@
       <!-- Preview card image -->
       <div class="flex-column">
         <img class="preview-card card" [src]="previewCard['image_uris']['small']" />
+        <img class="preview-card card" *ngIf="previewCard && previewCard['card_faces'] && previewCard['card_faces'][0]" [src]="previewCard['card_faces'][0]['image_uris']['small']" />
+
       </div>
       <div class="flex-column preview-description">
         <h2>{{previewCard.name}}</h2>
@@ -43,6 +45,9 @@
         <h3>{{previewCard.oracle_text}}</h3>
 
         <!-- Tags -->
+        <div class="flex-row header">
+          Tags
+        </div>
         <div class="flex-row">
           <ng-container *ngFor="let tag of compressAllCardTags(previewCardTagList); let i=index" >
             <div class="tag" style="animation-delay: {{i * 10}}ms"  (click)="onTagClick(tag)" [ngClass]="{'active': selectedTags.includes(tag)}">
@@ -77,8 +82,10 @@
         <button mat-raised-button (click)="sortRelatedBy($event)" value="color">Color</button>
       </div>
       <div class="grid-container flex-row flex-wrap" *ngIf="displayRelatedCards">
-        <div class="card-container" *ngFor="let relatedCard of relatedCardsByTag">
-          <img class="card card-container" *ngIf="relatedCard && relatedCard['image_uris'] && relatedCard['image_uris']['small']" [src]="relatedCard['image_uris']['small']" 
+        <div class="card-container flex-column" *ngFor="let relatedCard of relatedCardsByTag">
+          <img class="card" *ngIf="relatedCard && relatedCard['image_uris'] && relatedCard['image_uris']['small']" [src]="relatedCard['image_uris']['small']" 
+            (click)="previewCard = relatedCard; onCardClick()" />
+          <img class="card" *ngIf="relatedCard && relatedCard['card_faces'] && relatedCard['card_faces'][0] && relatedCard['card_faces'][0]['image_uris'] && relatedCard['card_faces'][0]['image_uris']['small']" [src]="relatedCard['card_faces'][0]['image_uris']['small']"
             (click)="previewCard = relatedCard; onCardClick()" />
           <div class="flex-column flex-align-center card-description">
             <div>{{ relatedCard.name }}</div>
@@ -90,7 +97,7 @@
 
     <!-- Deck Card List -->
     <div class="previewCardListToggle hover-darken flex-align-center flex-row" (click)="displayCardList = !displayCardList">
-      <div class="title">Card List <mat-icon>{{displayCardList ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon></div>
+      <div class="title">Card List ({{ cards.length }}) <mat-icon>{{displayCardList ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon></div>
     </div>
     <div *ngIf="topTags.length > 0 && displayCardList" class="flex-column top-tags-container">
       <div class="title white">Top Deck Tags (10)</div>
@@ -110,10 +117,14 @@
       <div *ngFor="let card of cardsToDisplay" class="flex-column card-container" tabindex="0"
         (mouseover)="card.showingTags = true" (mouseleave)="card.showingTags = false" (focus)="card.showingTags = true" (blur)="card.showingTags = false">
         <img class="card" *ngIf="card && card['image_uris'] && card['image_uris']['small']" [src]="card['image_uris']['small']" (click)="previewCard = card; onCardClick()" />
+        <img class="card" *ngIf="card && card['card_faces'] && card['card_faces'][0]" [src]="card['card_faces'][0]['image_uris']['small']" (click)="previewCard = card; onCardClick()" />
         <div class="flex-column flex-align-center card-description">
           <div>{{ card.name }}</div>
           <div>{{ card.type_line }}</div>
         </div>
+        
+        
+        
         <!-- Card tags: Only show on hover -->
         <!-- <div class="card-tags" *ngIf="card.showingTags" >
           <div *ngFor="let tag of card.tags; let i=index">

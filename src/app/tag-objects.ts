@@ -47,6 +47,7 @@ export interface ScryfallCardObject {
     booster: boolean
     border_color: string, 
     card_back_id: string,
+    card_faces: ScryfallCardObject[],
     cardmarket_id: number,
     cmc: number,
     collector_number: string, 

@@ -1,6 +1,6 @@
 export const toIgnore = [
     'single-english-word-name',
-    'card-name',    
+    'card-names', 
     'cycle',
     'cycle-land',
     'stronger-in-singleton-formats',
