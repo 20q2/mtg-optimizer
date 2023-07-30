@@ -20,3 +20,8 @@ export const toPrioritize = [
     'exile',
     'lifegain',
 ]
+
+export const ignoreLayouts = [
+    'plane',
+    'emblem'
+]

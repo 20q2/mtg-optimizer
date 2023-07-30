@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CardTagObject, ScryfallCardObject, TagInformation } from './tag-objects';
 import { ECharts, EChartsOption } from 'echarts';
-import { toIgnore } from './proper-words';
+import { ignoreLayouts, toIgnore } from './proper-words';
 
 @Component({
   selector: 'app-root',
@@ -98,6 +98,10 @@ export class AppComponent implements OnInit {
     this.cardsToDisplay = this.cards.slice(0);
   }
 
+  onIgnoreList(tag: string) {
+    return toIgnore.includes(tag) || /cycle-/.test(tag);
+  }
+
   assignColorIdentity() {
     let mostColors: string[] = [];
     this.cards.forEach(card => {
@@ -120,6 +124,10 @@ export class AppComponent implements OnInit {
       'U': false,
       'B': false,
     }
+  }
+
+  onColorIdentityChange() {
+    this.loadRecommendedCardsByTag();
   }
 
   fetchCardData(cardName: string) {
@@ -212,7 +220,7 @@ export class AppComponent implements OnInit {
       this.appIsLoading = false;
       this.relatedCardsByTag = [];
       for (let card of result.data) {
-        if ((card as ScryfallCardObject).games.includes('paper')) {
+        if ((card as ScryfallCardObject).games.includes('paper') && !ignoreLayouts.includes(card.layout)) {
           this.relatedCardsByTag.push(card);
         }
       }
@@ -311,7 +319,7 @@ export class AppComponent implements OnInit {
 
     for (let key of tagKeys) {
       const found = topTags.find(item => item.instances <= this.tags[key]);
-      if ((found || topTags.length < 10) && !toIgnore.includes(key) && !(/cycle-/.test(key))) {
+      if ((found || topTags.length < 10) && !this.onIgnoreList(key)) {
         topTags = topTags.filter(item => item !== found);
         topTags.push({instances: this.tags[key], key: key});
       }

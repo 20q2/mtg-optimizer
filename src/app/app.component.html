@@ -13,29 +13,11 @@
       <textarea [(ngModel)]="deckList" placeholder="Enter your decklist"></textarea>
       <button class="hover-darken parse-button" (click)="parseDeckList()">Parse Decklist</button>
     </div>
-    <!-- color picker col -->
-    <div class="flex-column color-column" *ngIf="cards.length > 0">
-      <div class="title">Color Identity</div>
-      <mat-checkbox color="primary" [(ngModel)]="colorIdentity['G']">
-        <span class="mana-symbol green"></span>Green
-      </mat-checkbox>
-      <mat-checkbox [(ngModel)]="colorIdentity['R']">
-        <span class="mana-symbol red"></span>Red
-      </mat-checkbox>
-      <mat-checkbox [(ngModel)]="colorIdentity['W']">
-        <span class="mana-symbol white"></span>White
-      </mat-checkbox>
-      <mat-checkbox [(ngModel)]="colorIdentity['U']">
-        <span class="mana-symbol blue"></span>Blue
-      </mat-checkbox>
-      <mat-checkbox [(ngModel)]="colorIdentity['B']">
-        <span class="mana-symbol black"></span>Black
-      </mat-checkbox>
-    </div>
+    
     <div *ngIf="previewCard" class="flex-row flex-align-end preview-container">
       <!-- Preview card image -->
       <div class="flex-column">
-        <img class="preview-card card" [src]="previewCard['image_uris']['small']" />
+        <img class="preview-card card" *ngIf="previewCard['image_uris']" [src]="previewCard['image_uris']['small']" />
         <img class="preview-card card" *ngIf="previewCard && previewCard['card_faces'] && previewCard['card_faces'][0]" [src]="previewCard['card_faces'][0]['image_uris']['small']" />
 
       </div>
@@ -50,7 +32,7 @@
         </div>
         <div class="flex-row">
           <ng-container *ngFor="let tag of compressAllCardTags(previewCardTagList); let i=index" >
-            <div class="tag" style="animation-delay: {{i * 10}}ms"  (click)="onTagClick(tag)" [ngClass]="{'active': selectedTags.includes(tag)}">
+            <div class="tag" style="animation-delay: {{i * 10}}ms"  (click)="onTagClick(tag)" [ngClass]="{'active': selectedTags.includes(tag), 'unhelpful': onIgnoreList(tag)}">
               {{tag}}
             </div>
            
@@ -60,6 +42,24 @@
 
       </div>
     </div>
+  </div>
+  <div class="flex-row flex-align-space-evenly" *ngIf="cards.length > 0">
+    <div class="title">Color Identity</div>
+    <mat-checkbox [(ngModel)]="colorIdentity['G']" (click)="onColorIdentityChange()">
+      <span class="mana-symbol green"></span>Green
+    </mat-checkbox>
+    <mat-checkbox [(ngModel)]="colorIdentity['R']" (click)="onColorIdentityChange()">
+      <span class="mana-symbol red"></span>Red
+    </mat-checkbox>
+    <mat-checkbox [(ngModel)]="colorIdentity['W']" (click)="onColorIdentityChange()">
+      <span class="mana-symbol white"></span>White
+    </mat-checkbox>
+    <mat-checkbox [(ngModel)]="colorIdentity['U']" (click)="onColorIdentityChange()">
+      <span class="mana-symbol blue"></span>Blue
+    </mat-checkbox>
+    <mat-checkbox [(ngModel)]="colorIdentity['B']" (click)="onColorIdentityChange()">
+      <span class="mana-symbol black"></span>Black
+    </mat-checkbox>
   </div>
 
   <!-- Deck stats -->

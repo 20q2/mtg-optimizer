@@ -135,7 +135,8 @@ textarea {
 button.parse-button {
     margin-top: 1rem;
     color: white;
-    background-color: #6666ff;
+    font-weight: bold;
+    background-color: #31319d;
     padding: 5px;
     border-radius: 5px;
     border: none;
@@ -168,6 +169,10 @@ button.parse-button {
 .flex-align-right {
     justify-content: end;
     text-align: right;
+}
+
+.flex-align-space-evenly {
+    justify-content: space-evenly;
 }
 
 .gap-10 {
@@ -263,7 +268,9 @@ img.card {
     gap: 10px;
 
     button {
-        background:#0f6496; 
+        background:#1c3483; 
+        color: white;
+        font-weight: bold;
     }
 }
 
@@ -290,6 +297,11 @@ img.card {
     &.active {
         background-color: #66ff6680;
         border-color: gold;
+    }
+
+    &.unhelpful {
+        background-color: #bbbbbb;
+        border-color: grey;
     }
 }
 
