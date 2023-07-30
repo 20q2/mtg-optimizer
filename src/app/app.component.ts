@@ -165,7 +165,16 @@ export class AppComponent implements OnInit {
     }))
   }
 
-
+  getCardImageUrl(card: ScryfallCardObject): string {
+    if (card.image_uris && card.image_uris['small']) {
+      return card.image_uris['small'];
+    } else if (card.card_faces && card.card_faces[0]) {
+      if (card.card_faces[0].image_uris && card.card_faces[0].image_uris['small']) {
+        return card.card_faces[0].image_uris['small'];
+      }
+    }
+    return '';
+  }
 
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));

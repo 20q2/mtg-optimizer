@@ -241,7 +241,10 @@ img.card {
 }
 
 .preview-container {
-    margin-left: 1rem;   
+    margin-left: 1rem;
+    background-color: #ffffff90;
+    padding: 8px;
+    border-radius: 5px;
 
     .preview-description {
         margin-left: 1rem;
@@ -330,6 +333,20 @@ img.card {
     position: absolute;
     inset: 50% 50% 50% 50%;
     stroke: #e320a5;
+
+    &::before {
+        animation: growShrink 1s infinite alternate;
+        content: '';
+        background-image: url('../assets/logo-transparent.png');
+        position: absolute;
+        inset: 0 0 0 0;
+        background-size: cover;
+    }
+}
+
+@keyframes growShrink {
+    from { transform: scale(.7); filter: blur(1px) }
+    to { transform: scale(1); filter: blur(0)}
 }
 
 @keyframes slideInRight {
@@ -347,4 +364,30 @@ img.card {
     padding: 10px;
     margin-inline: -24px;
     border-bottom: 2px gold solid;
+}
+
+button.color-identity {
+    background-color: lightgrey;
+    transition: .3s;
+
+    &:not(.active) .mana-symbol {
+        filter: grayscale(1);
+    }
+
+    &.green.active {
+        background-color: green;    
+    }
+    &.red.active {
+        background-color: red;    
+    }
+    &.white.active {
+        background-color: palegoldenrod;    
+    }
+    &.blue.active {
+        background-color: blue;    
+    }
+    &.black.active {
+        background-color: purple;    
+    }
+
 }
