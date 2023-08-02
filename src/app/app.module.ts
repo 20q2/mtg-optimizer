@@ -10,9 +10,15 @@ import { MatButtonModule} from '@angular/material/button';
 import { NgxEchartsModule } from 'ngx-echarts';
 import {MatIconModule} from '@angular/material/icon';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ColorIdentityPickerComponent } from './color-identity-picker/color-identity-picker.component';
+import { CardGridComponent } from './card-grid/card-grid.component';
+import { ManaCurveComponent } from './mana-curve/mana-curve.component';
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ColorIdentityPickerComponent,
+    CardGridComponent,
+    ManaCurveComponent
   ],
   imports: [
     BrowserModule,

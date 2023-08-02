@@ -1,0 +1,63 @@
+@import '../app.component.scss';
+
+.grid-container {
+    display: grid;
+    position: relative;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 0 0 -24px 0;
+    padding: 10px;
+    background-color: white;
+    border: 2px gold solid;
+    border-top: none;
+    
+
+    &::before {
+        z-index: 0;
+        position: absolute;
+        content: '';
+        inset: 0 0 0 0;
+        background: url('../../assets/background3.png') no-repeat;
+        background-size: cover;
+        opacity: .5;
+        pointer-events: none;
+    }
+
+    img {
+        z-index: 1;
+    }
+}
+
+img.card {
+    max-width: 175px;
+    margin: auto;
+    cursor: pointer;
+    transition: .3s ease-out;
+
+    &:hover, &:focus-visible {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px #00000040;
+    }
+
+    &:active {
+        transition: .1s;
+        transform: scale(1);
+    }
+}
+
+.card-container {
+    margin: 1rem;
+    z-index: 1;
+    position: relative;
+
+    .card-tags {
+        position: absolute;
+        inset: 0 0 0 0;
+        z-index: 1;
+        gap: 5px;
+
+        .tag {
+            background-color: #ffff66cc;
+        }
+    }
+}

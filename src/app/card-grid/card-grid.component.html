@@ -1,0 +1,10 @@
+<div *ngIf="cardsToDisplay" class="grid-container flex-row flex-wrap" >
+    <div *ngFor="let card of cardsToDisplay" class="flex-column card-container" tabindex="0"
+        (mouseover)="card.showingTags = true" (mouseleave)="card.showingTags = false" (focus)="card.showingTags = true" (blur)="card.showingTags = false">
+        <img class="card" *ngIf="card.imageUrl" [src]="card.imageUrl" (click)="previewCardEmit.emit(card)" />
+        <div class="flex-column flex-align-center card-description">
+        <div>{{ card.name }}</div>
+        <div>{{ card.type_line }}</div>
+        </div>
+    </div>
+</div>

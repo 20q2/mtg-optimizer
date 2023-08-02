@@ -1,0 +1,18 @@
+<div class="flex-row flex-align-space-evenly color-identity-row" >
+    <div class="title">Color Identity</div>
+    <button class="color-identity green" mat-raised-button  (click)="colorIdentity['G'] = !colorIdentity['G']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['G']}">
+      <span class="mana-symbol green"></span>Green
+    </button>
+    <button class="color-identity red" mat-raised-button (click)="colorIdentity['R'] = !colorIdentity['R']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['R']}">
+      <span class="mana-symbol red"></span>Red
+    </button>
+    <button class="color-identity white" mat-raised-button (click)="colorIdentity['W'] = !colorIdentity['W']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['W']}">
+      <span class="mana-symbol white"></span>White
+    </button>
+    <button class="color-identity blue" mat-raised-button (click)="colorIdentity['U'] = !colorIdentity['U']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['U']}">
+      <span class="mana-symbol blue"></span>Blue
+    </button>
+    <button class="color-identity black" mat-raised-button (click)="colorIdentity['B'] = !colorIdentity['B']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['B']}">
+      <span class="mana-symbol black"></span>Black
+    </button>
+  </div>

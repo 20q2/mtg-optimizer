@@ -1,17 +1,22 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component,  ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CardTagObject, ScryfallCardObject, TagInformation } from './tag-objects';
-import { ECharts, EChartsOption } from 'echarts';
-import { ignoreLayouts, toIgnore } from './proper-words';
+import { ColorIdentityPickerComponent } from './color-identity-picker/color-identity-picker.component';
+import { ignoreLayouts, toIgnore } from './model/proper-words';
+import { CardTagObject, ScryfallCardObject } from './model/tag-objects';
+import { ManaCurveComponent } from './mana-curve/mana-curve.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
-  @ViewChild('echart')
-  echart!: ECharts;
+export class AppComponent {
+
+  @ViewChild('colorPicker')
+  colorPicker!: ColorIdentityPickerComponent;
+
+  @ViewChild('manaCurve')
+  manaCurve!: ManaCurveComponent;
   
   deckList = '';
   cards: ScryfallCardObject[] = [];
@@ -25,13 +30,6 @@ export class AppComponent implements OnInit {
   selectedTags: string[] = [];
   displayRelatedCards = true;
 
-  colorIdentity: {[key: string]: boolean } = {
-    'G': false,
-    'R': false,
-    'W': false,
-    'U': false,
-    'B': false,
-  }
   lastSearchedColors = '';
 
   xCsrfToken: string = '';
@@ -47,30 +45,11 @@ export class AppComponent implements OnInit {
 
   /** All the tags of the deck, aggregated */
   tags: {[key: string]: number} = {};
-  chartOptions!: EChartsOption;
 
   topTags: { key: string, instances: number }[] = [];
 
 
   constructor(private http: HttpClient) { }
-
-  ngOnInit(): void {
-    this.chartOptions = {
-      xAxis: {
-        type: 'category',
-        data: ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'],
-      },
-      yAxis: {
-        type: 'value',
-      },
-      series: [
-        {
-          data: [10, 20, 15, 30, 25],
-          type: 'bar',
-        },
-      ],
-    };
-  }
 
   async parseDeckList() {
     this.cards = [];
@@ -105,35 +84,23 @@ export class AppComponent implements OnInit {
   assignColorIdentity() {
     let mostColors: string[] = [];
     this.cards.forEach(card => {
-      if (card.color_identity.length > mostColors.length) {
-        mostColors = card.color_identity;
+      if (card.color_identity.length >= mostColors.length) {
+        mostColors = card.color_identity;     
       }
     });
-    this.resetColorIdentity();
+    this.colorPicker.resetColorIdentity();    
 
     mostColors.forEach(color => {
-      this.colorIdentity[color] = true;
+      this.colorPicker.colorIdentity[color] = true;      
     })
-  }
-
-  resetColorIdentity() {
-    this.colorIdentity = {
-      'G': false,
-      'R': false,
-      'W': false,
-      'U': false,
-      'B': false,
-    }
-  }
-
-  onColorIdentityChange() {
-    this.loadRecommendedCardsByTag();
   }
 
   fetchCardData(cardName: string) {
     this.http.get<any>('https://api.scryfall.com/cards/named?fuzzy=' + cardName).subscribe(
       (response) => {
-        if (response.object === 'card') {          
+        if (response.object === 'card') {
+          response = this.assignCardImageUrl(response);
+          this.manaCurve.updateManaCurve((response as ScryfallCardObject).cmc);
           this.cards.push(response);
           this.fetchCardTags(response);
         } else {
@@ -165,15 +132,17 @@ export class AppComponent implements OnInit {
     }))
   }
 
-  getCardImageUrl(card: ScryfallCardObject): string {
-    if (card.image_uris && card.image_uris['small']) {
-      return card.image_uris['small'];
+  assignCardImageUrl(card: ScryfallCardObject): ScryfallCardObject {
+    if (card.image_uris && card.image_uris['normal']) {
+      card.imageUrl = card.image_uris['normal'];
+      return card;
     } else if (card.card_faces && card.card_faces[0]) {
-      if (card.card_faces[0].image_uris && card.card_faces[0].image_uris['small']) {
-        return card.card_faces[0].image_uris['small'];
+      if (card.card_faces[0].image_uris && card.card_faces[0].image_uris['normal']) {
+        card.imageUrl = card.card_faces[0].image_uris['normal'];
+        return card;
       }
     }
-    return '';
+    return card;
   }
 
   delay(ms: number) {
@@ -185,7 +154,6 @@ export class AppComponent implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     this.previewCardTagList = [];
     console.dir(this.previewCard);
-
   }
 
   onTagClick(tagSlug: string) {
@@ -211,8 +179,8 @@ export class AppComponent implements OnInit {
       tagString += 'otag:' + tag + ' ';
     })
 
-    for (let key of Object.keys(this.colorIdentity)) {
-      if (this.colorIdentity[key]) {
+    for (let key of Object.keys(this.colorPicker.colorIdentity)) {
+      if (this.colorPicker.colorIdentity[key]) {
         colorString += key;
       }
     }
@@ -230,7 +198,7 @@ export class AppComponent implements OnInit {
       this.relatedCardsByTag = [];
       for (let card of result.data) {
         if ((card as ScryfallCardObject).games.includes('paper') && !ignoreLayouts.includes(card.layout)) {
-          this.relatedCardsByTag.push(card);
+          this.relatedCardsByTag.push(this.assignCardImageUrl(card));
         }
       }
     });
@@ -288,6 +256,8 @@ export class AppComponent implements OnInit {
         }
       
     }
+
+    ret.sort(value => this.onIgnoreList(value) ? 1 : -1);
 
     return ret;
   }

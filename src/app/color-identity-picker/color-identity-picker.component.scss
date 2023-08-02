@@ -1,0 +1,54 @@
+@import '../model/mana-symbols.scss';
+
+button.color-identity {
+    background-color: lightgrey;
+    transition: .3s;
+
+    &:not(.active) .mana-symbol {
+        filter: grayscale(1);
+    }
+
+    &.green.active {
+        background-color: green;    
+    }
+    &.red.active {
+        background-color: red;    
+    }
+    &.white.active {
+        background-color: palegoldenrod;    
+    }
+    &.blue.active {
+        background-color: blue;    
+    }
+    &.black.active {
+        background-color: purple;    
+    }
+
+}
+
+.mana-symbol {
+    height: 24px;
+    width: 24px;
+    display: inline-block;
+    background-size: contain;
+
+    &.green {
+        background-image: url($green-mana-url);
+    }
+
+    &.red {
+        background-image: url($red-mana-url);
+    }
+
+    &.blue {
+        background-image: url($blue-mana-url);
+    }
+
+    &.black {
+        background-image: url($black-mana-url);
+    }
+
+    &.white {
+        background-image: url($white-mana-url);
+    }
+}

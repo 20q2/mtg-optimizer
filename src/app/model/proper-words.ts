@@ -23,5 +23,7 @@ export const toPrioritize = [
 
 export const ignoreLayouts = [
     'plane',
-    'emblem'
+    'emblem',
+    'scheme',
+    'planar',
 ]

@@ -3,7 +3,7 @@
   <div class="background"></div>
   <!-- Navbar -->
   <div class="flex-row flex-align-start navbar">
-    <img src="../assets/logo-transparent.png" height="32px" />
+    <img src="../assets/logo-transparent.png" height="36px" />
     <div class="title white">MTG: Deck Optimizer</div>
   </div>
   
@@ -17,8 +17,7 @@
     <div *ngIf="previewCard" class="flex-row flex-align-end preview-container">
       <!-- Preview card image -->
       <div class="flex-column">
-        <img class="preview-card card" *ngIf="getCardImageUrl(previewCard)" [src]="getCardImageUrl(previewCard)" />
-        <!-- <img class="preview-card card" *ngIf="previewCard && previewCard['card_faces'] && previewCard['card_faces'][0]" [src]="previewCard['card_faces'][0]['image_uris']['small']" /> -->
+        <img class="preview-card card" *ngIf="previewCard.imageUrl" [src]="previewCard.imageUrl" />
 
       </div>
       <div class="flex-column preview-description">
@@ -32,7 +31,7 @@
         </div>
         <div class="flex-row">
           <ng-container *ngFor="let tag of compressAllCardTags(previewCardTagList); let i=index" >
-            <div class="tag" style="animation-delay: {{i * 10}}ms"  (click)="onTagClick(tag)" [ngClass]="{'active': selectedTags.includes(tag), 'unhelpful': onIgnoreList(tag)}">
+            <div class="tag" [ngStyle]="{'animation-delay': i * 10 + 'ms'}"  (click)="onTagClick(tag)" [ngClass]="{'active': selectedTags.includes(tag), 'unhelpful': onIgnoreList(tag)}">
               {{tag}}
             </div>
            
@@ -43,28 +42,10 @@
       </div>
     </div>
   </div>
-  <div class="flex-row flex-align-space-evenly color-identity-row" *ngIf="cards.length > 0">
-    <div class="title">Color Identity</div>
-    <button class="color-identity green" mat-raised-button  (click)="colorIdentity['G'] = !colorIdentity['G']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['G']}">
-      <span class="mana-symbol green"></span>Green
-    </button>
-    <button class="color-identity red" mat-raised-button (click)="colorIdentity['R'] = !colorIdentity['R']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['R']}">
-      <span class="mana-symbol red"></span>Red
-    </button>
-    <button class="color-identity white" mat-raised-button (click)="colorIdentity['W'] = !colorIdentity['W']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['W']}">
-      <span class="mana-symbol white"></span>White
-    </button>
-    <button class="color-identity blue" mat-raised-button (click)="colorIdentity['U'] = !colorIdentity['U']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['U']}">
-      <span class="mana-symbol blue"></span>Blue
-    </button>
-    <button class="color-identity black" mat-raised-button (click)="colorIdentity['B'] = !colorIdentity['B']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['B']}">
-      <span class="mana-symbol black"></span>Black
-    </button>
-  </div>
-
+  <app-color-identity-picker #colorPicker *ngIf="cards.length > 0" (reloadRecommendedCards)="loadRecommendedCardsByTag()"></app-color-identity-picker>
+  <app-mana-curve #manaCurve></app-mana-curve>
   <!-- Deck stats -->
 
-  <!-- <div #echart echarts [options]="chartOptions" class="chart"></div> -->
   <!-- Related cards by tag -->
   <div *ngIf="cardsToDisplay.length > 0 || activeFilters.length > 0">
     <ng-container *ngIf="relatedCardsByTag.length > 0">
@@ -82,18 +63,8 @@
         <button mat-raised-button (click)="sortRelatedBy($event)" value="color">Color</button>
         <div>Sorted by: {{ lastSortMode }}</div>
       </div>
-      <div class="grid-container flex-row flex-wrap" *ngIf="displayRelatedCards">
-        <div class="card-container flex-column" *ngFor="let relatedCard of relatedCardsByTag">
-          <img class="card" [src]="getCardImageUrl(relatedCard)" *ngIf="getCardImageUrl(relatedCard)" 
-            (click)="previewCard = relatedCard; onCardClick()" />
-          <!-- <img class="card" *ngIf="relatedCard && relatedCard['card_faces'] && relatedCard['card_faces'][0] && relatedCard['card_faces'][0]['image_uris'] && relatedCard['card_faces'][0]['image_uris']['small']" [src]="relatedCard['card_faces'][0]['image_uris']['small']"
-            (click)="previewCard = relatedCard; onCardClick()" /> -->
-          <div class="flex-column flex-align-center card-description">
-            <div>{{ relatedCard.name }}</div>
-            <div>{{ relatedCard.type_line }}</div>
-          </div>
-        </div>
-      </div>
+
+      <app-card-grid *ngIf="displayRelatedCards" [cardsToDisplay]="relatedCardsByTag" (previewCardEmit)="previewCard = $event; onCardClick()"></app-card-grid>
     </ng-container>
 
     <!-- Deck Card List -->
@@ -114,27 +85,6 @@
       </div>
     </div>
 
-    <div *ngIf="displayCardList" class="grid-container flex-row flex-wrap" >
-      <div *ngFor="let card of cardsToDisplay" class="flex-column card-container" tabindex="0"
-        (mouseover)="card.showingTags = true" (mouseleave)="card.showingTags = false" (focus)="card.showingTags = true" (blur)="card.showingTags = false">
-        <img class="card" *ngIf="getCardImageUrl(card)" [src]="getCardImageUrl(card)" (click)="previewCard = card; onCardClick()" />
-        <!-- <img class="card" *ngIf="card && card['card_faces'] && card['card_faces'][0]" [src]="card['card_faces'][0]['image_uris']['small']" (click)="previewCard = card; onCardClick()" /> -->
-        <div class="flex-column flex-align-center card-description">
-          <div>{{ card.name }}</div>
-          <div>{{ card.type_line }}</div>
-        </div>
-        
-        
-        
-        <!-- Card tags: Only show on hover -->
-        <!-- <div class="card-tags" *ngIf="card.showingTags" >
-          <div *ngFor="let tag of card.tags; let i=index">
-            <div class="tag" *ngIf="tag['tag']['namespace'] === 'card'" style="animation-delay: {{i * 10}}ms">
-              {{tag['tag']['slug']}}
-            </div>
-          </div>
-        </div> -->
-      </div>
-    </div>
+    <app-card-grid *ngIf="displayCardList" [cardsToDisplay]="cardsToDisplay" (previewCardEmit)="previewCard = $event; onCardClick()"></app-card-grid>
   </div>
 </div>

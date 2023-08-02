@@ -41,7 +41,13 @@ export interface TagInformation {
     type: string,
 }
 
-export interface ScryfallCardObject {
+export interface ScryfallCardObject extends RawScryfallCardObject {
+    imageUrl: string;
+    tags: CardTagObject[],
+    showingTags: boolean,
+}
+
+export interface RawScryfallCardObject {
     artist: string,
     artist_ids: string[],
     booster: boolean
@@ -99,7 +105,6 @@ export interface ScryfallCardObject {
     set_uri: string,
     showingTags: boolean,
     story_spotlight: boolean,
-    tags: CardTagObject[],
     tcgplayer_id: number,
     textless: boolean,
     type_line: string,
