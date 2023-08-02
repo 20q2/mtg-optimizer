@@ -6,6 +6,7 @@ export const toIgnore = [
     'stronger-in-singleton-formats',
     'meme',
     'alliteration',
+    'shares-name-with-a-mechanic',
 ]
 
 export const toPrioritize = [

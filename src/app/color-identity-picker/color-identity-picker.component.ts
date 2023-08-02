@@ -1,4 +1,4 @@
-import { Component, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-color-identity-picker',
@@ -7,6 +7,7 @@ import { Component, EventEmitter } from '@angular/core';
 })
 export class ColorIdentityPickerComponent {
 
+  @Output()
   reloadRecommendedCards: EventEmitter<boolean> = new EventEmitter();
 
   colorIdentity: {[key: string]: boolean } = {

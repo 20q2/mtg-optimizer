@@ -184,6 +184,8 @@ export class AppComponent {
         colorString += key;
       }
     }
+    this.lastSearchedColors = colorString;
+
     const sub = this.http.get(this.scryfallSearchUrl, {
       params: {
         q: `${tagString} ${colorString ? 'id<=' + colorString : ''}`
@@ -191,7 +193,6 @@ export class AppComponent {
     })
 
     this.appIsLoading = true;
-    this.lastSearchedColors = colorString;
 
     sub.subscribe((result: any) => {
       this.appIsLoading = false;
