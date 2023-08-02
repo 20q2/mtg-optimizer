@@ -1,0 +1,60 @@
+.flex-row {
+    display: flex;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.flex-align-center {
+    justify-content: center;
+    text-align: center;
+}
+
+.flex-align-start {
+    justify-content: start;
+    text-align: start;
+}
+
+.flex-align-right {
+    justify-content: end;
+    text-align: right;
+}
+
+.flex-align-space-evenly {
+    justify-content: space-evenly;
+}
+
+.gap-10 {
+    gap: 10px;
+}
+
+.white {
+    color: white;
+}
+
+.accent {
+    color: #e320a5;
+}
+
+.w25 {
+    flex-basis: 25%;
+    max-width: 20%;
+}
+
+.w50 {
+    flex-basis: 50%;
+}
+
+.w75 {
+    flex-basis: 75%;
+}
+
+.m16 {
+    margin: 16px;
+}
