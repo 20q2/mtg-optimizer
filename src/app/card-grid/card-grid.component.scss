@@ -3,7 +3,7 @@
 .grid-container {
     display: grid;
     position: relative;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 10px;
     margin: 0;
     padding: 10px;
@@ -29,7 +29,7 @@
 }
 
 img.card {
-    max-width: 175px;
+    max-width: 225px;
     margin: auto;
     cursor: pointer;
     transition: .3s ease-out;

@@ -29,6 +29,7 @@ export class AppComponent {
   relatedCardsByTag: ScryfallCardObject[] = [];
   selectedTags: string[] = [];
   displayRelatedCards = true;
+  hasMoreRelatedCards = false;
 
   lastSearchedColors = '';
 
@@ -59,7 +60,7 @@ export class AppComponent {
     this.appIsLoading = true;
     for (let line of lines) {
       line = line.trim();
-      const match = line.match(/(\d+x?)\s+([^(\n]+)/);
+      const match = line.match(/(\d+x?)?\s*([^(\n]+)/);
       if (match) {
         const cardName = match[2];
         this.fetchCardData(cardName);
@@ -197,6 +198,7 @@ export class AppComponent {
     sub.subscribe((result: any) => {
       this.appIsLoading = false;
       this.relatedCardsByTag = [];
+      this.hasMoreRelatedCards = result.has_more;
       for (let card of result.data) {
         if ((card as ScryfallCardObject).games.includes('paper') && !ignoreLayouts.includes(card.layout)) {
           this.relatedCardsByTag.push(this.assignCardImageUrl(card));
@@ -219,6 +221,10 @@ export class AppComponent {
     } else if (value === 'color') {
       this.relatedCardsByTag.sort((a, b) => {
         return (a['color_identity'] as string[]).join('').localeCompare((b['color_identity'] as string[]).join(''))
+      })
+    } else if (value === 'type') {
+      this.relatedCardsByTag.sort((a, b) => {
+        return (a['type_line']).localeCompare((b['type_line']))
       })
     }
 

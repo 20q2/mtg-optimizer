@@ -7,6 +7,7 @@ export const toIgnore = [
     'meme',
     'alliteration',
     'shares-name-with-a-mechanic',
+    'commander-set-booster-cards'
 ]
 
 export const toPrioritize = [

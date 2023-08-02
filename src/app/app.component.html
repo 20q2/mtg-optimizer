@@ -57,10 +57,11 @@
         -- Limited to colors: {{lastSearchedColors}} <mat-icon>{{displayRelatedCards ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon>
       </div>
       <div class="sort-row flex-row" *ngIf="displayRelatedCards">
-        <div class="white">{{relatedCardsByTag.length}} cards </div>
+        <div class="white">{{relatedCardsByTag.length}}{{ hasMoreRelatedCards ? '+' : '' }} cards </div>
         <button mat-raised-button color="primary" (click)="sortRelatedBy($event)" value="name">Name</button>
         <button mat-raised-button color="accent" (click)="sortRelatedBy($event)" value="cmc">CMC</button>
         <button mat-raised-button (click)="sortRelatedBy($event)" value="color">Color</button>
+        <button mat-raised-button (click)="sortRelatedBy($event)" value="type">Type</button>
         <div>Sorted by: {{ lastSortMode }}</div>
       </div>
 
