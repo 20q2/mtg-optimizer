@@ -4,6 +4,7 @@ import { ColorIdentityPickerComponent } from './color-identity-picker/color-iden
 import { ignoreLayouts, toIgnore } from './model/proper-words';
 import { CardTagObject, ScryfallCardObject } from './model/tag-objects';
 import { ManaCurveComponent } from './mana-curve/mana-curve.component';
+import { SnackbarService } from './services/snackbar.service';
 
 @Component({
   selector: 'app-root',
@@ -30,13 +31,15 @@ export class AppComponent {
   selectedTags: string[] = [];
   displayRelatedCards = true;
   hasMoreRelatedCards = false;
+  moreRelatedCardsLink = '';
 
   lastSearchedColors = '';
 
   xCsrfToken: string = '';
   sessionToken: string = '';
 
-  serverUrl = 'http://127.0.0.1:5000';
+  // serverUrl = 'http://127.0.0.1:5000';
+  serverUrl = 'https://1f5fr8bzm2.execute-api.us-east-1.amazonaws.com/default/get-tags-proxy';
   scryfallSearchUrl = "https://api.scryfall.com/cards/search";
 
   appIsLoading = false;
@@ -50,7 +53,10 @@ export class AppComponent {
   topTags: { key: string, instances: number }[] = [];
 
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    public snackbarService: SnackbarService
+  ) { }
 
   async parseDeckList() {
     this.cards = [];
@@ -109,6 +115,7 @@ export class AppComponent {
         }
       },
       (error) => {
+        this.snackbarService.showSnackbar('There was an error trying to fetch information on that tag');
         this.appIsLoading = false;
         console.log('Error fetching card data:', error);
       }
@@ -117,7 +124,9 @@ export class AppComponent {
 
   async fetchPreviewCardTags(cardSetName: string, cardCollectorNumber: string) {
     this.appIsLoading = true;
-    const callUrl = this.serverUrl + '/gettag?setname=' + cardSetName + '&number=' + cardCollectorNumber;
+    // const callUrl = this.serverUrl + '/gettag?setname=' + cardSetName + '&number=' + cardCollectorNumber;
+    const callUrl = this.serverUrl + '?setname=' + cardSetName + '&number=' + cardCollectorNumber;
+
 
     this.http.get(callUrl).subscribe((result: any) => {
       this.previewCardTagList = result['data']['card']['taggings'];
@@ -126,7 +135,9 @@ export class AppComponent {
   }
 
   async fetchCardTags(card: ScryfallCardObject) {
-    const callUrl = this.serverUrl + '/gettag?setname=' + card['set'] + '&number=' + card['collector_number'];
+    // const callUrl = this.serverUrl + '/gettag?setname=' + card['set'] + '&number=' + card['collector_number'];
+    const callUrl = this.serverUrl + '?setname=' + card['set'] + '&number=' + card['collector_number'];
+
     this.http.get(callUrl).subscribe(((result: any) => {
       card.tags = result['data']['card']['taggings'];
       card.showingTags = false;
@@ -198,13 +209,56 @@ export class AppComponent {
     sub.subscribe((result: any) => {
       this.appIsLoading = false;
       this.relatedCardsByTag = [];
+      this.moreRelatedCardsLink = '';    
       this.hasMoreRelatedCards = result.has_more;
+
+      if (this.hasMoreRelatedCards) {
+        this.moreRelatedCardsLink = result.next_page;
+      }
+
       for (let card of result.data) {
-        if ((card as ScryfallCardObject).games.includes('paper') && !ignoreLayouts.includes(card.layout)) {
+        if ((card as ScryfallCardObject).games.includes('paper') && !ignoreLayouts.includes((card.layout as string).toLocaleLowerCase()) && !ignoreLayouts.includes((card.type_line as string).toLocaleLowerCase())) {
           this.relatedCardsByTag.push(this.assignCardImageUrl(card));
         }
       }
+    }, (error) => {
+      console.error(error);
+      if (error.status === 404) {
+        this.snackbarService.showSnackbar('There were no results using that search criteria');
+      } else {
+        this.snackbarService.showSnackbar('There was an error when loading tag related cards');
+      }
+      this.appIsLoading = false;
     });
+  }
+
+  relatedCardPages: string[] = [];
+  loadNextRecommendedPage() {
+    this.appIsLoading = true;
+    this.relatedCardPages.push()
+
+    this.http.get(this.moreRelatedCardsLink).subscribe(      
+      (result: any) => {
+        this.appIsLoading = false;
+        this.relatedCardsByTag = [];
+        this.moreRelatedCardsLink = '';    
+        this.hasMoreRelatedCards = result.has_more;
+
+        if (this.hasMoreRelatedCards) {
+          this.moreRelatedCardsLink = result.next_page;
+        }
+
+        for (let card of result.data) {
+          if ((card as ScryfallCardObject).games.includes('paper') && !ignoreLayouts.includes((card.layout as string).toLocaleLowerCase()) && !ignoreLayouts.includes((card.type_line as string).toLocaleLowerCase())) {
+            this.relatedCardsByTag.push(this.assignCardImageUrl(card));
+          }
+        }
+      }
+    )
+  }
+
+  loadPreviousPage() {
+
   }
 
   sortRelatedBy(event: MouseEvent) {

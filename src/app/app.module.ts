@@ -13,6 +13,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ColorIdentityPickerComponent } from './color-identity-picker/color-identity-picker.component';
 import { CardGridComponent } from './card-grid/card-grid.component';
 import { ManaCurveComponent } from './mana-curve/mana-curve.component';
+import {MatSnackBarModule} from '@angular/material/snack-bar'
+import { SnackbarService } from './services/snackbar.service';
 @NgModule({
   declarations: [
     AppComponent,
@@ -31,9 +33,10 @@ import { ManaCurveComponent } from './mana-curve/mana-curve.component';
     MatButtonModule,
     MatIconModule,
     BrowserAnimationsModule,
-    NgxEchartsModule.forRoot({ echarts: () => import('echarts') })
+    NgxEchartsModule.forRoot({ echarts: () => import('echarts') }),
+    MatSnackBarModule
   ],
-  providers: [],
+  providers: [SnackbarService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

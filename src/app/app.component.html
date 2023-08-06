@@ -49,12 +49,14 @@
   <!-- Related cards by tag -->
   <div *ngIf="cardsToDisplay.length > 0 || activeFilters.length > 0">
     <ng-container *ngIf="relatedCardsByTag.length > 0">
-      <div class="previewCardListToggle hover-darken title" (click)="displayRelatedCards = !displayRelatedCards">
+      <div class="previewCardListToggle hover-darken title flex-row flex-align-center" (click)="displayRelatedCards = !displayRelatedCards">
         Related Cards By Tag:
-        <span class="accent hover-darken" *ngFor="let selectedTag of selectedTags" (click)="onTagClick(selectedTag);$event.stopPropagation()">
+        <span class="search-tag accent hover-darken" *ngFor="let selectedTag of selectedTags" (click)="onTagClick(selectedTag);$event.stopPropagation()">
           {{ selectedTag }}
-        </span> 
-        -- Limited to colors: {{lastSearchedColors}} <mat-icon>{{displayRelatedCards ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon>
+        </span>
+        <div *ngIf="lastSearchedColors.length > 0">
+          -- Limited to colors: {{lastSearchedColors}} <mat-icon>{{displayRelatedCards ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon>
+        </div> 
       </div>
       <div class="sort-row flex-row" *ngIf="displayRelatedCards">
         <div class="white">{{relatedCardsByTag.length}}{{ hasMoreRelatedCards ? '+' : '' }} cards </div>
@@ -66,6 +68,9 @@
       </div>
 
       <app-card-grid *ngIf="displayRelatedCards" [cardsToDisplay]="relatedCardsByTag" (previewCardEmit)="previewCard = $event; onCardClick()"></app-card-grid>
+      <div *ngIf="moreRelatedCardsLink !== ''">
+        <button mat-stroked-button color="primary" (click)="loadNextRecommendedPage()">Load More</button>
+      </div>
     </ng-container>
 
     <!-- Deck Card List -->

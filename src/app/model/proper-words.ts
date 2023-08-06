@@ -7,7 +7,8 @@ export const toIgnore = [
     'meme',
     'alliteration',
     'shares-name-with-a-mechanic',
-    'commander-set-booster-cards'
+    'commander-set-booster-cards',
+    'sth-storyline-in-cards'
 ]
 
 export const toPrioritize = [
@@ -28,4 +29,6 @@ export const ignoreLayouts = [
     'emblem',
     'scheme',
     'planar',
+    'hero',
+    'vanguard'
 ]
