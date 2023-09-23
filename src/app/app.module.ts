@@ -15,12 +15,14 @@ import { CardGridComponent } from './card-grid/card-grid.component';
 import { ManaCurveComponent } from './mana-curve/mana-curve.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar'
 import { SnackbarService } from './services/snackbar.service';
+import { LandingComponent } from './pages/landing/landing.component';
 @NgModule({
   declarations: [
     AppComponent,
     ColorIdentityPickerComponent,
     CardGridComponent,
-    ManaCurveComponent
+    ManaCurveComponent,
+    LandingComponent
   ],
   imports: [
     BrowserModule,

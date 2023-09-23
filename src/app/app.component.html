@@ -4,7 +4,9 @@
   <!-- Navbar -->
   <div class="flex-row flex-align-start navbar">
     <img src="../assets/logo-transparent.png" height="36px" />
-    <div class="title white">MTG: Deck Optimizer</div>
+    <div class="title white">MTG: SpellChroma - Card search simplified</div>
+    <a>Decks</a>
+    <a>Explore Cards</a>
   </div>
   
   <!-- top card preview row -->
@@ -18,9 +20,10 @@
       <!-- Preview card image -->
       <div class="flex-column">
         <img class="preview-card card" *ngIf="previewCard.imageUrl" [src]="previewCard.imageUrl" />
-
       </div>
       <div class="flex-column preview-description">
+        <button class="close-button" (click)="clearPreviewCard()"><mat-icon>close</mat-icon></button>
+
         <h2>{{previewCard.name}}</h2>
         <h3>{{previewCard.type_line}}</h3>
         <h3>{{previewCard.oracle_text}}</h3>
@@ -45,6 +48,14 @@
   <app-color-identity-picker #colorPicker *ngIf="cards.length > 0" (reloadRecommendedCards)="loadRecommendedCardsByTag()"></app-color-identity-picker>
   <app-mana-curve #manaCurve></app-mana-curve>
   <!-- Deck stats -->
+  <div class="deck-stats flex-row">
+    <div class="title-row">Deck Stats</div>
+    <div>
+
+    </div>
+
+    <div class="title-row">Recommended Stats</div>
+  </div>
 
   <!-- Related cards by tag -->
   <div *ngIf="cardsToDisplay.length > 0 || activeFilters.length > 0">
@@ -93,4 +104,5 @@
 
     <app-card-grid *ngIf="displayCardList" [cardsToDisplay]="cardsToDisplay" (previewCardEmit)="previewCard = $event; onCardClick()"></app-card-grid>
   </div>
+  
 </div>

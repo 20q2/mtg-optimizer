@@ -23,7 +23,7 @@ export class AppComponent {
   cards: ScryfallCardObject[] = [];
   cardsToDisplay: ScryfallCardObject[] = [];
   
-  previewCard!: ScryfallCardObject;
+  previewCard?: ScryfallCardObject;
   previewCardTagList: CardTagObject[] = [];
   displayCardList = true;
 
@@ -82,6 +82,10 @@ export class AppComponent {
     this.topTags = this.findTop10Tags();
 
     this.cardsToDisplay = this.cards.slice(0);
+  }
+
+  clearPreviewCard() {
+    this.previewCard = undefined;
   }
 
   onIgnoreList(tag: string) {
@@ -162,6 +166,10 @@ export class AppComponent {
   }
 
   onCardClick() {
+    if (!this.previewCard) {
+      return;
+    }
+
     this.fetchPreviewCardTags(this.previewCard['set'], this.previewCard['collector_number']);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     this.previewCardTagList = [];
@@ -292,6 +300,9 @@ export class AppComponent {
     
   }
 
+  /**
+   * Given a card, return a string[] of its tags
+   */
   compressAllCardTags(tagObjectList: CardTagObject[]): string[] {
     if (!tagObjectList) {
       return [];
@@ -323,9 +334,9 @@ export class AppComponent {
     return ret;
   }
 
-  calculateDifferentCardTypes() {    
+  calculateDifferentCardTypes() {        
     for (let card of this.cards) {
-      const condensed = this.compressAllCardTags(card.tags)
+      const condensed = this.compressAllCardTags(card.tags);
       for (let tag of condensed) {
         if (!this.tags[tag]) {
           this.tags[tag] = 1;
@@ -338,6 +349,7 @@ export class AppComponent {
     return this.tags;
   }
 
+  /** dw bout this */
   populateChart() {
     const xAxisLabels = [];
 
