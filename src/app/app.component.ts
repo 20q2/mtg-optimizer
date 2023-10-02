@@ -5,6 +5,8 @@ import { ignoreLayouts, toIgnore } from './model/proper-words';
 import { CardTagObject, ScryfallCardObject } from './model/tag-objects';
 import { ManaCurveComponent } from './mana-curve/mana-curve.component';
 import { SnackbarService } from './services/snackbar.service';
+import { AppMode } from './model/app-mode';
+
 
 @Component({
   selector: 'app-root',
@@ -43,7 +45,8 @@ export class AppComponent {
   scryfallSearchUrl = "https://api.scryfall.com/cards/search";
 
   appIsLoading = false;
-  lastSortMode = '';
+  lastSortMode = 'name';
+  sortAscending = true;
 
   suggestedCommanders: ScryfallCardObject[] = [];
 
@@ -52,11 +55,17 @@ export class AppComponent {
 
   topTags: { key: string, instances: number }[] = [];
 
+  appMode: AppMode = AppMode.EXPLORE;
+
 
   constructor(
     private http: HttpClient,
     public snackbarService: SnackbarService
   ) { }
+
+  get AppMode() {
+    return AppMode;
+  }
 
   async parseDeckList() {
     this.cards = [];
@@ -139,7 +148,6 @@ export class AppComponent {
   }
 
   async fetchCardTags(card: ScryfallCardObject) {
-    // const callUrl = this.serverUrl + '/gettag?setname=' + card['set'] + '&number=' + card['collector_number'];
     const callUrl = this.serverUrl + '?setname=' + card['set'] + '&number=' + card['collector_number'];
 
     this.http.get(callUrl).subscribe(((result: any) => {
@@ -163,6 +171,10 @@ export class AppComponent {
 
   delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  swapAppMode(mode: AppMode) {
+    this.appMode = mode;
   }
 
   onCardClick() {
@@ -271,10 +283,11 @@ export class AppComponent {
 
   sortRelatedBy(event: MouseEvent) {
     const value = ((event.target as HTMLButtonElement).parentElement as any).value;
+    this.sortAscending = true;
 
     if (value === 'cmc') {
       this.relatedCardsByTag.sort((a, b) => {
-        return a['cmc'] - b['cmc']
+        return (a['cmc'] - b['cmc'] || (a['name'] as string).localeCompare(b['name']))
       })
     } else if (value === 'name') {
       this.relatedCardsByTag.sort((a, b) => {
@@ -282,17 +295,21 @@ export class AppComponent {
       })
     } else if (value === 'color') {
       this.relatedCardsByTag.sort((a, b) => {
-        return (a['color_identity'] as string[]).join('').localeCompare((b['color_identity'] as string[]).join(''))
+        return ((a['color_identity'] as string[]).join('').localeCompare((b['color_identity'] as string[]).join('')) || (a['name'] as string).localeCompare(b['name']))
       })
     } else if (value === 'type') {
       this.relatedCardsByTag.sort((a, b) => {
-        return (a['type_line']).localeCompare((b['type_line']))
+        return ((a['type_line']).localeCompare((b['type_line'])) || (a['name'] as string).localeCompare(b['name']))
       })
-    }
+    } else if (value === 'latest') {
+      this.relatedCardsByTag.sort((a, b) => {
+        return ((a['released_at'].localeCompare((b['released_at']))) || (a['name'] as string).localeCompare(b['name']))
+      })
+    }    
 
-    if (value === this.lastSortMode) {
+    if (value === this.lastSortMode && this.sortAscending) {
       this.relatedCardsByTag.reverse();
-      this.lastSortMode = '';
+      this.sortAscending = false;;
     } else {
       this.lastSortMode = value;
     }

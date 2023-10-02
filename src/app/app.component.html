@@ -5,17 +5,120 @@
   <div class="flex-row flex-align-start navbar">
     <img src="../assets/logo-transparent.png" height="36px" />
     <div class="title white">MTG: SpellChroma - Card search simplified</div>
-    <a>Decks</a>
-    <a>Explore Cards</a>
   </div>
-  
-  <!-- top card preview row -->
-  <div class="flex-row m16">
-    <div class="flex-column w25">
+
+  <div class="first-layer flex-row">
+    <div class="flex-column w75">
+      <div class="flex-row">
+        <button>Text View</button>
+        <button>Card View</button>
+      </div>
       <textarea [(ngModel)]="deckList" placeholder="Enter your decklist"></textarea>
       <button class="hover-darken parse-button" (click)="parseDeckList()">Parse Decklist</button>
+      <div class="flex-column visual-column w50">
+        <div class="filler-card"></div>
+      </div>
     </div>
     
+    <div class="flex-column stats-column w25">
+      <div class="deck-stats flex-grow filler-card">
+        <app-mana-curve></app-mana-curve>
+      </div>
+      <div class="deck-stats flex-grow filler-card">
+
+      </div>
+    </div>
+  </div>
+  
+  <app-mana-curve #manaCurve></app-mana-curve>
+  <!-- Deck stats -->
+  <div class="deck-stats flex-row">
+    <div class="title-row">Deck Stats</div>
+    <div>
+
+    </div>
+
+    <div class="title-row">Recommended Stats</div>
+  </div>
+
+  <!-- Related cards by tag -->
+  <div *ngIf="cardsToDisplay.length > 0 || activeFilters.length > 0">
+    <ng-container *ngIf="relatedCardsByTag.length > 0">
+      <div class="previewCardListToggle hover-darken title flex-row flex-align-center" (click)="displayRelatedCards = !displayRelatedCards">
+        Related Cards By Tag:
+        <span class="search-tag accent hover-darken" *ngFor="let selectedTag of selectedTags" (click)="onTagClick(selectedTag);$event.stopPropagation()">
+          {{ selectedTag }}
+        </span>
+        <div *ngIf="lastSearchedColors.length > 0">
+          -- Limited to colors: {{lastSearchedColors}} <mat-icon>{{displayRelatedCards ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon>
+        </div> 
+      </div>
+      <div class="sort-row flex-row" *ngIf="displayRelatedCards">
+        <div class="white">{{relatedCardsByTag.length}}{{ hasMoreRelatedCards ? '+' : '' }} cards </div>
+        <button mat-raised-button [ngClass]="{'active': lastSortMode === 'name'}"(click)="sortRelatedBy($event)" value="name">
+          Name
+          <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
+          <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+        </button>
+        <button mat-raised-button [ngClass]="{'active': lastSortMode === 'cmc'}" (click)="sortRelatedBy($event)" value="cmc">
+          CMC
+          <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
+          <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+        </button>
+        <button mat-raised-button [ngClass]="{'active': lastSortMode === 'color'}" (click)="sortRelatedBy($event)" value="color">
+          Color
+          <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
+          <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+        </button>
+        <button mat-raised-button [ngClass]="{'active': lastSortMode === 'type'}" (click)="sortRelatedBy($event)" value="type">
+          Type
+          <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
+          <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+        </button>
+        <button mat-raised-button [ngClass]="{'active': lastSortMode === 'latest'}" (click)="sortRelatedBy($event)" value="latest">
+          Latest
+          <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
+          <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+        </button>
+      </div>
+
+      <app-card-grid *ngIf="displayRelatedCards" [cardsToDisplay]="relatedCardsByTag" (previewCardEmit)="previewCard = $event; onCardClick()"></app-card-grid>
+      <div class="flex-row flex-align-center filler-card" *ngIf="moreRelatedCardsLink !== ''">
+        <button class="filler-card" mat-stroked-button color="primary" (click)="loadNextRecommendedPage()">Load More</button>
+      </div>
+    </ng-container>
+
+    <!-- Deck Card List -->
+    <div class="previewCardListToggle hover-darken flex-align-center flex-row" (click)="displayCardList = !displayCardList">
+      <div class="title">Card List ({{ cards.length }}) <mat-icon>{{displayCardList ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon></div>
+    </div>
+    <div *ngIf="topTags.length > 0 && displayCardList" class="flex-column top-tags-container">
+      <div class="title white">Top Deck Tags (10)</div>
+      <div class="flex-row gap-10">
+        <div
+          *ngFor="let tag of topTags"
+          [ngStyle]="{'font-size': tag.instances + 10 + 'px'}"
+          class="tag"
+          (click)="filterDeckByTag(tag.key)"
+          [ngClass]="{'active': activeFilters.includes(tag.key)}">
+          {{ tag.key }} | {{ tag.instances }}
+        </div>
+      </div>
+    </div>
+
+    <app-card-grid *ngIf="displayCardList" [cardsToDisplay]="cardsToDisplay" (previewCardEmit)="previewCard = $event; onCardClick()"></app-card-grid>
+  </div>
+  
+  <div class="flex-row app-mode-toolbar">
+    <button mat-raised-button (click)="swapAppMode(AppMode.EXPLORE)">Explore</button>
+    <button mat-raised-button (click)="swapAppMode(AppMode.OPTIMIZE)">Optimize</button>
+  </div>
+  <app-color-identity-picker #colorPicker *ngIf="cards.length > 0" (reloadRecommendedCards)="loadRecommendedCardsByTag()"></app-color-identity-picker>
+
+  <app-explore *ngIf="appMode === AppMode.EXPLORE"></app-explore>
+  <app-optimize *ngIf="appMode === AppMode.OPTIMIZE"></app-optimize>
+
+  <div class="flex-row">
     <div *ngIf="previewCard" class="flex-row flex-align-end preview-container">
       <!-- Preview card image -->
       <div class="flex-column">
@@ -45,64 +148,5 @@
       </div>
     </div>
   </div>
-  <app-color-identity-picker #colorPicker *ngIf="cards.length > 0" (reloadRecommendedCards)="loadRecommendedCardsByTag()"></app-color-identity-picker>
-  <app-mana-curve #manaCurve></app-mana-curve>
-  <!-- Deck stats -->
-  <div class="deck-stats flex-row">
-    <div class="title-row">Deck Stats</div>
-    <div>
 
-    </div>
-
-    <div class="title-row">Recommended Stats</div>
-  </div>
-
-  <!-- Related cards by tag -->
-  <div *ngIf="cardsToDisplay.length > 0 || activeFilters.length > 0">
-    <ng-container *ngIf="relatedCardsByTag.length > 0">
-      <div class="previewCardListToggle hover-darken title flex-row flex-align-center" (click)="displayRelatedCards = !displayRelatedCards">
-        Related Cards By Tag:
-        <span class="search-tag accent hover-darken" *ngFor="let selectedTag of selectedTags" (click)="onTagClick(selectedTag);$event.stopPropagation()">
-          {{ selectedTag }}
-        </span>
-        <div *ngIf="lastSearchedColors.length > 0">
-          -- Limited to colors: {{lastSearchedColors}} <mat-icon>{{displayRelatedCards ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon>
-        </div> 
-      </div>
-      <div class="sort-row flex-row" *ngIf="displayRelatedCards">
-        <div class="white">{{relatedCardsByTag.length}}{{ hasMoreRelatedCards ? '+' : '' }} cards </div>
-        <button mat-raised-button color="primary" (click)="sortRelatedBy($event)" value="name">Name</button>
-        <button mat-raised-button color="accent" (click)="sortRelatedBy($event)" value="cmc">CMC</button>
-        <button mat-raised-button (click)="sortRelatedBy($event)" value="color">Color</button>
-        <button mat-raised-button (click)="sortRelatedBy($event)" value="type">Type</button>
-        <div>Sorted by: {{ lastSortMode }}</div>
-      </div>
-
-      <app-card-grid *ngIf="displayRelatedCards" [cardsToDisplay]="relatedCardsByTag" (previewCardEmit)="previewCard = $event; onCardClick()"></app-card-grid>
-      <div *ngIf="moreRelatedCardsLink !== ''">
-        <button mat-stroked-button color="primary" (click)="loadNextRecommendedPage()">Load More</button>
-      </div>
-    </ng-container>
-
-    <!-- Deck Card List -->
-    <div class="previewCardListToggle hover-darken flex-align-center flex-row" (click)="displayCardList = !displayCardList">
-      <div class="title">Card List ({{ cards.length }}) <mat-icon>{{displayCardList ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon></div>
-    </div>
-    <div *ngIf="topTags.length > 0 && displayCardList" class="flex-column top-tags-container">
-      <div class="title white">Top Deck Tags (10)</div>
-      <div class="flex-row gap-10">
-        <div
-          *ngFor="let tag of topTags"
-          [ngStyle]="{'font-size': tag.instances + 10 + 'px'}"
-          class="tag"
-          (click)="filterDeckByTag(tag.key)"
-          [ngClass]="{'active': activeFilters.includes(tag.key)}">
-          {{ tag.key }} | {{ tag.instances }}
-        </div>
-      </div>
-    </div>
-
-    <app-card-grid *ngIf="displayCardList" [cardsToDisplay]="cardsToDisplay" (previewCardEmit)="previewCard = $event; onCardClick()"></app-card-grid>
-  </div>
-  
 </div>

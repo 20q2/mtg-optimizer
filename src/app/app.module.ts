@@ -16,13 +16,17 @@ import { ManaCurveComponent } from './mana-curve/mana-curve.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar'
 import { SnackbarService } from './services/snackbar.service';
 import { LandingComponent } from './pages/landing/landing.component';
+import { OptimizeComponent } from './optimize/optimize.component';
+import { ExploreComponent } from './explore/explore.component';
 @NgModule({
   declarations: [
     AppComponent,
     ColorIdentityPickerComponent,
     CardGridComponent,
     ManaCurveComponent,
-    LandingComponent
+    LandingComponent,
+    OptimizeComponent,
+    ExploreComponent
   ],
   imports: [
     BrowserModule,

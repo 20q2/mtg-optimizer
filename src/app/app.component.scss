@@ -111,9 +111,19 @@ button.parse-button {
     gap: 10px;
 
     button {
-        background:#1c3483; 
+        background:#303547; 
         color: white;
         font-weight: bold;
+
+        &.active {
+            background: #415abd;
+        }
+        
+        &:not(.active) {
+            mat-icon {
+                display: none;
+            }
+        }
     }
 }
 
@@ -217,4 +227,9 @@ button.parse-button {
     margin: 0;
     border: 2px gold solid;
     border-top: none;
+}
+
+.filler-card {
+    background-color: white;
+    box-shadow: 2px 2px 10px #00000040;
 }
