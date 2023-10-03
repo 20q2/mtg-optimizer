@@ -6,6 +6,7 @@ import { CardTagObject, ScryfallCardObject } from './model/tag-objects';
 import { ManaCurveComponent } from './mana-curve/mana-curve.component';
 import { SnackbarService } from './services/snackbar.service';
 import { AppMode } from './model/app-mode';
+import { filter } from 'rxjs';
 
 
 @Component({
@@ -18,8 +19,8 @@ export class AppComponent {
   @ViewChild('colorPicker')
   colorPicker!: ColorIdentityPickerComponent;
 
-  @ViewChild('manaCurve')
-  manaCurve!: ManaCurveComponent;
+  // @ViewChild('manaCurve')
+  // manaCurve!: ManaCurveComponent;
   
   deckList = '';
   cards: ScryfallCardObject[] = [];
@@ -30,6 +31,7 @@ export class AppComponent {
   displayCardList = true;
 
   relatedCardsByTag: ScryfallCardObject[] = [];
+  filteredRelatedCardsByTag: ScryfallCardObject[] = [];
   selectedTags: string[] = [];
   displayRelatedCards = true;
   hasMoreRelatedCards = false;
@@ -56,6 +58,7 @@ export class AppComponent {
   topTags: { key: string, instances: number }[] = [];
 
   appMode: AppMode = AppMode.EXPLORE;
+  deckListMode = 'text';
 
 
   constructor(
@@ -71,7 +74,11 @@ export class AppComponent {
     this.cards = [];
     this.tags = {};
 
-    const lines = this.deckList.split('\n');
+    if (this.deckList.trim() === '') {
+      return;
+    }
+
+    const lines = this.deckList.split('\n');        
     this.appIsLoading = true;
     for (let line of lines) {
       line = line.trim();
@@ -87,10 +94,11 @@ export class AppComponent {
     this.cards.sort((a,b) => a.name.localeCompare(b.name));
     this.assignColorIdentity();
     this.calculateDifferentCardTypes();
-    this.populateChart();
+    // this.populateChart();
     this.topTags = this.findTop10Tags();
 
     this.cardsToDisplay = this.cards.slice(0);
+    this.deckListMode = 'visual'
   }
 
   clearPreviewCard() {
@@ -98,7 +106,7 @@ export class AppComponent {
   }
 
   onIgnoreList(tag: string) {
-    return toIgnore.includes(tag) || /cycle-/.test(tag);
+    return toIgnore.includes(tag) || /cycle-/.test(tag) || /-storyline-in-cards/.test(tag);
   }
 
   assignColorIdentity() {
@@ -120,7 +128,7 @@ export class AppComponent {
       (response) => {
         if (response.object === 'card') {
           response = this.assignCardImageUrl(response);
-          this.manaCurve.updateManaCurve((response as ScryfallCardObject).cmc);
+          // this.manaCurve.updateManaCurve((response as ScryfallCardObject).cmc);
           this.cards.push(response);
           this.fetchCardTags(response);
         } else {
@@ -177,15 +185,15 @@ export class AppComponent {
     this.appMode = mode;
   }
 
-  onCardClick() {
-    if (!this.previewCard) {
-      return;
-    }
-
+  onCardClick(card: ScryfallCardObject) {
+    this.previewCard = card;
     this.fetchPreviewCardTags(this.previewCard['set'], this.previewCard['collector_number']);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     this.previewCardTagList = [];
     console.dir(this.previewCard);
+  }
+
+  sendToSearch(key: string) {
+    this.onTagClick(key);
   }
 
   onTagClick(tagSlug: string) {
@@ -241,6 +249,8 @@ export class AppComponent {
           this.relatedCardsByTag.push(this.assignCardImageUrl(card));
         }
       }
+
+      this.filteredRelatedCardsByTag = this.relatedCardsByTag;
     }, (error) => {
       console.error(error);
       if (error.status === 404) {
@@ -283,7 +293,7 @@ export class AppComponent {
 
   sortRelatedBy(event: MouseEvent) {
     const value = ((event.target as HTMLButtonElement).parentElement as any).value;
-    this.sortAscending = true;
+    
 
     if (value === 'cmc') {
       this.relatedCardsByTag.sort((a, b) => {
@@ -309,12 +319,18 @@ export class AppComponent {
 
     if (value === this.lastSortMode && this.sortAscending) {
       this.relatedCardsByTag.reverse();
-      this.sortAscending = false;;
+      this.sortAscending = false;
     } else {
       this.lastSortMode = value;
-    }
+      this.sortAscending = true;
+    }    
+  }
 
-    
+  filterTagResults(filterString: string): void {
+    this.filteredRelatedCardsByTag = this.relatedCardsByTag.filter(item => {
+      return (item.name && item.name.toLocaleLowerCase().includes(filterString.toLocaleLowerCase())) || 
+        (item.oracle_text && item.oracle_text.toLocaleLowerCase().includes(filterString.toLocaleLowerCase()));
+    })
   }
 
   /**

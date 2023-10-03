@@ -10,6 +10,9 @@ export class CardGridComponent {
   @Input()
   cardsToDisplay: ScryfallCardObject[] = [];
 
+  @Input()
+  sortingMode: string = 'name';
+
   @Output()
   previewCardEmit: EventEmitter<ScryfallCardObject> = new EventEmitter();
 

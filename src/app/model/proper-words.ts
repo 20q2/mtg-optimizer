@@ -8,7 +8,8 @@ export const toIgnore = [
     'alliteration',
     'shares-name-with-a-mechanic',
     'commander-set-booster-cards',
-    'sth-storyline-in-cards'
+    'sth-storyline-in-cards',
+    'usg-storyline-in-cards'
 ]
 
 export const toPrioritize = [

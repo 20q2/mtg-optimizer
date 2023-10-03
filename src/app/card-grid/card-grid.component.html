@@ -4,7 +4,9 @@
         <img class="card" *ngIf="card.imageUrl" [src]="card.imageUrl" (click)="previewCardEmit.emit(card)" />
         <div class="flex-column flex-align-center card-description">
         <div>{{ card.name }}</div>
-        <div>{{ card.type_line }}</div>
+        <div *ngIf="sortingMode === 'latest'">{{ card.released_at }}</div>
+        <div *ngIf="sortingMode !== 'latest'">{{ card.type_line }}</div>
+        <div *ngIf="sortingMode === 'cmc'">{{ card.cmc }}</div>
         </div>
     </div>
 </div>

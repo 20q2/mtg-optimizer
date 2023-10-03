@@ -18,6 +18,11 @@ import { SnackbarService } from './services/snackbar.service';
 import { LandingComponent } from './pages/landing/landing.component';
 import { OptimizeComponent } from './optimize/optimize.component';
 import { ExploreComponent } from './explore/explore.component';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -40,7 +45,10 @@ import { ExploreComponent } from './explore/explore.component';
     MatIconModule,
     BrowserAnimationsModule,
     NgxEchartsModule.forRoot({ echarts: () => import('echarts') }),
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatButtonToggleModule,
+    MatTooltipModule
+    
   ],
   providers: [SnackbarService],
   bootstrap: [AppComponent]
