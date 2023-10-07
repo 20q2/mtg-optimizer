@@ -3,10 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { ColorIdentityPickerComponent } from './color-identity-picker/color-identity-picker.component';
 import { ignoreLayouts, toIgnore } from './model/proper-words';
 import { CardTagObject, ScryfallCardObject } from './model/tag-objects';
-import { ManaCurveComponent } from './mana-curve/mana-curve.component';
 import { SnackbarService } from './services/snackbar.service';
 import { AppMode } from './model/app-mode';
-import { filter } from 'rxjs';
+import { SpellChromaService } from './services/spell-chroma.service';
 
 
 @Component({
@@ -19,15 +18,9 @@ export class AppComponent {
   @ViewChild('colorPicker')
   colorPicker!: ColorIdentityPickerComponent;
 
-  // @ViewChild('manaCurve')
-  // manaCurve!: ManaCurveComponent;
-  
-  deckList = '';
-  cards: ScryfallCardObject[] = [];
+  deckTextInput = '';
   cardsToDisplay: ScryfallCardObject[] = [];
   
-  previewCard?: ScryfallCardObject;
-  previewCardTagList: CardTagObject[] = [];
   displayCardList = true;
 
   relatedCardsByTag: ScryfallCardObject[] = [];
@@ -42,7 +35,6 @@ export class AppComponent {
   xCsrfToken: string = '';
   sessionToken: string = '';
 
-  // serverUrl = 'http://127.0.0.1:5000';
   serverUrl = 'https://1f5fr8bzm2.execute-api.us-east-1.amazonaws.com/default/get-tags-proxy';
   scryfallSearchUrl = "https://api.scryfall.com/cards/search";
 
@@ -66,7 +58,8 @@ export class AppComponent {
 
   constructor(
     private http: HttpClient,
-    public snackbarService: SnackbarService
+    public snackbarService: SnackbarService,
+    public spellChromaService: SpellChromaService
   ) { }
 
   get AppMode() {
@@ -74,14 +67,14 @@ export class AppComponent {
   }
 
   async parseDeckList() {
-    this.cards = [];
+    this.spellChromaService.deck = [];
     this.tags = {};
 
-    if (this.deckList.trim() === '') {
+    if (this.deckTextInput.trim() === '') {
       return;
     }
 
-    const lines = this.deckList.split('\n');        
+    const lines = this.deckTextInput.split('\n');        
     this.appIsLoading = true;
     for (let line of lines) {
       line = line.trim();
@@ -94,18 +87,18 @@ export class AppComponent {
       }
     }
     this.appIsLoading = false;
-    this.cards.sort((a,b) => a.name.localeCompare(b.name));
+    this.spellChromaService.deck.sort((a,b) => a.name.localeCompare(b.name));
     this.assignColorIdentity();
     this.calculateDifferentCardTypes();
     // this.populateChart();
     this.topTags = this.findTop10Tags();
 
-    this.cardsToDisplay = this.cards.slice(0);
+    this.cardsToDisplay = this.spellChromaService.deck.slice(0);
     this.deckListMode = 'visual'
   }
 
   clearPreviewCard() {
-    this.previewCard = undefined;
+    this.spellChromaService.previewCard = undefined;
   }
 
   onIgnoreList(tag: string) {
@@ -114,7 +107,7 @@ export class AppComponent {
 
   assignColorIdentity() {
     let mostColors: string[] = [];
-    this.cards.forEach(card => {
+    this.spellChromaService.deck.forEach(card => {
       if (card.color_identity.length >= mostColors.length) {
         mostColors = card.color_identity;     
       }
@@ -132,7 +125,7 @@ export class AppComponent {
         if (response.object === 'card') {
           response = this.assignCardImageUrl(response);
           // this.manaCurve.updateManaCurve((response as ScryfallCardObject).cmc);
-          this.cards.push(response);
+          this.spellChromaService.deck.push(response);
           this.fetchCardTags(response);
         } else {
           console.error(response);
@@ -148,12 +141,11 @@ export class AppComponent {
 
   async fetchPreviewCardTags(cardSetName: string, cardCollectorNumber: string) {
     this.appIsLoading = true;
-    // const callUrl = this.serverUrl + '/gettag?setname=' + cardSetName + '&number=' + cardCollectorNumber;
     const callUrl = this.serverUrl + '?setname=' + cardSetName + '&number=' + cardCollectorNumber;
-
-
     this.http.get(callUrl).subscribe((result: any) => {
-      this.previewCardTagList = result['data']['card']['taggings'];
+      if (this.spellChromaService.previewCard) {
+        this.spellChromaService.previewCard.tags = result['data']['card']['taggings'];      
+      }
       this.appIsLoading = false;
     });
   }
@@ -189,10 +181,8 @@ export class AppComponent {
   }
 
   onCardClick(card: ScryfallCardObject) {
-    this.previewCard = card;
-    this.fetchPreviewCardTags(this.previewCard['set'], this.previewCard['collector_number']);
-    this.previewCardTagList = [];
-    console.dir(this.previewCard);
+    this.spellChromaService.previewCard = card;
+    this.fetchPreviewCardTags(this.spellChromaService.previewCard['set'], this.spellChromaService.previewCard['collector_number']);
   }
 
   sendToSearch(key: string) {
@@ -371,7 +361,7 @@ export class AppComponent {
   }
 
   calculateDifferentCardTypes() {        
-    for (let card of this.cards) {
+    for (let card of this.spellChromaService.deck) {
       const condensed = this.compressAllCardTags(card.tags);
       for (let tag of condensed) {
         if (!this.tags[tag]) {
@@ -425,7 +415,7 @@ export class AppComponent {
       this.activeFilters = this.activeFilters.filter(item => item !== tagSlug);
     }
 
-    this.cardsToDisplay = this.cards.filter(item => {
+    this.cardsToDisplay = this.spellChromaService.deck.filter(item => {
       for (const filter of this.activeFilters) {
         const allCardTags = this.compressAllCardTags(item.tags);
         if (!allCardTags.includes(filter)) {

@@ -2,20 +2,37 @@ import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ScryfallCardObject } from '../model/tag-objects';
 import { HttpClient } from '@angular/common/http';
+import { SnackbarService } from './snackbar.service';
+import { SpellChromaService } from './spell-chroma.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ScryfallService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private snackbarService: SnackbarService,
+    private spellChromaService: SpellChromaService) {}
 
-  fetchCardData(cardName: string) {
+  awaitingResponse = false;
+
+  serverUrl = 'https://1f5fr8bzm2.execute-api.us-east-1.amazonaws.com/default/get-tags-proxy';
+  scryfallSearchUrl = "https://api.scryfall.com/cards/search";
+
+  /**
+   * Calls scryfall to fetch the given card
+   * @param cardName 
+   * @returns ScryfallCardObject
+   */
+  fetchCardData(cardName: string): ScryfallCardObject[] {
+    this.awaitingResponse = true;
+    
+    const cards: ScryfallCardObject[] = []
     this.http.get<any>('https://api.scryfall.com/cards/named?fuzzy=' + cardName).subscribe(
       (response) => {
         if (response.object === 'card') {
           response = this.assignCardImageUrl(response);
-          this.manaCurve.updateManaCurve((response as ScryfallCardObject).cmc);
-          this.cards.push(response);
+          cards.push(response);
           this.fetchCardTags(response);
         } else {
           console.error(response);
@@ -23,21 +40,25 @@ export class ScryfallService {
       },
       (error) => {
         this.snackbarService.showSnackbar('There was an error trying to fetch information on that tag');
-        this.appIsLoading = false;
+        this.awaitingResponse = false;
         console.log('Error fetching card data:', error);
       }
     );
+
+    return cards;
   }
 
   async fetchPreviewCardTags(cardSetName: string, cardCollectorNumber: string) {
-    this.appIsLoading = true;
+    this.awaitingResponse = true;
     // const callUrl = this.serverUrl + '/gettag?setname=' + cardSetName + '&number=' + cardCollectorNumber;
     const callUrl = this.serverUrl + '?setname=' + cardSetName + '&number=' + cardCollectorNumber;
 
 
     this.http.get(callUrl).subscribe((result: any) => {
-      this.previewCardTagList = result['data']['card']['taggings'];
-      this.appIsLoading = false;
+      if (this.spellChromaService.previewCard) {
+        this.spellChromaService.previewCard.tags = result['data']['card']['taggings'];
+      }
+      this.awaitingResponse = false;
     });
   }
 

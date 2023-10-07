@@ -3,11 +3,14 @@
   <div class="background"></div>
   <!-- Navbar -->
   <div class="flex-row flex-align-space-between navbar">
-    
-    <img src="../assets/logo-transparent.png" height="36px" />
-    <div class="title white">MTG: SpellChroma - Card search simplified</div>
-    <button mat-stroked-button class="app-mode">Card Explorer</button>
-    <button mat-stroked-button class="app-mode">Deck Optimizer</button>
+    <div class="flex-row">
+      <img src="../assets/logo-transparent.png" height="36px" />
+      <div class="title white">MTG: SpellChroma - Card search simplified</div>
+    </div>
+    <div>
+      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.EXPLORE)" [ngClass]="{'active': appMode === AppMode.EXPLORE}"><img src='../assets/explore-icon.png' height="16" /> Card Explorer</button>
+      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.OPTIMIZE)" [ngClass]="{'active': appMode === AppMode.OPTIMIZE}">Deck Optimizer</button>
+    </div>
   </div>
 
   <div class="workspace-container flex-align-space-between flex-grow flex-row">
@@ -21,7 +24,7 @@
           <div>Deck List</div>          
           <mat-button-toggle-group [(ngModel)]="deckListMode">
             <mat-button-toggle value="text" matTooltip="View deck in text view"><mat-icon>subject</mat-icon>List</mat-button-toggle>
-            <mat-button-toggle [disabled]="cards.length === 0" value="visual" matTooltip="View deck in visual view"><mat-icon>dashboard_customize</mat-icon>Visual</mat-button-toggle>
+            <mat-button-toggle [disabled]="this.spellChromaService.deck.length === 0" value="visual" matTooltip="View deck in visual view"><mat-icon>dashboard_customize</mat-icon>Visual</mat-button-toggle>
           </mat-button-toggle-group>
         </div>
         <div class="flex-row flex-align-space-between deck-list-stats" *ngIf="deckListMode === 'visual'">
@@ -39,12 +42,12 @@
 
         <!-- Text view -->
         <ng-container *ngIf="deckListMode === 'text'">
-          <textarea class="flex-grow" [(ngModel)]="deckList" placeholder="Enter your decklist"></textarea>
+          <textarea class="flex-grow" [(ngModel)]="deckTextInput" placeholder="Enter your decklist"></textarea>
         </ng-container>
 
         <!-- Visual View -->
         <ng-container *ngIf="deckListMode === 'visual'">
-          <div class="my-card-list flex-column flex-grow relative" [ngClass]="{'fullheight': !previewCard}">
+          <div class="my-card-list flex-column flex-grow relative" [ngClass]="{'fullheight': !spellChromaService.previewCard}">
             <div 
               class="flex-row card-entry" 
               *ngFor="let card of cardsToDisplay"
@@ -71,7 +74,7 @@
     </div>
 
     <!-- Top deck stats -->
-    <div class="flex-column w25 deck-stats-column" *ngIf="cards.length !== 0">      
+    <div class="flex-column w25 deck-stats-column" *ngIf="this.spellChromaService.deck.length !== 0">      
       <div class="section-header">Top Deck Tags</div>
       <div class="deck-top-tags flex-row flex flex-wrap">
         <div class="flex-row" *ngFor="let tag of topTags">
@@ -94,15 +97,15 @@
       </div>
 
        <!-- Preview Card -->
-       <div class="preview-container flex-column" *ngIf="previewCard && deckListMode === 'visual'">
-        <div class="flex-row flex-align-space-between section-header relative" *ngIf="previewCard">
-          {{previewCard.name}} Tags
-          <button class="mat-button-24" (click)="previewCard = undefined" mat-icon-button><mat-icon>close</mat-icon></button>
+       <div class="preview-container flex-column" *ngIf="spellChromaService.previewCard && deckListMode === 'visual'">
+        <div class="flex-row flex-align-space-between section-header relative" *ngIf="spellChromaService.previewCard">
+          {{spellChromaService.previewCard.name}} Tags
+          <button class="mat-button-24" (click)="spellChromaService.previewCard = undefined" mat-icon-button><mat-icon>close</mat-icon></button>
         </div>
-        <div *ngIf="previewCard" class="flex-column tag-container relative" [style.background-image]="'url(' + previewCard.imageUrl + ')'">          
+        <div *ngIf="spellChromaService.previewCard" class="flex-column tag-container relative" [style.background-image]="'url(' + spellChromaService.previewCard.imageUrl + ')'">          
           <div class="flex-column">
             <div class="tags flex-row flex-wrap">
-              <ng-container *ngFor="let tag of compressAllCardTags(previewCardTagList); let i=index" >
+              <ng-container *ngFor="let tag of compressAllCardTags(spellChromaService.previewCard.tags); let i=index" >
                 <div
                   class="tag"
                   [ngStyle]="{'animation-delay': i * 10 + 'ms'}"
@@ -124,34 +127,34 @@
       <div class="section-header flex-row flex-align-space-between ">
         Card Explorer
         <button mat-icon-button (click)="altModeFullscreen = !altModeFullscreen">
-          <mat-icon *ngIf="!altModeFullscreen">open_fullscreen</mat-icon>
+          <mat-icon *ngIf="!altModeFullscreen">open_in_full</mat-icon>
           <mat-icon *ngIf="altModeFullscreen">close_fullscreen</mat-icon>
         </button>
       </div>
       <div class="sort-row flex-wrap flex-row flex-align-space-between">
         <div class="left-container flex-row">
           <mat-icon>sort</mat-icon>
-          <button mat-raised-button [ngClass]="{'active': lastSortMode === 'name'}"(click)="sortRelatedBy($event)" value="name">
+          <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'name'}"(click)="sortRelatedBy($event)" value="name">
             Name
             <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
             <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
           </button>
-          <button mat-raised-button [ngClass]="{'active': lastSortMode === 'cmc'}" (click)="sortRelatedBy($event)" value="cmc">
+          <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'cmc'}" (click)="sortRelatedBy($event)" value="cmc">
             CMC
             <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
             <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
           </button>
-          <button mat-raised-button [ngClass]="{'active': lastSortMode === 'color'}" (click)="sortRelatedBy($event)" value="color">
+          <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'color'}" (click)="sortRelatedBy($event)" value="color">
             Color
             <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
             <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
           </button>
-          <button mat-raised-button [ngClass]="{'active': lastSortMode === 'type'}" (click)="sortRelatedBy($event)" value="type">
+          <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'type'}" (click)="sortRelatedBy($event)" value="type">
             Type
             <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
             <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
           </button>
-          <button mat-raised-button [ngClass]="{'active': lastSortMode === 'latest'}" (click)="sortRelatedBy($event)" value="latest">
+          <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'latest'}" (click)="sortRelatedBy($event)" value="latest">
             Latest
             <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
             <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
@@ -169,7 +172,8 @@
 
         <div class="right-container relative">
           <mat-icon class="search-icon" matTooltip="Typing here will search on both card names and their text">search</mat-icon>
-          <input #searchInput class="search-input" (input)="filterTagResults(searchInput.value)" />
+          <input #searchInput class="search-input" (input)="filterTagResults(searchInput.value)" />          
+          <button class="mat-button-24" mat-icon-button (click)="searchInput.value = ''"><mat-icon>close</mat-icon></button>
         </div>
       </div>
       <div class="tag-row flex-row">
