@@ -1,4 +1,5 @@
 # Mtg card optimizer
+https://20q2.github.io/mtg-optimizer/
 
 ## Todo list:
 - Mana value curves
