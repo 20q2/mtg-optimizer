@@ -60,6 +60,9 @@ export class AppComponent {
   appMode: AppMode = AppMode.EXPLORE;
   deckListMode = 'text';
 
+  /** Used to make explorer/optimizer fullscreen */
+  altModeFullscreen = false;
+
 
   constructor(
     private http: HttpClient,

@@ -2,16 +2,19 @@
 <div class="page-container flex-column">
   <div class="background"></div>
   <!-- Navbar -->
-  <div class="flex-row flex-align-start navbar">
+  <div class="flex-row flex-align-space-between navbar">
+    
     <img src="../assets/logo-transparent.png" height="36px" />
     <div class="title white">MTG: SpellChroma - Card search simplified</div>
+    <button mat-stroked-button class="app-mode">Card Explorer</button>
+    <button mat-stroked-button class="app-mode">Deck Optimizer</button>
   </div>
 
   <div class="workspace-container flex-align-space-between flex-grow flex-row">
     <!-- Deck Column -->
     <div class="flex-column w25 user-inputs-column">
       <!-- w75 -->
-      <div class="flex-column fullheight" [ngClass]="{'w100': deckListMode === 'text' || !previewCard}">
+      <div class="flex-column fullheight w100">
         
         <!-- Header -->
         <div class="section-header flex-align-space-between flex-row deck-list-header">
@@ -60,36 +63,11 @@
         <button 
           *ngIf="deckListMode === 'text'"
           class="hover-darken parse-button"
-          (click)="parseDeckList()"
+          (click)="parseDeckList()"f
         >
           <img src="../assets/logo-transparent.png" /> Load Deck
         </button>
-      </div>
-      
-      <!-- Preview Card -->
-      <div class="preview-container flex-column" *ngIf="previewCard && deckListMode === 'visual'">
-        <div class="flex-row flex-align-space-between section-header relative" *ngIf="previewCard">
-          {{previewCard.name}} Tags
-          <button class="mat-button-24" (click)="previewCard = undefined" mat-icon-button><mat-icon>close</mat-icon></button>
-        </div>
-        <div *ngIf="previewCard" class="flex-column tag-container relative" [style.background-image]="'url(' + previewCard.imageUrl + ')'">          
-          <div class="flex-column">
-            <div class="tags flex-row flex-wrap">
-              <ng-container *ngFor="let tag of compressAllCardTags(previewCardTagList); let i=index" >
-                <div
-                  class="tag"
-                  [ngStyle]="{'animation-delay': i * 10 + 'ms'}"
-                  (click)="onTagClick(tag)"
-                  [ngClass]="{'active': selectedTags.includes(tag), 'unhelpful': onIgnoreList(tag)}"
-                  matTooltip="Click to begin a search using this tag"
-                >
-                <mat-icon>local_offer</mat-icon> {{tag}}
-                </div>
-              </ng-container>
-            </div>
-          </div>
-        </div>        
-      </div>
+      </div>           
     </div>
 
     <!-- Top deck stats -->
@@ -114,11 +92,42 @@
           </button>           
         </div>
       </div>
+
+       <!-- Preview Card -->
+       <div class="preview-container flex-column" *ngIf="previewCard && deckListMode === 'visual'">
+        <div class="flex-row flex-align-space-between section-header relative" *ngIf="previewCard">
+          {{previewCard.name}} Tags
+          <button class="mat-button-24" (click)="previewCard = undefined" mat-icon-button><mat-icon>close</mat-icon></button>
+        </div>
+        <div *ngIf="previewCard" class="flex-column tag-container relative" [style.background-image]="'url(' + previewCard.imageUrl + ')'">          
+          <div class="flex-column">
+            <div class="tags flex-row flex-wrap">
+              <ng-container *ngFor="let tag of compressAllCardTags(previewCardTagList); let i=index" >
+                <div
+                  class="tag"
+                  [ngStyle]="{'animation-delay': i * 10 + 'ms'}"
+                  (click)="onTagClick(tag)"
+                  [ngClass]="{'active': selectedTags.includes(tag), 'unhelpful': onIgnoreList(tag)}"
+                  matTooltip="Click to begin a search using this tag"
+                >
+                <mat-icon>local_offer</mat-icon> {{tag}}
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>        
+      </div>
     </div>
     
     <!-- Card Explore Column -->
-    <div class="flex-column w50">
-      <div class="section-header">Card Explorer</div>
+    <div class="flex-column w50" [ngClass]="{'full-screen': altModeFullscreen}">
+      <div class="section-header flex-row flex-align-space-between ">
+        Card Explorer
+        <button mat-icon-button (click)="altModeFullscreen = !altModeFullscreen">
+          <mat-icon *ngIf="!altModeFullscreen">open_fullscreen</mat-icon>
+          <mat-icon *ngIf="altModeFullscreen">close_fullscreen</mat-icon>
+        </button>
+      </div>
       <div class="sort-row flex-wrap flex-row flex-align-space-between">
         <div class="left-container flex-row">
           <mat-icon>sort</mat-icon>
