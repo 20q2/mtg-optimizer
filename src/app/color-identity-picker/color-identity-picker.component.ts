@@ -11,11 +11,11 @@ export class ColorIdentityPickerComponent {
   reloadRecommendedCards: EventEmitter<boolean> = new EventEmitter();
 
   colorIdentity: {[key: string]: boolean } = {
-    'G': false,
-    'R': false,
-    'W': false,
-    'U': false,
-    'B': false,
+    'W': true,
+    'U': true,
+    'B': true,
+    'R': true,
+    'G': true,        
   }
 
   onColorIdentityChange() {
@@ -24,12 +24,22 @@ export class ColorIdentityPickerComponent {
 
   resetColorIdentity() {
     this.colorIdentity = {
-      'G': false,
-      'R': false,
       'W': false,
       'U': false,
       'B': false,
+      'R': false,
+      'G': false, 
     }
+  }
+
+  getColorIdentityString(): string {
+    let colorString = '';
+    for (let key of Object.keys(this.colorIdentity)) {
+      if (this.colorIdentity[key]) {
+        colorString += key;
+      }
+    }
+    return colorString;
   }
 
 }

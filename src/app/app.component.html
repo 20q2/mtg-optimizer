@@ -1,6 +1,6 @@
 <mat-spinner class="app-loading-spinner" *ngIf="appIsLoading"><img src="../assets/logo-transparent.png" height="32px"/></mat-spinner>
 <div class="page-container flex-column">
-  <div class="background"></div>
+  <img class="page-background" [src]="spellChromaService.getBackgroundFromColorIdentity(deckColorIdentity)" />
   <!-- Navbar -->
   <div class="flex-row flex-align-space-between navbar">
     <div class="flex-row">
@@ -8,8 +8,9 @@
       <div class="title white">MTG: SpellChroma - Card search simplified</div>
     </div>
     <div>
+      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.VIEW)" [ngClass]="{'active': appMode === AppMode.VIEW}"><img src='../assets/explore-icon.png' height="16" /> Deck View</button>
       <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.EXPLORE)" [ngClass]="{'active': appMode === AppMode.EXPLORE}"><img src='../assets/explore-icon.png' height="16" /> Card Explorer</button>
-      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.OPTIMIZE)" [ngClass]="{'active': appMode === AppMode.OPTIMIZE}">Deck Optimizer</button>
+      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.OPTIMIZE)" [ngClass]="{'active': appMode === AppMode.OPTIMIZE}"><img src='../assets/explore-icon.png' height="16" /> Deck Optimizer</button>
     </div>
   </div>
 
@@ -21,13 +22,18 @@
         
         <!-- Header -->
         <div class="section-header flex-align-space-between flex-row deck-list-header">
-          <div>Deck List</div>          
-          <mat-button-toggle-group [(ngModel)]="deckListMode">
-            <mat-button-toggle value="text" matTooltip="View deck in text view"><mat-icon>subject</mat-icon>List</mat-button-toggle>
-            <mat-button-toggle [disabled]="this.spellChromaService.deck.length === 0" value="visual" matTooltip="View deck in visual view"><mat-icon>dashboard_customize</mat-icon>Visual</mat-button-toggle>
-          </mat-button-toggle-group>
+          <div>Deck List</div>
+          <div>
+            <mat-button-toggle-group [(ngModel)]="deckListMode" class="input-deck-button">
+              <mat-button-toggle value="input" matTooltip="View deck in text view"><mat-icon>subject</mat-icon>Deck Input</mat-button-toggle>            
+            </mat-button-toggle-group>        
+            <mat-button-toggle-group [(ngModel)]="deckListMode">
+              <mat-button-toggle [disabled]="this.spellChromaService.deck.length === 0" value="text" matTooltip="View deck in text view"><mat-icon>subject</mat-icon>List</mat-button-toggle>
+              <mat-button-toggle [disabled]="this.spellChromaService.deck.length === 0" value="visual" matTooltip="View deck in visual view"><mat-icon>dashboard_customize</mat-icon>Visual</mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
         </div>
-        <div class="flex-row flex-align-space-between deck-list-stats" *ngIf="deckListMode === 'visual'">
+        <div class="flex-row flex-align-space-between deck-list-stats" *ngIf="deckListMode === 'text' || deckListMode === 'visual'">
           <div>Showing {{ cardsToDisplay.length }} cards</div>
           <div class="tags flex-row">
           <div
@@ -41,8 +47,37 @@
         </div>
 
         <!-- Text view -->
+        <ng-container *ngIf="deckListMode === 'input'">
+          <textarea class="input-area flex-grow" [(ngModel)]="deckTextInput" placeholder="Enter your decklist"></textarea>
+        </ng-container>
+
+        <!-- Text view -->
         <ng-container *ngIf="deckListMode === 'text'">
-          <textarea class="flex-grow" [(ngModel)]="deckTextInput" placeholder="Enter your decklist"></textarea>
+          <div class="text-view-container flex-column">
+            <div
+              class="text-view-card flex-column" 
+              *ngFor="let card of cardsToDisplay" 
+              (click)="tagRow.style.display === 'none' ? tagRow.style.display = 'flex' : tagRow.style.display = 'none'"
+            >
+              <div class="flex-row flex-align-space-between">
+                <div class="text-view-card-name">{{ card.name }}</div> 
+                <div class="flex-row" appReplacePlaceholder>{{ card.mana_cost }}</div>
+              </div>
+              
+              <!-- Collapsable tags -->
+              <div class="flex-row text-view-tags flex-wrap" style="display: none" #tagRow>
+                <div
+                  class="tag"
+                  *ngFor="let tag of compressAllCardTags(card.tags)"
+                  (click)="$event.stopPropagation(); onTagClick(tag)"
+                  matTooltip="Start a search using this tag"
+                  [ngClass]="{'active': selectedTags.includes(tag), 'unhelpful': onIgnoreList(tag)}"
+                >
+                  <mat-icon>local_offer</mat-icon> {{ tag }}
+                </div>
+              </div>
+            </div>
+          </div>
         </ng-container>
 
         <!-- Visual View -->
@@ -55,8 +90,8 @@
             >
               <img class="my-list-card-image" [src]="card.imageUrl" />
               <div class="card-description flex-column">
-                <div class="flex-row flex-align-space-between"><b>{{ card.name }} {{ card.mana_cost }}</b></div>
-                {{ card.oracle_text }}
+                <div class="flex-row flex-align-start" appReplacePlaceholder><b>{{ card.name }} {{ card.mana_cost }}</b></div>
+                <div class="card-text">{{ card.oracle_text }}</div>
               </div>
             </div>
             
@@ -64,9 +99,10 @@
         </ng-container>
         
         <button 
-          *ngIf="deckListMode === 'text'"
+          *ngIf="deckListMode === 'input'"
           class="hover-darken parse-button"
-          (click)="parseDeckList()"f
+          [disabled]="appIsLoading"
+          (click)="parseDeckList()"
         >
           <img src="../assets/logo-transparent.png" /> Load Deck
         </button>
@@ -79,7 +115,7 @@
       <div class="deck-top-tags flex-row flex flex-wrap">
         <div class="flex-row" *ngFor="let tag of topTags">
           <div
-              [ngStyle]="{'font-size': tag.instances + 10 + 'px'}"
+              [ngStyle]="{'font-size': tag.instances + 12 + 'px'}"
               class="tag"
               matTooltip="Click to filter your decklist by this tag"
               (click)="filterDeckByTag(tag.key)"
@@ -96,13 +132,13 @@
         </div>
       </div>
 
-       <!-- Preview Card -->
-       <div class="preview-container flex-column" *ngIf="spellChromaService.previewCard && deckListMode === 'visual'">
+      <!-- Preview Card -->
+      <div class="preview-container flex-column" *ngIf="spellChromaService.previewCard && (deckListMode === 'visual' || deckListMode === 'text')">
         <div class="flex-row flex-align-space-between section-header relative" *ngIf="spellChromaService.previewCard">
           {{spellChromaService.previewCard.name}} Tags
           <button class="mat-button-24" (click)="spellChromaService.previewCard = undefined" mat-icon-button><mat-icon>close</mat-icon></button>
         </div>
-        <div *ngIf="spellChromaService.previewCard" class="flex-column tag-container relative" [style.background-image]="'url(' + spellChromaService.previewCard.imageUrl + ')'">          
+        <div *ngIf="spellChromaService.previewCard" class="flex-column tag-container relative" [style.background-image]="'url(' + scryfallService.getCardFullArt(spellChromaService.previewCard) + ')'">          
           <div class="flex-column">
             <div class="tags flex-row flex-wrap">
               <ng-container *ngFor="let tag of compressAllCardTags(spellChromaService.previewCard.tags); let i=index" >
@@ -111,19 +147,21 @@
                   [ngStyle]="{'animation-delay': i * 10 + 'ms'}"
                   (click)="onTagClick(tag)"
                   [ngClass]="{'active': selectedTags.includes(tag), 'unhelpful': onIgnoreList(tag)}"
-                  matTooltip="Click to begin a search using this tag"
                 >
                 <mat-icon>local_offer</mat-icon> {{tag}}
                 </div>
               </ng-container>
             </div>
           </div>
-        </div>        
+        </div>
+        <div class="helper-row flex-row flex-align-center">
+          Clicking on a tag will begin a search using that tag
+        </div>
       </div>
     </div>
     
     <!-- Card Explore Column -->
-    <div class="flex-column w50" [ngClass]="{'full-screen': altModeFullscreen}">
+    <div *ngIf="appMode === AppMode.EXPLORE" class="flex-column w50" [ngClass]="{'full-screen': altModeFullscreen}">
       <div class="section-header flex-row flex-align-space-between ">
         Card Explorer
         <button mat-icon-button (click)="altModeFullscreen = !altModeFullscreen">
@@ -163,7 +201,7 @@
 
         <div class="flex-row">
           <mat-icon matTooltip="Filter based on mana color" >filter_alt</mat-icon>
-          <app-color-identity-picker #colorPicker (reloadRecommendedCards)="loadRecommendedCardsByTag()"></app-color-identity-picker>
+          <app-color-identity-picker #colorPicker (reloadRecommendedCards)="loadRecommendedCardsByTag(); updateDeckColorIdentity()"></app-color-identity-picker>
         </div>
 
 
@@ -173,7 +211,7 @@
         <div class="right-container relative">
           <mat-icon class="search-icon" matTooltip="Typing here will search on both card names and their text">search</mat-icon>
           <input #searchInput class="search-input" (input)="filterTagResults(searchInput.value)" />          
-          <button class="mat-button-24" mat-icon-button (click)="searchInput.value = ''"><mat-icon>close</mat-icon></button>
+          <button class="mat-button-24" mat-icon-button *ngIf="searchInput.value !== ''" (click)="searchInput.value = ''"><mat-icon>close</mat-icon></button>
         </div>
       </div>
       <div class="tag-row flex-row">
@@ -196,29 +234,26 @@
           <div class="flex-row flex-align-center filler-card load-more" *ngIf="moreRelatedCardsLink !== ''">
             <button class="filler-card" mat-stroked-button color="primary" (click)="loadNextRecommendedPage()">Load More</button>
           </div>
-        </ng-container>
-
-        
+        </ng-container>      
       </div>       
     </div>
-  </div>
-  
-  <!-- <app-mana-curve #manaCurve></app-mana-curve>
-  <div class="deck-stats flex-row">
-    <div class="title-row">Deck Stats</div>
-    <div>
 
+    <!-- Extra deck info for view mode -->
+    <div class="deck-view-stats" class="flex-column w50" [ngClass]="{'full-screen': altModeFullscreen}" *ngIf="appMode === AppMode.VIEW">
+      <button mat-icon-button (click)="altModeFullscreen = !altModeFullscreen">
+        <mat-icon *ngIf="!altModeFullscreen">open_in_full</mat-icon>
+        <mat-icon *ngIf="altModeFullscreen">close_fullscreen</mat-icon>
+      </button>
+      <div class="all-tags-container">
+        <div *ngFor="let tag of getObjectKeys(tags)">
+          {{ tag }}: {{ tags[tag] }}
+        </div>
+        
+      </div>
     </div>
+  </div>
 
-    <div class="title-row">Recommended Stats</div>
-  </div> -->
-
- 
   
-  <!-- <div class="flex-row app-mode-toolbar">
-    <button mat-raised-button (click)="swapAppMode(AppMode.EXPLORE)">Explore</button>
-    <button mat-raised-button (click)="swapAppMode(AppMode.OPTIMIZE)">Optimize</button>
-  </div> -->
 
   <app-explore *ngIf="appMode === AppMode.EXPLORE"></app-explore>
   <app-optimize *ngIf="appMode === AppMode.OPTIMIZE"></app-optimize>
@@ -228,23 +263,3 @@
   </div>
 
 </div>
-
-<!-- Deck Card List -->
-<!-- <div class="previewCardListToggle hover-darken flex-align-center flex-row" (click)="displayCardList = !displayCardList">
-  <div class="title">Card List ({{ cards.length }}) <mat-icon>{{displayCardList ? 'arrow_drop_down' : 'arrow_drop_up'}}</mat-icon></div>
-</div>
-<div *ngIf="topTags.length > 0 && displayCardList" class="flex-column top-tags-container">
-  <div class="title white">Top Deck Tags (10)</div>
-  <div class="flex-row gap-10">
-    <div
-      *ngFor="let tag of topTags"
-      [ngStyle]="{'font-size': tag.instances + 10 + 'px'}"
-      class="tag"
-      (click)="filterDeckByTag(tag.key)"
-      [ngClass]="{'active': activeFilters.includes(tag.key)}">
-      {{ tag.key }} | {{ tag.instances }}
-    </div>
-  </div>
-</div>
-
-<app-card-grid *ngIf="displayCardList" [cardsToDisplay]="cardsToDisplay" (previewCardEmit)="onCardClick($event)"></app-card-grid> -->

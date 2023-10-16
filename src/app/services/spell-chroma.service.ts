@@ -13,14 +13,11 @@ export class SpellChromaService {
   xCsrfToken: string = '';
   sessionToken: string = '';
 
-
-
   deck: ScryfallCardObject[] = []
   deckTags: CardTagObject[] = [];
   filteredDeck: ScryfallCardObject[] = [];
 
   previewCard?: ScryfallCardObject;
-
 
   activeFilters: string[] = [];
   filterDeckByTag(tagSlug: string) {
@@ -77,6 +74,54 @@ export class SpellChromaService {
 
   onIgnoreList(tag: string) {
     return toIgnore.includes(tag) || /cycle-/.test(tag) || /-storyline-in-cards/.test(tag);
+  }
+
+  getBackgroundFromColorIdentity(colorIdentity: string) {
+    const backgroundArray: {[key: string]: string} = {
+      "WBG": "abzan",
+      "WU": "azorius",
+      "WUG": "bant",
+      "WR": "boros",
+      "UB": "dimir",
+      "WBRG": "dune-brood",
+      "WUB": "esper",
+      "G": "forest",
+      "UBRG": "glint-eye",
+      "BG": "golgari",
+      "UBR": "grixis",
+      "RG": "gruul",
+      "WURG": "ink-treader",
+      "U": "island",
+      "UR": "izzet",
+      "WUR": "jeskai",
+      "BRG": "jund",
+      "WBR": "mardu",
+      "R": "mountain",
+      "WRG": "naya",
+      "WB": "orzhov",
+      "W": "plains",
+      "BR": "rakdos",
+      "WG": "selesnya",
+      "UG": "simic",
+      "UBG": "sultai",
+      "B": "swamp",
+      "URG": "temur",
+      "WUBG": "witch-maw",
+      "WUBR": "yore-tiller",
+      "WUBRG": "wubrg",
+      "": "wastes"
+    }
+
+    let backgroundLocation = 'assets/color-backgrounds/';
+    if (backgroundArray[colorIdentity]) {
+      backgroundLocation += backgroundArray[colorIdentity];
+    } else {
+      backgroundLocation += 'wastes';
+    }
+
+    return backgroundLocation + '.png';
+
+
   }
 
 }

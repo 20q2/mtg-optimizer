@@ -1,6 +1,11 @@
+@import '../_variables.scss';
+@import './model/mana-symbols.scss';
+
 ::ng-deep body {
     margin: 0 !important;
     padding: 0;
+
+    --border-color: gold;
 }
 
 @font-face {
@@ -12,19 +17,7 @@
     padding: 24px;
     min-height: calc(100dvh - 48px);
     max-height: calc(100dvh - 48px);
-    position: relative;
-
-    &::before {
-        content: '';
-        background: url('../assets/background1.png') no-repeat;
-        background-size: cover;
-        position: absolute;
-        inset: 0 0 0 0;
-        z-index: -1;
-        opacity: .6;
-    }
-
-    
+    position: relative;   
 }
 
 .title {
@@ -34,7 +27,7 @@
 }
 
 .header {
-    border-bottom: 1px solid #00000090;
+    border-bottom: 1px solid #000000b0;
     text-transform: uppercase;
     font-weight: bold;
     margin-bottom: 3px;
@@ -44,7 +37,7 @@
     text-align: center;
     font-family: 'BELEREN';
     font-size: 1.3rem;
-    background-color: #000000aa;
+    background-color: $black-background-transparent;
     color: white;
     border: solid yellow 1px;
     padding: 5px;
@@ -54,7 +47,7 @@
     }
 }
 
-textarea {
+textarea.input-area {
     position: relative;
     height: 50%;
     resize: none;
@@ -85,9 +78,9 @@ button.parse-button {
     color: white;
     font-weight: bold;
     background-color: #31319d;
+    border: 1px solid #31609d;
     padding: 5px;
     border-radius: 5px;
-    border: none;
     cursor: pointer;
 
     img {
@@ -98,12 +91,13 @@ button.parse-button {
 }
 
 .preview-container {
+    animation: growIn .3s ease-out;
     border: yellow solid 1px;
     overflow: hidden;
     margin-top: 10px;
 
     .section-header {
-        background-color: #00000090;
+        background-color: $black-background-transparent;
         border: none;
         border-bottom: yellow solid 1px;
     }
@@ -118,14 +112,25 @@ button.parse-button {
         .preview-description {
             margin-left: 1rem;
             padding: 5px; 
-            white-space: pre-wrap;
+            white-space: pre-line;
         }
 
         .tags {
             gap: 5px;
-            padding: 10px;
+            padding: 16px;
         }
     }
+
+    .helper-row {
+        background-color: $black-background-transparent;
+        color: white;
+        border-top: 1px solid var(--border-color);
+    }
+}
+
+@keyframes growIn {
+    from { transform: scale(.8) }
+    to { transform: scale(1) }
 }
 
 .deck-stats-column {
@@ -133,7 +138,7 @@ button.parse-button {
 
     .deck-top-tags {
         padding: 12px;
-        background-color: #00000080;
+        background-color: $black-background-transparent;
         border: 1px solid yellow;
         border-top: none;
         gap: 10px;
@@ -163,8 +168,8 @@ button.parse-button {
     }
 
     &.active {
-        background-color: #66ff6680;
-        border-color: gold;
+        background-color: #44cc44dd;
+        border-color: var(--border-color);
     }
 
     &.unhelpful {
@@ -182,14 +187,14 @@ button.parse-button {
 .send-to-search {
     background-color: rgba(102, 255, 102, 0.5019607843);
     border-radius: 0 4px 4px 0;
-    border: 1px solid gold;
+    border: 1px solid var(--border-color);
     margin-left: -10px;
     border-left: none;
     cursor: pointer;
 }
 
 .previewCardListToggle {
-    background-color: #00000090;
+    background-color: #000000b0;
     color: white;
     border: 2px solid #ffff00;
     margin-top: 1rem;
@@ -266,7 +271,7 @@ button.parse-button {
 }
 
 .navbar {
-    background-color: #00000080;
+    background-color: $black-background-transparent;
     padding: 16px;
     border: solid thin #ffff00;
     border-radius: 2px;
@@ -287,7 +292,7 @@ button.parse-button {
         color: white;
 
         &.active {
-            color: gold;
+            color: var(--border-color);
         }
     }
 }
@@ -335,7 +340,7 @@ button.parse-button {
     background-color: #444;
     padding: 16px;
     margin: 0;
-    border: 2px gold solid;
+    border: 2px var(--border-color) solid;
     border-top: none;
 }
 
@@ -381,7 +386,7 @@ $button-toggle-height: 24px;
 .my-card-list {
     border: yellow 1px solid;
     border-top: none;;
-    background-color: #00000080;
+    background-color: $black-background-transparent;
     overflow: auto;
     min-height: 125px;
 
@@ -397,6 +402,8 @@ $button-toggle-height: 24px;
         &:hover, &:focus-visible {
             filter: brightness(1.2);
 
+            background-color: $black-background-transparent-dark;
+
             .my-list-card-image {
                 transform: scale(1.1);
             }
@@ -405,6 +412,11 @@ $button-toggle-height: 24px;
 
         .card-description {
             padding: 10px;
+            white-space: pre-line;
+
+            .card-text {
+                margin-top: 5px;
+            }
         }
     }
     
@@ -467,3 +479,48 @@ $button-toggle-height: 24px;
 .full-screen {
     flex-basis: 100%;
 }
+
+
+.page-background {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    opacity: .9;
+    transform: .3s;
+    background-color: black;
+}
+
+.input-deck-button {
+    margin-right: 5px;
+}
+
+.text-view-container {
+    background-color: $black-background-transparent;
+    gap: 10px;
+    padding: 12px;
+    overflow: auto;
+    border: 1px solid var(--border-color);
+
+    .text-view-card {
+        color: white;
+        background-color: #ffffff40;
+        padding: 5px;
+        border-radius: 4px;
+
+        &:hover, &:focus-visible {
+            color: var(--border-color);
+            cursor: pointer;
+        }
+
+        .text-view-tags {
+            color: black;
+            font-size: 12px;
+            gap: 5px;
+            margin-top: 5px;
+        }
+    }
+}
+

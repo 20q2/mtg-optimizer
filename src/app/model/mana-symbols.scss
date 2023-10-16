@@ -3,10 +3,81 @@ $red-mana-url: "https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/
 $white-mana-url: "https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/8/8e/W.svg";
 $blue-mana-url: "https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/9/9f/U.svg";
 $black-mana-url: "https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/2/2f/B.svg";
-$tap-url: '';
-$one-mana-url: '';
-$two-mana-url: '';
-$three-mana-url: '';
-$four-mana-url: '';
-$five-mana-url: '';
-$six-mana-url: '';
+$tap-url: 'https://www.pngfind.com/pngs/m/133-1338878_open-mtg-tap-symbol-hd-png-download.png';
+$one-mana-url: 'https://upload.wikimedia.org/wikipedia/commons/2/2a/MTG_%281%29.svg';
+$two-mana-url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/MTG_%282%29.svg/600px-MTG_%282%29.svg.png';
+$three-mana-url: 'https://upload.wikimedia.org/wikipedia/commons/4/47/MTG_%283%29.svg';
+$four-mana-url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/MTG_%284%29.svg/1024px-MTG_%284%29.svg.png';
+$five-mana-url: 'https://upload.wikimedia.org/wikipedia/commons/1/12/MTG_%285%29.svg';
+$six-mana-url: 'https://upload.wikimedia.org/wikipedia/commons/1/12/MTG_%285%29.svg';
+$seven-mana-url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/MTG_%287%29.svg/1200px-MTG_%287%29.svg.png';
+$x-mana-url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/MTG_%28X%29.svg/1200px-MTG_%28X%29.svg.png';
+
+::ng-deep .mana-symbol {
+    height: 24px;
+    width: 24px;
+    display: inline-block;
+    background-size: contain;
+
+    &.small {
+        height: 16px;
+        width: 16px; 
+        margin: 0 1px;       
+    }
+
+    &.green {
+        background-image: url($green-mana-url);
+    }
+
+    &.red {
+        background-image: url($red-mana-url);
+    }
+
+    &.blue {
+        background-image: url($blue-mana-url);
+    }
+
+    &.black {
+        background-image: url($black-mana-url);
+    }
+
+    &.white {
+        background-image: url($white-mana-url);
+    }
+
+    &.tap {
+        background-image: url($tap-url);
+    }
+
+    &.one {
+        background-image: url($one-mana-url);
+    }
+
+    &.two {
+        background-image: url($two-mana-url);
+    }
+
+    &.three {
+        background-image: url($three-mana-url);
+    }
+
+    &.four {
+        background-image: url($four-mana-url);
+    }
+
+    &.five {
+        background-image: url($five-mana-url);
+    }
+
+    &.six {
+        background-image: url($six-mana-url);
+    }
+
+    &.seven {
+        background-image: url($seven-mana-url);
+    }
+
+    &.x {
+        background-image: url($x-mana-url);
+    }
+}

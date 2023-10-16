@@ -20,6 +20,7 @@ import { OptimizeComponent } from './optimize/optimize.component';
 import { ExploreComponent } from './explore/explore.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ReplacePlaceholderDirective } from './directives/mana-symbol.directive';
 
 
 
@@ -31,7 +32,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     ManaCurveComponent,
     LandingComponent,
     OptimizeComponent,
-    ExploreComponent
+    ExploreComponent,
+    ReplacePlaceholderDirective
   ],
   imports: [
     BrowserModule,

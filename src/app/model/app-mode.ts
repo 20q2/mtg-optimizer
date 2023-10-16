@@ -1,4 +1,5 @@
 export enum AppMode {
     EXPLORE = 'explore',
-    OPTIMIZE = 'optimize'
+    OPTIMIZE = 'optimize',
+    VIEW = 'view'
 }

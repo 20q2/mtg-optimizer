@@ -9,7 +9,9 @@ export const toIgnore = [
     'shares-name-with-a-mechanic',
     'commander-set-booster-cards',
     'sth-storyline-in-cards',
-    'usg-storyline-in-cards'
+    'usg-storyline-in-cards',
+    'creature-type-erratum',
+    
 ]
 
 export const toPrioritize = [

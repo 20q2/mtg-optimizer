@@ -50,7 +50,6 @@ export class ScryfallService {
 
   async fetchPreviewCardTags(cardSetName: string, cardCollectorNumber: string) {
     this.awaitingResponse = true;
-    // const callUrl = this.serverUrl + '/gettag?setname=' + cardSetName + '&number=' + cardCollectorNumber;
     const callUrl = this.serverUrl + '?setname=' + cardSetName + '&number=' + cardCollectorNumber;
 
 
@@ -63,7 +62,6 @@ export class ScryfallService {
   }
 
   async fetchCardTags(card: ScryfallCardObject) {
-    // const callUrl = this.serverUrl + '/gettag?setname=' + card['set'] + '&number=' + card['collector_number'];
     const callUrl = this.serverUrl + '?setname=' + card['set'] + '&number=' + card['collector_number'];
 
     this.http.get(callUrl).subscribe(((result: any) => {
@@ -83,5 +81,14 @@ export class ScryfallService {
       }
     }
     return card;
+  }
+
+  getCardFullArt(card: ScryfallCardObject): string {
+    let url = 'https://cards.scryfall.io/art_crop/front';
+    url += '/' + card.id.substring(0, 1);
+    url += '/' + card.id.substring(1, 2) + '/';
+    url += card.id + '.jpg';
+
+    return url;      
   }
 }

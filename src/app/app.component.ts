@@ -6,6 +6,7 @@ import { CardTagObject, ScryfallCardObject } from './model/tag-objects';
 import { SnackbarService } from './services/snackbar.service';
 import { AppMode } from './model/app-mode';
 import { SpellChromaService } from './services/spell-chroma.service';
+import { ScryfallService } from './services/scryfall.service';
 
 
 @Component({
@@ -50,16 +51,18 @@ export class AppComponent {
   topTags: { key: string, instances: number }[] = [];
 
   appMode: AppMode = AppMode.EXPLORE;
-  deckListMode = 'text';
+  deckListMode = 'input';
 
   /** Used to make explorer/optimizer fullscreen */
   altModeFullscreen = false;
 
+  deckColorIdentity = "WUBRG";
 
   constructor(
     private http: HttpClient,
     public snackbarService: SnackbarService,
-    public spellChromaService: SpellChromaService
+    public spellChromaService: SpellChromaService,
+    public scryfallService: ScryfallService,
   ) { }
 
   get AppMode() {
@@ -69,6 +72,7 @@ export class AppComponent {
   async parseDeckList() {
     this.spellChromaService.deck = [];
     this.tags = {};
+    this.appMode = AppMode.EXPLORE;
 
     if (this.deckTextInput.trim() === '') {
       return;
@@ -117,6 +121,8 @@ export class AppComponent {
     mostColors.forEach(color => {
       this.colorPicker.colorIdentity[color] = true;      
     })
+
+    this.updateDeckColorIdentity();
   }
 
   fetchCardData(cardName: string) {
@@ -200,7 +206,6 @@ export class AppComponent {
   }
 
   loadRecommendedCardsByTag() {
-    let colorString = '';
     let tagString = '';
     
     if (this.selectedTags.length === 0) {
@@ -212,11 +217,7 @@ export class AppComponent {
       tagString += 'otag:' + tag + ' ';
     })
 
-    for (let key of Object.keys(this.colorPicker.colorIdentity)) {
-      if (this.colorPicker.colorIdentity[key]) {
-        colorString += key;
-      }
-    }
+    const colorString = this.colorPicker.getColorIdentityString();  
     this.lastSearchedColors = colorString;
 
     const sub = this.http.get(this.scryfallSearchUrl, {
@@ -263,7 +264,6 @@ export class AppComponent {
     this.http.get(this.moreRelatedCardsLink).subscribe(      
       (result: any) => {
         this.appIsLoading = false;
-        this.relatedCardsByTag = [];
         this.moreRelatedCardsLink = '';    
         this.hasMoreRelatedCards = result.has_more;
 
@@ -429,6 +429,13 @@ export class AppComponent {
   getTagSlug(tag: any) {
     return tag.tag.slug;
   }
+
+  updateDeckColorIdentity(): void {
+    this.deckColorIdentity = this.colorPicker.getColorIdentityString();
+  }
   
+  getObjectKeys(obj: { [key: string]: any }) {
+    return Object.keys(obj).sort();
+  }
     
 }
