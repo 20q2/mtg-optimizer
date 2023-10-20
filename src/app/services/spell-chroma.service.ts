@@ -2,24 +2,37 @@ import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CardTagObject, ScryfallCardObject } from '../model/tag-objects';
 import { HttpClient } from '@angular/common/http';
+import { loadingPhrases } from '../model/loading-phrases';
 import { toIgnore } from '../model/proper-words';
+import { ScryfallService } from './scryfall.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SpellChromaService {
-  constructor() {}
-
+  
   xCsrfToken: string = '';
   sessionToken: string = '';
 
   deck: ScryfallCardObject[] = []
   deckTags: CardTagObject[] = [];
-  filteredDeck: ScryfallCardObject[] = [];
-
   previewCard?: ScryfallCardObject;
 
   activeFilters: string[] = [];
+  filteredDeck: ScryfallCardObject[] = [];
+
+  loadingPhrase = '';
+
+  constructor() {
+    this.getRandomLoadingQuote();
+    
+    setInterval(() => {
+      this.getRandomLoadingQuote();
+    }, 7000);
+  }
+
+  
+
   filterDeckByTag(tagSlug: string) {
     if (!this.activeFilters.includes(tagSlug)) {
       this.activeFilters.push(tagSlug);
@@ -124,4 +137,10 @@ export class SpellChromaService {
 
   }
 
+  getRandomLoadingQuote() {
+    const i = Math.floor(Math.random() * loadingPhrases.length);
+    this.loadingPhrase = loadingPhrases[i];
+  }
+
 }
+

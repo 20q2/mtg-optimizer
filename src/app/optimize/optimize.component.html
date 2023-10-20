@@ -1,1 +1,15 @@
-  <!-- <div #echart echarts [options]="chartOptions" class="chart"></div> -->
+<div class="optimize-container flex-row flex-grow">
+  <div class="mana-curve-charts flex-row flex-grow">
+    <!-- Your deck curve -->
+    <div class="chart-container flex-grow">
+      <div class="chart-header">Your deck</div>
+      <div #echart echarts [options]="chartOptions" class="chart flex-column flex-grow"></div>
+    </div>
+
+    <!-- Preferred deck curve -->
+    <div class="chart-container flex-grow">
+      <div class="chart-header">Preferred deck</div>
+      <div #echart echarts [options]="chartOptions" class="chart flex-column flex-grow"></div>
+    </div>    
+  </div>
+</div>

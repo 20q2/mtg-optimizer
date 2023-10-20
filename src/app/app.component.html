@@ -1,4 +1,10 @@
-<mat-spinner class="app-loading-spinner" *ngIf="appIsLoading"><img src="../assets/logo-transparent.png" height="32px"/></mat-spinner>
+<div class="app-loading-backdrop" *ngIf="appIsLoading">
+  <mat-spinner class="app-loading-spinner" >
+    <img src="../assets/logo-transparent.png" height="32px"/>
+  </mat-spinner>
+  <div>{{spellChromaService.loadingPhrase}}...</div>
+</div>
+
 <div class="page-container flex-column">
   <img class="page-background" [src]="spellChromaService.getBackgroundFromColorIdentity(deckColorIdentity)" />
   <!-- Navbar -->
@@ -110,25 +116,33 @@
     </div>
 
     <!-- Top deck stats -->
-    <div class="flex-column w25 deck-stats-column" *ngIf="this.spellChromaService.deck.length !== 0">      
+    <div class="flex-column w25 deck-stats-column" *ngIf="this.spellChromaService.deck.length !== 0 && (deckListMode === 'visual' || deckListMode === 'text')">      
       <div class="section-header">Top Deck Tags</div>
       <div class="deck-top-tags flex-row flex flex-wrap">
         <div class="flex-row" *ngFor="let tag of topTags">
           <div
               [ngStyle]="{'font-size': tag.instances + 12 + 'px'}"
-              class="tag"
-              matTooltip="Click to filter your decklist by this tag"
+              class="tag top-tag"                            
+          >
+            <button
+              class="instances-button"
+              matTooltip="Filter"
               (click)="filterDeckByTag(tag.key)"
               [ngClass]="{'active': activeFilters.includes(tag.key)}"
             >
-            {{ tag.key }} | {{ tag.instances }}         
-          </div>          
-          <button *ngIf="activeFilters.includes(tag.key) && !selectedTags.includes(tag.key)" class="send-to-search" matTooltip="Use in Search" (click)="sendToSearch(tag.key)">
-            <mat-icon>arrow_right</mat-icon>
-          </button>
-          <button *ngIf="activeFilters.includes(tag.key) && selectedTags.includes(tag.key)" class="send-to-search" matTooltip="Remove from Search" (click)="sendToSearch(tag.key)">
-            <mat-icon>arrow_left</mat-icon>
-          </button>           
+              {{ tag.instances }}
+            </button> 
+            <button 
+              class="slug-button"
+              matTooltip="Search"
+              (click)="sendToSearch(tag.key)"
+              [ngClass]="{'active': selectedTags.includes(tag.key)}"
+
+            >
+              <mat-icon *ngIf="selectedTags.includes(tag.key)">local_offer</mat-icon>
+              {{ tag.key }}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -170,48 +184,58 @@
         </button>
       </div>
       <div class="sort-row flex-wrap flex-row flex-align-space-between">
-        <div class="left-container flex-row">
-          <mat-icon>sort</mat-icon>
-          <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'name'}"(click)="sortRelatedBy($event)" value="name">
-            Name
-            <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
-            <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
-          </button>
-          <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'cmc'}" (click)="sortRelatedBy($event)" value="cmc">
-            CMC
-            <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
-            <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
-          </button>
-          <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'color'}" (click)="sortRelatedBy($event)" value="color">
-            Color
-            <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
-            <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
-          </button>
-          <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'type'}" (click)="sortRelatedBy($event)" value="type">
-            Type
-            <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
-            <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
-          </button>
-          <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'latest'}" (click)="sortRelatedBy($event)" value="latest">
-            Latest
-            <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
-            <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
-          </button>
+        <div class="flex-row gap-24">
+          <div class="left-container flex-row">
+            <mat-icon>sort</mat-icon>
+            <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'name'}"(click)="sortRelatedBy($event)" value="name">
+              Name
+              <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
+              <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+            </button>
+            <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'cmc'}" (click)="sortRelatedBy($event)" value="cmc">
+              CMC
+              <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
+              <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+            </button>
+            <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'color'}" (click)="sortRelatedBy($event)" value="color">
+              Color
+              <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
+              <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+            </button>
+            <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'type'}" (click)="sortRelatedBy($event)" value="type">
+              Type
+              <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
+              <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+            </button>
+            <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'latest'}" (click)="sortRelatedBy($event)" value="latest">
+              Latest
+              <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
+              <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+            </button>
+          </div>
+
+          <div class="flex-row">
+            <mat-icon matTooltip="Filter based on mana color" >filter_alt</mat-icon>
+            <app-color-identity-picker #colorPicker (reloadRecommendedCards)="loadRecommendedCardsByTag(); updateDeckColorIdentity()"></app-color-identity-picker>
+          </div>
         </div>
 
-        <div class="flex-row">
-          <mat-icon matTooltip="Filter based on mana color" >filter_alt</mat-icon>
-          <app-color-identity-picker #colorPicker (reloadRecommendedCards)="loadRecommendedCardsByTag(); updateDeckColorIdentity()"></app-color-identity-picker>
-        </div>
+        <!-- row 2 -->
+        <div class="flex-row gap-10">
+          <!-- card count -->
+          <div class="white">
+            <ng-container *ngIf="filteredRelatedCardsByTag.length !== relatedCardsByTag.length">
+              {{filteredRelatedCardsByTag.length}} /
+            </ng-container>
+            {{relatedCardsByTag.length}}{{ scryfallService.hasMoreRelatedCards ? '+' : '' }} cards
+          </div>
 
-
-        <div class="white">{{relatedCardsByTag.length}}{{ hasMoreRelatedCards ? '+' : '' }} cards </div>
-
-
-        <div class="right-container relative">
-          <mat-icon class="search-icon" matTooltip="Typing here will search on both card names and their text">search</mat-icon>
-          <input #searchInput class="search-input" (input)="filterTagResults(searchInput.value)" />          
-          <button class="mat-button-24" mat-icon-button *ngIf="searchInput.value !== ''" (click)="searchInput.value = ''"><mat-icon>close</mat-icon></button>
+          <!-- search -->
+          <div class="right-container relative">
+            <mat-icon class="search-icon" matTooltip="Typing here will search on both card names and their text">search</mat-icon>
+            <input #searchInput class="search-input" (input)="filterTagResults(searchInput.value)" />          
+            <button class="mat-button-24" mat-icon-button *ngIf="searchInput.value !== ''" (click)="searchInput.value = ''; filterTagResults('')"><mat-icon>close</mat-icon></button>
+          </div>
         </div>
       </div>
       <div class="tag-row flex-row">
@@ -231,7 +255,7 @@
             (previewCardEmit)="onCardClick($event)"
             [sortingMode]="lastSortMode"
           ></app-card-grid>
-          <div class="flex-row flex-align-center filler-card load-more" *ngIf="moreRelatedCardsLink !== ''">
+          <div class="flex-row flex-align-center filler-card load-more" *ngIf="scryfallService.moreRelatedCardsLink !== ''">
             <button class="filler-card" mat-stroked-button color="primary" (click)="loadNextRecommendedPage()">Load More</button>
           </div>
         </ng-container>      
@@ -251,12 +275,14 @@
         
       </div>
     </div>
+
+    <app-optimize class="app-optimize" *ngIf="appMode === AppMode.OPTIMIZE"></app-optimize>
+
   </div>
 
   
 
   <app-explore *ngIf="appMode === AppMode.EXPLORE"></app-explore>
-  <app-optimize *ngIf="appMode === AppMode.OPTIMIZE"></app-optimize>
 
   <div class="flex-row">
     

@@ -19,6 +19,9 @@ export class ScryfallService {
   serverUrl = 'https://1f5fr8bzm2.execute-api.us-east-1.amazonaws.com/default/get-tags-proxy';
   scryfallSearchUrl = "https://api.scryfall.com/cards/search";
 
+  moreRelatedCardsLink = '';
+  hasMoreRelatedCards = false;
+
   /**
    * Calls scryfall to fetch the given card
    * @param cardName 

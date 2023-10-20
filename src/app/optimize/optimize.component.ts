@@ -1,27 +1,42 @@
 import { Component, OnInit } from '@angular/core';
 import { EChartsOption } from 'echarts';
+import { SpellChromaService } from '../services/spell-chroma.service';
+import { ScryfallService } from '../services/scryfall.service';
 
 @Component({
   selector: 'app-optimize',
   templateUrl: './optimize.component.html',
-  styleUrls: ['./optimize.component.sass']
+  styleUrls: ['./optimize.component.scss']
 })
 export class OptimizeComponent implements OnInit {
   manaCurve: {[key: string]: number} = {};
   chartOptions!: EChartsOption;
 
+  constructor(
+    public spellChromaService: SpellChromaService,
+    private scryfallService: ScryfallService,    
+  ) {}
+
   ngOnInit(): void {
+    for (let card of this.spellChromaService.deck) {
+      if (card.type_line.toLocaleLowerCase().includes('land')) {
+        continue;
+      }
+      
+      this.updateManaCurve(card.cmc);
+    }
+
     this.chartOptions = {
       xAxis: {
         type: 'category',
-        data: ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'],
+        data: Object.keys(this.manaCurve),
       },
       yAxis: {
         type: 'value',
       },
       series: [
         {
-          data: [10, 20, 15, 30, 25],
+          data: Object.keys(this.manaCurve).map(key => this.manaCurve[key]),          
           type: 'bar',
         },
       ],

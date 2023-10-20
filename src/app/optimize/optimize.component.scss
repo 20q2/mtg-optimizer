@@ -1,0 +1,31 @@
+@import '../../_variables.scss';
+@import '../model/mana-symbols.scss';
+
+.optimize-container {
+    background-color: $black-background-transparent;
+    border: 1px solid var(--border-color);
+    
+    .mana-curve-charts {
+        padding: 24px;
+        gap: 24px;
+        .chart-container {
+            background-color: #ffffff40;
+            border: 1px solid var(--border-color);
+            
+            .chart-header {
+                font-size: 1.4rem;
+                color: var(--border-color);
+                text-align: center;
+                font-family: 'BELEREN';
+                padding: 12px 0;
+                
+            }
+            
+            .chart {
+            }
+        }
+    }
+}
+
+
+

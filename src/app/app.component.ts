@@ -1,4 +1,4 @@
-import { Component,  ViewChild } from '@angular/core';
+import { Component,  OnInit,  ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ColorIdentityPickerComponent } from './color-identity-picker/color-identity-picker.component';
 import { ignoreLayouts, toIgnore } from './model/proper-words';
@@ -19,6 +19,10 @@ export class AppComponent {
   @ViewChild('colorPicker')
   colorPicker!: ColorIdentityPickerComponent;
 
+  @ViewChild('searchInput')
+  searchInput!: HTMLInputElement;
+  
+
   deckTextInput = '';
   cardsToDisplay: ScryfallCardObject[] = [];
   
@@ -28,8 +32,6 @@ export class AppComponent {
   filteredRelatedCardsByTag: ScryfallCardObject[] = [];
   selectedTags: string[] = [];
   displayRelatedCards = true;
-  hasMoreRelatedCards = false;
-  moreRelatedCardsLink = '';
 
   lastSearchedColors = '';
 
@@ -231,11 +233,12 @@ export class AppComponent {
     sub.subscribe((result: any) => {
       this.appIsLoading = false;
       this.relatedCardsByTag = [];
-      this.moreRelatedCardsLink = '';    
-      this.hasMoreRelatedCards = result.has_more;
+      this.scryfallService.moreRelatedCardsLink = '';    
+      this.scryfallService.hasMoreRelatedCards = result.has_more;
 
-      if (this.hasMoreRelatedCards) {
-        this.moreRelatedCardsLink = result.next_page;
+      if (this.scryfallService.hasMoreRelatedCards) {
+        this.scryfallService.moreRelatedCardsLink = result.next_page;
+        result.total_cards
       }
 
       for (let card of result.data) {
@@ -245,6 +248,7 @@ export class AppComponent {
       }
 
       this.filteredRelatedCardsByTag = this.relatedCardsByTag;
+      
     }, (error) => {
       console.error(error);
       if (error.status === 404) {
@@ -261,14 +265,14 @@ export class AppComponent {
     this.appIsLoading = true;
     this.relatedCardPages.push()
 
-    this.http.get(this.moreRelatedCardsLink).subscribe(      
+    this.http.get(this.scryfallService.moreRelatedCardsLink).subscribe(      
       (result: any) => {
         this.appIsLoading = false;
-        this.moreRelatedCardsLink = '';    
-        this.hasMoreRelatedCards = result.has_more;
+        this.scryfallService.moreRelatedCardsLink = '';    
+        this.scryfallService.hasMoreRelatedCards = result.has_more;
 
-        if (this.hasMoreRelatedCards) {
-          this.moreRelatedCardsLink = result.next_page;
+        if (this.scryfallService.hasMoreRelatedCards) {
+          this.scryfallService.moreRelatedCardsLink = result.next_page;
         }
 
         for (let card of result.data) {
@@ -276,6 +280,7 @@ export class AppComponent {
             this.relatedCardsByTag.push(this.assignCardImageUrl(card));
           }
         }
+        this.filterTagResults(this.searchInput.value);
       }
     )
   }
