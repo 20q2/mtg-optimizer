@@ -7,6 +7,7 @@ import { SnackbarService } from './services/snackbar.service';
 import { AppMode } from './model/app-mode';
 import { SpellChromaService } from './services/spell-chroma.service';
 import { ScryfallService } from './services/scryfall.service';
+import { TagService } from './services/tag.service';
 
 
 @Component({
@@ -14,7 +15,7 @@ import { ScryfallService } from './services/scryfall.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
 
   @ViewChild('colorPicker')
   colorPicker!: ColorIdentityPickerComponent;
@@ -65,7 +66,12 @@ export class AppComponent {
     public snackbarService: SnackbarService,
     public spellChromaService: SpellChromaService,
     public scryfallService: ScryfallService,
+    public tagService: TagService
   ) { }
+
+  ngOnInit(): void {
+    this.tagService.loadAllTags(); 
+  }
 
   get AppMode() {
     return AppMode;

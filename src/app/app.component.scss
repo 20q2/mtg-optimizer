@@ -126,6 +126,14 @@ button.parse-button {
         color: white;
         border-top: 1px solid var(--border-color);
     }
+
+    .card-description {
+        background-color: $black-background-transparent;
+        border-top: 1px solid gold;
+        color: white;
+        padding: 3px;
+        white-space: pre-line;
+    }
 }
 
 @keyframes growIn {
@@ -558,10 +566,25 @@ $button-toggle-height: 24px;
         background-color: #ffffff40;
         padding: 5px;
         border-radius: 4px;
+        --card-image-url: '';
 
         &:hover, &:focus-visible {
             color: var(--border-color);
+            background-color: #ffffff50;
+            position: relative;
             cursor: pointer;
+
+            &::before {
+                content: '';
+                background-image: var(--card-image-url);
+                // background: url(var(--card-image-url));
+                background-repeat: no-repeat;
+                background-size: contain;
+                height: 200px;
+                width: 150px;
+                right: 0;
+                position: absolute;
+            }
         }
 
         .text-view-tags {

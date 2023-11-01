@@ -21,6 +21,8 @@ import { ExploreComponent } from './explore/explore.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ReplacePlaceholderDirective } from './directives/mana-symbol.directive';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 
 
@@ -49,7 +51,9 @@ import { ReplacePlaceholderDirective } from './directives/mana-symbol.directive'
     NgxEchartsModule.forRoot({ echarts: () => import('echarts') }),
     MatSnackBarModule,
     MatButtonToggleModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatAutocompleteModule,
+    MatFormFieldModule 
     
   ],
   providers: [SnackbarService],

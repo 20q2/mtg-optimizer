@@ -100,3 +100,17 @@ export interface RawScryfallCardObject {
     uri: string,
     variation: boolean,
 }
+
+export interface SearchedTag {
+    category: boolean,
+    createdAt: string,
+    creatorId: string,
+    id: string,
+    name: string,
+    namespace: string,
+    pendingRevisions: boolean,
+    slug: string,
+    status: string,
+    taggingCount: number,
+    type: string
+}

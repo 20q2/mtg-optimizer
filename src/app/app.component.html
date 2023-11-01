@@ -52,7 +52,7 @@
           </div>
         </div>
 
-        <!-- Text view -->
+        <!-- Input view -->
         <ng-container *ngIf="deckListMode === 'input'">
           <textarea class="input-area flex-grow" [(ngModel)]="deckTextInput" placeholder="Enter your decklist"></textarea>
         </ng-container>
@@ -64,6 +64,7 @@
               class="text-view-card flex-column" 
               *ngFor="let card of cardsToDisplay" 
               (click)="tagRow.style.display === 'none' ? tagRow.style.display = 'flex' : tagRow.style.display = 'none'"
+              [ngStyle]="{'--card-image-url': tagRow.style.display === 'none' ? 'url(' + card.imageUrl + ')' : ''}"
             >
               <div class="flex-row flex-align-space-between">
                 <div class="text-view-card-name">{{ card.name }}</div> 
@@ -81,6 +82,9 @@
                 >
                   <mat-icon>local_offer</mat-icon> {{ tag }}
                 </div>
+                <button class="tag send-to-focus" (click)="$event.stopPropagation(); onCardClick(card)" matTooltip="Focus card">
+                  <mat-icon>filter_frames</mat-icon>
+                </button>
               </div>
             </div>
           </div>
@@ -97,7 +101,7 @@
               <img class="my-list-card-image" [src]="card.imageUrl" />
               <div class="card-description flex-column">
                 <div class="flex-row flex-align-start" appReplacePlaceholder><b>{{ card.name }} {{ card.mana_cost }}</b></div>
-                <div class="card-text">{{ card.oracle_text }}</div>
+                <div class="card-text" appReplacePlaceholder>{{ card.oracle_text }}</div>
               </div>
             </div>
             
@@ -170,6 +174,9 @@
         </div>
         <div class="helper-row flex-row flex-align-center">
           Clicking on a tag will begin a search using that tag
+        </div>
+        <div class="card-description" appReplacePlaceholder>
+          {{ spellChromaService.previewCard.oracle_text }}
         </div>
       </div>
     </div>
@@ -244,6 +251,14 @@
           {{ selectedTag }}
         </span>
         <button class="mat-button-24 self-end" [disabled]="true" mat-icon-button matTooltip="Add a new tag"><mat-icon>add</mat-icon></button>
+        <mat-form-field>
+          <input type="text" placeholder="Choose an option" matInput [matAutocomplete]="auto">
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let option of tagService.filteredTags" [value]="option">
+              {{ option }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
       </div>
       <!-- Related cards by tag -->
       <div class="relative" *ngIf="cardsToDisplay.length > 0 || activeFilters.length > 0">
