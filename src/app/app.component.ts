@@ -67,7 +67,9 @@ export class AppComponent implements OnInit {
     public spellChromaService: SpellChromaService,
     public scryfallService: ScryfallService,
     public tagService: TagService
-  ) { }
+  ) {
+    
+  }
 
   ngOnInit(): void {
     this.tagService.loadAllTags(); 

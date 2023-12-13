@@ -23,6 +23,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ReplacePlaceholderDirective } from './directives/mana-symbol.directive';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { TagAddComponent } from './tag-add/tag-add.component';
+import { MatInputModule } from '@angular/material/input';
+
 
 
 
@@ -35,7 +38,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     LandingComponent,
     OptimizeComponent,
     ExploreComponent,
-    ReplacePlaceholderDirective
+    ReplacePlaceholderDirective,
+    TagAddComponent
   ],
   imports: [
     BrowserModule,
@@ -53,7 +57,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatButtonToggleModule,
     MatTooltipModule,
     MatAutocompleteModule,
-    MatFormFieldModule 
+    MatFormFieldModule,
+    MatInputModule,
     
   ],
   providers: [SnackbarService],

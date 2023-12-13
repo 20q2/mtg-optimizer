@@ -18,7 +18,7 @@ export class TagService implements OnInit {
   loadAllTags() {
     this.allTags = allTags.filter((tag: SearchedTag) => tag.taggingCount > 2)
       .map(item => item.slug);
-    this.filteredTags = this.allTags.slice(0);
+    this.filteredTags = this.allTags.slice(0).sort();
   }
 
   filterTags(filterString: string) {

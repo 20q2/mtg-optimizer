@@ -1,0 +1,17 @@
+<mat-form-field class="max-40px" appearance="outline">
+  <input 
+    type="text"
+    placeholder="Input a tag"
+    matInput
+    [matAutocomplete]="auto"
+    #tagInput
+    [(ngModel)]="inputValue"
+    (input)="tagService.filterTags(inputValue)"
+  >
+  <mat-autocomplete #auto="matAutocomplete">
+    <mat-option *ngFor="let option of tagService.filteredTags" [value]="option">
+      {{ option }}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>
+<button class="mat-button-24 self-end" [disabled]="inputValue === ''" mat-icon-button matTooltip="Add a new tag" (click)="addTag()"><mat-icon>add</mat-icon></button>

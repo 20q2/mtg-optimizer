@@ -250,15 +250,8 @@
         <span class="search-tag" *ngFor="let selectedTag of selectedTags" (click)="onTagClick(selectedTag);$event.stopPropagation()">
           {{ selectedTag }}
         </span>
-        <button class="mat-button-24 self-end" [disabled]="true" mat-icon-button matTooltip="Add a new tag"><mat-icon>add</mat-icon></button>
-        <mat-form-field>
-          <input type="text" placeholder="Choose an option" matInput [matAutocomplete]="auto">
-          <mat-autocomplete #auto="matAutocomplete">
-            <mat-option *ngFor="let option of tagService.filteredTags" [value]="option">
-              {{ option }}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
+        <app-tag-add class="flex-row flex-grow flex-align-end"></app-tag-add>
+       
       </div>
       <!-- Related cards by tag -->
       <div class="relative" *ngIf="cardsToDisplay.length > 0 || activeFilters.length > 0">
