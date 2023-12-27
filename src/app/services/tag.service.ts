@@ -22,7 +22,7 @@ export class TagService implements OnInit {
   }
 
   filterTags(filterString: string) {
-    this.filteredTags = this.allTags.filter(item => item.includes(filterString));
+    this.filteredTags = this.allTags.filter(item => item.includes(filterString)).reverse();
   }
 
 }

@@ -3,6 +3,7 @@ import { EChartsOption } from 'echarts';
 import { SpellChromaService } from '../services/spell-chroma.service';
 import { ScryfallService } from '../services/scryfall.service';
 import { ManaCurveComponent } from '../mana-curve/mana-curve.component';
+import { ManaCurveService } from '../services/mana-curve.service';
 
 @Component({
   selector: 'app-optimize',
@@ -14,12 +15,12 @@ export class OptimizeComponent implements OnInit {
   chartOptions!: EChartsOption;
   optimalChartOptions!: EChartsOption;
 
-  deckOptimalCurve = {};
+  deckOptimalCurve: {[key: number | string]: number} = {};
 
   constructor(
     public spellChromaService: SpellChromaService,
     private scryfallService: ScryfallService, 
-    private manaCurveService: ManaCurveComponent   
+    private manaCurveService: ManaCurveService   
   ) {}
 
   ngOnInit(): void {
@@ -52,14 +53,14 @@ export class OptimizeComponent implements OnInit {
     this.optimalChartOptions = {
       xAxis: {
         type: 'category',
-        data: Object.keys(this.manaCurve),
+        data: Object.keys(this.deckOptimalCurve),
       },
       yAxis: {
         type: 'value',
       },
       series: [
         {
-          data: Object.keys(this.manaCurve).map(key => this.manaCurve[key]),          
+          data: Object.keys(this.deckOptimalCurve).map(key => this.deckOptimalCurve[key]),          
           type: 'bar',
         },
       ],
@@ -75,6 +76,6 @@ export class OptimizeComponent implements OnInit {
   }
 
   getOptimalDeckCurve() {
-    this.deckOptimalCurve = this.manaCurveService
+    this.deckOptimalCurve = this.manaCurveService.ideal60;
   }
 }

@@ -245,12 +245,14 @@
           </div>
         </div>
       </div>
-      <div class="tag-row flex-row">
-        <mat-icon>local_offer</mat-icon>
-        <span class="search-tag" *ngFor="let selectedTag of selectedTags" (click)="onTagClick(selectedTag);$event.stopPropagation()">
-          {{ selectedTag }}
-        </span>
-        <app-tag-add class="flex-row flex-grow flex-align-end"></app-tag-add>
+      <div class="tag-row flex-row flex-align-space-between">
+        <div class="flex-grow">
+          <mat-icon>local_offer</mat-icon>
+          <span class="search-tag" *ngFor="let selectedTag of selectedTags" (click)="onTagClick(selectedTag);$event.stopPropagation()">
+            {{ selectedTag }}
+          </span>
+        </div>
+        <app-tag-add class="flex-row" (tagClick)="selectedTags.push($event)"></app-tag-add>
        
       </div>
       <!-- Related cards by tag -->

@@ -21,7 +21,7 @@ export class TagAddComponent {
 
 
   addTag() {
-
+    this.tagClick.emit(this.inputValue);
   }
 
 }
