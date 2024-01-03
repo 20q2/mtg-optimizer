@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { EChartsOption } from 'echarts';
 import { SpellChromaService } from '../services/spell-chroma.service';
 
 @Component({
-  selector: 'app-explore',
-  templateUrl: './explore.component.html',
-  styleUrls: ['./explore.component.sass']
+  selector: 'app-welcome',
+  templateUrl: './welcome.component.html',
+  styleUrls: ['./welcome.component.scss']
 })
-export class ExploreComponent {
+export class WelcomeComponent {
  
   constructor(public spellChromaService: SpellChromaService) {}
 }

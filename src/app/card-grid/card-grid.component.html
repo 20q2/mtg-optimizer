@@ -1,12 +1,27 @@
-<div *ngIf="cardsToDisplay" class="grid-container flex-row flex-wrap" >
-    <div *ngFor="let card of cardsToDisplay" class="flex-column card-container" tabindex="0"
-        (mouseover)="card.showingTags = true" (mouseleave)="card.showingTags = false" (focus)="card.showingTags = true" (blur)="card.showingTags = false">
-        <img class="card" *ngIf="card.imageUrl" [src]="card.imageUrl" (click)="previewCardEmit.emit(card)" />
-        <div class="flex-column flex-align-center card-description">
-        <div>{{ card.name }}</div>
-        <div *ngIf="sortingMode === 'latest'">{{ card.released_at }}</div>
-        <div *ngIf="sortingMode !== 'latest'">{{ card.type_line }}</div>
-        <div *ngIf="sortingMode === 'cmc'">{{ card.cmc }}</div>
+<div *ngIf="cardsToDisplay" class="grid-container flex-row flex-wrap" style="--preview-card-size: {{ 75 * spellChromaService.previewCardSize }}px">
+    <div
+        *ngFor="let card of cardsToDisplay"
+        class="flex-column card-container relative"
+        tabindex="0"
+        (mouseover)="card.showingTags = true"
+        (mouseleave)="card.showingTags = false"
+        (focus)="card.showingTags = true"
+        (blur)="card.showingTags = false"
+    >
+        <img
+            class="card"
+            [ngStyle]="{'max-width':  75 * spellChromaService.previewCardSize + 'px'}"
+            *ngIf="card.imageUrl"
+            [src]="card.imageUrl"
+            (click)="previewCardEmit.emit(card)" 
+        />
+        <div class="flex-row flex-align-center card-description" (click)="copyCardName(card.name)">
+            <div class="flex-column description">
+                <div class="card-name">{{ card.name }}</div>
+                <div class="card-detail" *ngIf="sortingMode === 'latest'">{{ card.released_at }}</div>
+                <div class="card-detail" *ngIf="sortingMode !== 'latest'">{{ card.type_line }}</div>
+                <div class="card-detail" *ngIf="sortingMode === 'cmc'">{{ card.cmc }}</div>
+            </div>  
         </div>
     </div>
 </div>

@@ -11,6 +11,10 @@
     flex-direction: column;
 }
 
+.flex-basis-transition {
+    transition: flex-basis .3s ease-out;
+}
+
 .flex-wrap {
     flex-wrap: wrap;
 }
@@ -114,4 +118,24 @@
 
 .display-none {
     display: none;
+}
+
+.padding-8 {
+    padding: 8px
+}
+
+.padding-12 {
+    padding: 12px
+}
+
+.padding-16 {
+    padding: 16px
+}
+
+.padding-24 {
+    padding: 24px
+}
+
+::ng-deep mat-tooltip-component {
+    white-space: pre-line;
 }

@@ -6,6 +6,7 @@
     padding: 0;
 
     --border-color: gold;
+
 }
 
 @font-face {
@@ -343,9 +344,9 @@ button.parse-button {
     .app-loading-spinner {
         animation: hueShift 10s infinite;
         position: absolute;
-        inset: 50% 50% 50% 50%;
-        stroke: #e320a5;
-        z-index: 9999; 
+        inset: 0 0 0 0;
+        margin: auto;
+        stroke: #e320a5;        
 
         &::before {
             animation: growShrink 1s infinite alternate;
@@ -358,13 +359,20 @@ button.parse-button {
     }
 
     div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         position: absolute;
         font-size: 1.5rem;
-        text-align: center;
-        inset: 67% 50% 50% 47%;
         white-space: nowrap;
-        font-family: 'BELEREN';
+        font-family: "BELEREN";
         color: white;
+        text-align: center;
+        margin: auto;
+        width: 100%;
+        height: calc(100% - 150px);
+        margin-top: 150px;
+        text-shadow: 1px 1px 3px #00000060;
     }
 }
 
@@ -512,7 +520,7 @@ $button-toggle-height: 24px;
 
 ::ng-deep .app-card-explorer {
     .grid-container {
-        max-height: calc(100vh - 340px);
+        max-height: calc(100vh - 360px);
         overflow: auto;
     }
 }
@@ -599,4 +607,35 @@ $button-toggle-height: 24px;
 .app-optimize {
     display: flex;
     flex-grow: 1;
+}
+
+.deck-view-stats {
+    color: white;
+    background-color: #000000aa;
+    border: 1px solid gold;
+    overflow: auto;
+    max-height: calc(100vh - 162px);
+    gap: 10px;
+
+    .all-tags-container {
+        gap: 10px;
+        padding: 16px;
+    }
+
+    .line-tag {
+        cursor: pointer;
+        color: white;
+        border: 1px solid var(--border-color);
+        padding: 10px;
+        border-radius: 4px;
+        background-color: #ffffaa40;
+
+        &:hover, &:focus-visible {
+            filter: brightness(1.4);
+        }
+
+        &.active {
+            background-color: rgba(102, 255, 102, 0.5019607843);
+        }
+    }
 }

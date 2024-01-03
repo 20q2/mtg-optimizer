@@ -10,6 +10,7 @@ import { ScryfallService } from './services/scryfall.service';
 import { TagService } from './services/tag.service';
 
 
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -23,6 +24,7 @@ export class AppComponent implements OnInit {
   @ViewChild('searchInput')
   searchInput!: HTMLInputElement;
   
+  appMode = AppMode;
 
   deckTextInput = '';
   cardsToDisplay: ScryfallCardObject[] = [];
@@ -36,29 +38,12 @@ export class AppComponent implements OnInit {
 
   lastSearchedColors = '';
 
-  xCsrfToken: string = '';
-  sessionToken: string = '';
-
   serverUrl = 'https://1f5fr8bzm2.execute-api.us-east-1.amazonaws.com/default/get-tags-proxy';
   scryfallSearchUrl = "https://api.scryfall.com/cards/search";
 
-  appIsLoading = false;
-  lastSortMode = 'name';
-  sortAscending = true;
-
   suggestedCommanders: ScryfallCardObject[] = [];
 
-  /** All the tags of the deck, aggregated */
-  tags: {[key: string]: number} = {};
-
-  topTags: { key: string, instances: number }[] = [];
-
-  appMode: AppMode = AppMode.EXPLORE;
   deckListMode = 'input';
-
-  /** Used to make explorer/optimizer fullscreen */
-  altModeFullscreen = false;
-
   deckColorIdentity = "WUBRG";
 
   constructor(
@@ -81,15 +66,15 @@ export class AppComponent implements OnInit {
 
   async parseDeckList() {
     this.spellChromaService.deck = [];
-    this.tags = {};
-    this.appMode = AppMode.EXPLORE;
+    this.spellChromaService.tags = {};
+    this.spellChromaService.appMode = AppMode.EXPLORE;
 
     if (this.deckTextInput.trim() === '') {
       return;
     }
 
     const lines = this.deckTextInput.split('\n');        
-    this.appIsLoading = true;
+    this.spellChromaService.appIsLoading = true;
     for (let line of lines) {
       line = line.trim();
       const match = line.match(/(\d+x?)?\s*([^(\n]+)/);
@@ -100,12 +85,11 @@ export class AppComponent implements OnInit {
         });
       }
     }
-    this.appIsLoading = false;
+    this.spellChromaService.appIsLoading = false;
     this.spellChromaService.deck.sort((a,b) => a.name.localeCompare(b.name));
     this.assignColorIdentity();
     this.calculateDifferentCardTypes();
-    // this.populateChart();
-    this.topTags = this.findTop10Tags();
+    this.spellChromaService.topTags = this.findTop10Tags();
 
     this.cardsToDisplay = this.spellChromaService.deck.slice(0);
     this.deckListMode = 'visual'
@@ -113,10 +97,6 @@ export class AppComponent implements OnInit {
 
   clearPreviewCard() {
     this.spellChromaService.previewCard = undefined;
-  }
-
-  onIgnoreList(tag: string) {
-    return toIgnore.includes(tag) || /cycle-/.test(tag) || /-storyline-in-cards/.test(tag);
   }
 
   assignColorIdentity() {
@@ -149,20 +129,20 @@ export class AppComponent implements OnInit {
       },
       (error) => {
         this.snackbarService.showSnackbar('There was an error trying to fetch information on that tag');
-        this.appIsLoading = false;
+        this.spellChromaService.appIsLoading = false;
         console.log('Error fetching card data:', error);
       }
     );
   }
 
   async fetchPreviewCardTags(cardSetName: string, cardCollectorNumber: string) {
-    this.appIsLoading = true;
+    this.spellChromaService.appIsLoading = true;
     const callUrl = this.serverUrl + '?setname=' + cardSetName + '&number=' + cardCollectorNumber;
     this.http.get(callUrl).subscribe((result: any) => {
       if (this.spellChromaService.previewCard) {
         this.spellChromaService.previewCard.tags = result['data']['card']['taggings'];      
       }
-      this.appIsLoading = false;
+      this.spellChromaService.appIsLoading = false;
     });
   }
 
@@ -193,7 +173,7 @@ export class AppComponent implements OnInit {
   }
 
   swapAppMode(mode: AppMode) {
-    this.appMode = mode;
+    this.spellChromaService.appMode = mode;
   }
 
   onCardClick(card: ScryfallCardObject) {
@@ -227,7 +207,10 @@ export class AppComponent implements OnInit {
       tagString += 'otag:' + tag + ' ';
     })
 
-    const colorString = this.colorPicker.getColorIdentityString();  
+    let colorString = 'WUBRG';
+    if (this.colorPicker) {
+      colorString = this.colorPicker.getColorIdentityString();  
+    }
     this.lastSearchedColors = colorString;
 
     const sub = this.http.get(this.scryfallSearchUrl, {
@@ -236,10 +219,10 @@ export class AppComponent implements OnInit {
       }
     })
 
-    this.appIsLoading = true;
+    this.spellChromaService.appIsLoading = true;
 
     sub.subscribe((result: any) => {
-      this.appIsLoading = false;
+      this.spellChromaService.appIsLoading = false;
       this.relatedCardsByTag = [];
       this.scryfallService.moreRelatedCardsLink = '';    
       this.scryfallService.hasMoreRelatedCards = result.has_more;
@@ -264,18 +247,28 @@ export class AppComponent implements OnInit {
       } else {
         this.snackbarService.showSnackbar('There was an error when loading tag related cards');
       }
-      this.appIsLoading = false;
+      this.spellChromaService.appIsLoading = false;
     });
+  }
+
+  incrementPreviewCardSize(amount: number) {
+    this.spellChromaService.previewCardSize += amount;
+    if (this.spellChromaService.previewCardSize < 0) {
+      this.spellChromaService.previewCardSize = 0;
+    }
+    if (this.spellChromaService.previewCardSize > 5) {
+      this.spellChromaService.previewCardSize = 5;
+    }
   }
 
   relatedCardPages: string[] = [];
   loadNextRecommendedPage() {
-    this.appIsLoading = true;
+    this.spellChromaService.appIsLoading = true;
     this.relatedCardPages.push()
 
     this.http.get(this.scryfallService.moreRelatedCardsLink).subscribe(      
       (result: any) => {
-        this.appIsLoading = false;
+        this.spellChromaService.appIsLoading = false;
         this.scryfallService.moreRelatedCardsLink = '';    
         this.scryfallService.hasMoreRelatedCards = result.has_more;
 
@@ -323,13 +316,33 @@ export class AppComponent implements OnInit {
       })
     }    
 
-    if (value === this.lastSortMode && this.sortAscending) {
+    if (value === this.spellChromaService.lastSortMode && this.spellChromaService.sortAscending) {
       this.relatedCardsByTag.reverse();
-      this.sortAscending = false;
+      this.spellChromaService.sortAscending = false;
     } else {
-      this.lastSortMode = value;
-      this.sortAscending = true;
+      this.spellChromaService.lastSortMode = value;
+      this.spellChromaService.sortAscending = true;
     }    
+  }
+
+  getSortedAllTags() {  
+    let entries =  Object.entries(this.spellChromaService.tags).sort((a,b) => {
+      if (this.spellChromaService.allTagsLastSortMode === 'name') {
+        return a[0].localeCompare(b[0]);
+      } else if (this.spellChromaService.allTagsLastSortMode === 'number') {
+        return b[1] - a[1];
+      } else {
+        return a[0].localeCompare(b[0]);
+      }
+    }); 
+
+    if (!this.spellChromaService.allTagsSortAscending) {
+      entries.reverse();
+    }
+
+    entries = entries.filter(item => !this.tagService.onIgnoreList(item[0]));
+
+    return entries;
   }
 
   filterTagResults(filterString: string): void {
@@ -368,7 +381,7 @@ export class AppComponent implements OnInit {
       
     }
 
-    ret.sort(value => this.onIgnoreList(value) ? 1 : -1);
+    ret.sort(value => this.tagService.onIgnoreList(value) ? 1 : -1);
 
     return ret;
   }
@@ -377,42 +390,26 @@ export class AppComponent implements OnInit {
     for (let card of this.spellChromaService.deck) {
       const condensed = this.compressAllCardTags(card.tags);
       for (let tag of condensed) {
-        if (!this.tags[tag]) {
-          this.tags[tag] = 1;
+        if (!this.spellChromaService.tags[tag]) {
+          this.spellChromaService.tags[tag] = 1;
         } else {
-          this.tags[tag] += 1;
+          this.spellChromaService.tags[tag] += 1;
         }
       }
     }
 
-    return this.tags;
+    return this.spellChromaService.tags;
   }
-
-  /** dw bout this */
-  populateChart() {
-    const xAxisLabels = [];
-
-    const tagKeys = Object.keys(this.tags);
-    for (const key of tagKeys) {
-      xAxisLabels.push(key);
-    }
-
-    console.log(this.findTop10Tags());
-    // this.echart.setOption({xAxis: { type: 'category', data: xAxisLabels }});
-
-  }
-
-
 
   findTop10Tags(): { key: string, instances: number }[] {
     let topTags: { key: string, instances: number }[] = [];
-    const tagKeys = Object.keys(this.tags);
+    const tagKeys = Object.keys(this.spellChromaService.tags);
 
     for (let key of tagKeys) {
-      const found = topTags.find(item => item.instances <= this.tags[key]);
-      if ((found || topTags.length < 10) && !this.onIgnoreList(key)) {
+      const found = topTags.find(item => item.instances <= this.spellChromaService.tags[key]);
+      if ((found || topTags.length < 10) && !this.tagService.onIgnoreList(key)) {
         topTags = topTags.filter(item => item !== found);
-        topTags.push({instances: this.tags[key], key: key});
+        topTags.push({instances: this.spellChromaService.tags[key], key: key});
       }
     }
 
@@ -437,6 +434,18 @@ export class AppComponent implements OnInit {
       }
       return true;
     });
+  }
+
+  filterDeckByCmc(cmc: number) {
+    if (cmc === -1) {
+      this.cardsToDisplay = this.spellChromaService.deck.filter(item => {
+        return item.type_line.toLocaleLowerCase().includes('land');
+      });
+    } else {
+      this.cardsToDisplay = this.spellChromaService.deck.filter(item => {
+        return item.cmc === cmc;
+      });
+    }
   }
 
   getTagSlug(tag: any) {

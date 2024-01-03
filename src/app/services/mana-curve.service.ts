@@ -94,13 +94,15 @@ export class ManaCurveService {
     }
 
     let toCompare = undefined;
-    if (deck.length === 40) {
+    if (deck.length <= 40) {
       toCompare = this.ideal40;
-    } else if (deck.length === 60) {      
+    } else if (deck.length <= 60) {      
       toCompare = this.ideal60;
-    } else {
+    } else if (deck.length <= 100) {
+      toCompare = this.commander2;
       console.log('oh no its commander')
-      return;
+    } else {
+      toCompare = this.ideal60;
     }
 
     const keys = Object.keys(toCompare);

@@ -5,15 +5,13 @@ import { HttpClient } from '@angular/common/http';
 import { loadingPhrases } from '../model/loading-phrases';
 import { toIgnore } from '../model/proper-words';
 import { ScryfallService } from './scryfall.service';
+import { AppMode } from '../model/app-mode';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SpellChromaService {
   
-  xCsrfToken: string = '';
-  sessionToken: string = '';
-
   deck: ScryfallCardObject[] = []
   deckTags: CardTagObject[] = [];
   previewCard?: ScryfallCardObject;
@@ -21,7 +19,26 @@ export class SpellChromaService {
   activeFilters: string[] = [];
   filteredDeck: ScryfallCardObject[] = [];
 
+  /** All the tags of the deck, aggregated */
+  tags: {[key: string]: number} = {};
+
+  topTags: { key: string, instances: number }[] = [];
+
   loadingPhrase = '';
+
+  appMode: AppMode = AppMode.EXPLORE;
+  sortAscending: boolean = true;
+  lastSortMode = 'name';
+  appIsLoading = false;
+
+  allTagsSortAscending: boolean = true;
+  allTagsLastSortMode = 'name';
+  
+  /** Used to make explorer/optimizer fullscreen */
+  altModeFullscreen = false;
+  previewCardSize = 3;
+
+
 
   constructor() {
     this.getRandomLoadingQuote();
@@ -140,7 +157,7 @@ export class SpellChromaService {
   getRandomLoadingQuote() {
     const i = Math.floor(Math.random() * loadingPhrases.length);
     this.loadingPhrase = loadingPhrases[i];
-  }
+  }  
 
 }
 

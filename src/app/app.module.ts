@@ -25,6 +25,8 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { TagAddComponent } from './tag-add/tag-add.component';
 import { MatInputModule } from '@angular/material/input';
+import { KeyValuePipe } from '@angular/common';
+import { WelcomeComponent } from './welcome/welcome.component';
 
 
 
@@ -39,7 +41,8 @@ import { MatInputModule } from '@angular/material/input';
     OptimizeComponent,
     ExploreComponent,
     ReplacePlaceholderDirective,
-    TagAddComponent
+    TagAddComponent,
+    WelcomeComponent
   ],
   imports: [
     BrowserModule,
@@ -61,7 +64,7 @@ import { MatInputModule } from '@angular/material/input';
     MatInputModule,
     
   ],
-  providers: [SnackbarService],
+  providers: [SnackbarService, KeyValuePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

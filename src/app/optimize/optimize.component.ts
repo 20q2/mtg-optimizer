@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { EChartsOption } from 'echarts';
 import { SpellChromaService } from '../services/spell-chroma.service';
 import { ScryfallService } from '../services/scryfall.service';
@@ -11,11 +11,17 @@ import { ManaCurveService } from '../services/mana-curve.service';
   styleUrls: ['./optimize.component.scss']
 })
 export class OptimizeComponent implements OnInit {
+  @Output()
+  cmcButtonClickEmitter: EventEmitter<number> = new EventEmitter<number>();
+
   manaCurve: {[key: string]: number} = {};
   chartOptions!: EChartsOption;
   optimalChartOptions!: EChartsOption;
 
   deckOptimalCurve: {[key: number | string]: number} = {};
+
+  highValueTags: string[] = ['draw', 'ramp', 'removal'];
+  missingHighValueTags: string[] = [];
 
   constructor(
     public spellChromaService: SpellChromaService,
@@ -25,6 +31,7 @@ export class OptimizeComponent implements OnInit {
 
   ngOnInit(): void {
     this.getOptimalDeckCurve();
+    this.missingHighValueTags = this.checkHighValueTags();
 
     for (let card of this.spellChromaService.deck) {
       if (card.type_line.toLocaleLowerCase().includes('land')) {
@@ -67,6 +74,18 @@ export class OptimizeComponent implements OnInit {
     };
   }
 
+  checkHighValueTags(): string[] {
+    let missingTags = this.highValueTags;
+    for (const key of Object.keys(this.spellChromaService.tags)) {
+      if (this.highValueTags.includes(key)) {
+        missingTags = missingTags.filter(item => item !== key);
+      }
+      
+    }
+    return missingTags;
+  }
+
+
   updateManaCurve(number: number) {
     if (!this.manaCurve[number.toString()]) {
       this.manaCurve[number.toString()] = 1;
@@ -77,5 +96,12 @@ export class OptimizeComponent implements OnInit {
 
   getOptimalDeckCurve() {
     this.deckOptimalCurve = this.manaCurveService.ideal60;
+  }
+
+  onCmcButtonClick(event: number | string) {
+    if (event === 'land') {
+      event = -1;
+    }
+    this.cmcButtonClickEmitter.emit(Number(event));
   }
 }

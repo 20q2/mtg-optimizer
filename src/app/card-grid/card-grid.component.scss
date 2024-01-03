@@ -1,9 +1,9 @@
 @import '../app.component.scss';
 
-.grid-container {
+.grid-container {    
     display: grid;
     position: relative;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(calc(var(--preview-card-size) + 10px), 1fr));
     gap: 10px;
     margin: 0;
     padding: 10px;
@@ -50,4 +50,11 @@ img.card {
             background-color: #ffff66cc;
         }
     }
+}
+
+.card-description {
+    background-color: #ffffaa30;
+    margin-top: 0px;    
+    font-size: calc(var(--preview-card-size) / 13);
+    border-radius: 10px;
 }

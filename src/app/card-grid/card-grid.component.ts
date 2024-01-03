@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ScryfallCardObject } from '../model/tag-objects';
+import { SpellChromaService } from '../services/spell-chroma.service';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 @Component({
   selector: 'app-card-grid',
@@ -15,5 +17,14 @@ export class CardGridComponent {
 
   @Output()
   previewCardEmit: EventEmitter<ScryfallCardObject> = new EventEmitter();
+
+  constructor(
+    public spellChromaService: SpellChromaService,
+    private clipboard: Clipboard
+    ) {}
+
+  copyCardName(cardName: string) {
+    this.clipboard.copy(cardName);
+  }
 
 }

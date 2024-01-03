@@ -1,0 +1,17 @@
+@import '../../_variables.scss';
+@import '../model/mana-symbols.scss';
+
+.welcome-container {
+    background-color: $black-background-transparent;
+    border: 1px solid var(--border-color);
+    overflow:auto;
+    color: white;
+    padding: 24px;
+    font-size: 24px;
+
+    .logo {
+        max-width: 200px;
+        margin: 0 auto;
+        filter: drop-shadow(1px 0px 2px #ffffdd40) drop-shadow(1px 1px 2px #ffffdd40) drop-shadow(-1px 0px 2px #ffffdd40) drop-shadow(-1px -1px 2px #ffffdd40)        
+    }
+}

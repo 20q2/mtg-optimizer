@@ -1,4 +1,4 @@
-<div class="app-loading-backdrop" *ngIf="appIsLoading">
+<div class="app-loading-backdrop" *ngIf="spellChromaService.appIsLoading">
   <mat-spinner class="app-loading-spinner" >
     <img src="../assets/logo-transparent.png" height="32px"/>
   </mat-spinner>
@@ -14,9 +14,10 @@
       <div class="title white">MTG: SpellChroma - Card search simplified</div>
     </div>
     <div>
-      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.VIEW)" [ngClass]="{'active': appMode === AppMode.VIEW}"><img src='../assets/explore-icon.png' height="16" /> Deck View</button>
-      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.EXPLORE)" [ngClass]="{'active': appMode === AppMode.EXPLORE}"><img src='../assets/explore-icon.png' height="16" /> Card Explorer</button>
-      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.OPTIMIZE)" [ngClass]="{'active': appMode === AppMode.OPTIMIZE}"><img src='../assets/explore-icon.png' height="16" /> Deck Optimizer</button>
+      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.WELCOME)" [ngClass]="{'active': spellChromaService.appMode === AppMode.WELCOME}"><img src='../assets/explore-icon.png' height="16" /> Welcome</button>
+      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.VIEW)" [ngClass]="{'active': spellChromaService.appMode === AppMode.VIEW}"><img src='../assets/explore-icon.png' height="16" /> Deck View</button>
+      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.EXPLORE)" [ngClass]="{'active': spellChromaService.appMode === AppMode.EXPLORE}"><img src='../assets/explore-icon.png' height="16" /> Card Explorer</button>
+      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.OPTIMIZE)" [ngClass]="{'active': spellChromaService.appMode === AppMode.OPTIMIZE}"><img src='../assets/explore-icon.png' height="16" /> Deck Optimizer</button>
     </div>
   </div>
 
@@ -78,7 +79,7 @@
                   *ngFor="let tag of compressAllCardTags(card.tags)"
                   (click)="$event.stopPropagation(); onTagClick(tag)"
                   matTooltip="Start a search using this tag"
-                  [ngClass]="{'active': selectedTags.includes(tag), 'unhelpful': onIgnoreList(tag)}"
+                  [ngClass]="{'active': selectedTags.includes(tag), 'unhelpful': tagService.onIgnoreList(tag)}"
                 >
                   <mat-icon>local_offer</mat-icon> {{ tag }}
                 </div>
@@ -111,7 +112,7 @@
         <button 
           *ngIf="deckListMode === 'input'"
           class="hover-darken parse-button"
-          [disabled]="appIsLoading"
+          [disabled]="spellChromaService.appIsLoading"
           (click)="parseDeckList()"
         >
           <img src="../assets/logo-transparent.png" /> Load Deck
@@ -123,7 +124,7 @@
     <div class="flex-column w25 deck-stats-column" *ngIf="this.spellChromaService.deck.length !== 0 && (deckListMode === 'visual' || deckListMode === 'text')">      
       <div class="section-header">Top Deck Tags</div>
       <div class="deck-top-tags flex-row flex flex-wrap">
-        <div class="flex-row" *ngFor="let tag of topTags">
+        <div class="flex-row" *ngFor="let tag of spellChromaService.topTags">
           <div
               [ngStyle]="{'font-size': tag.instances + 12 + 'px'}"
               class="tag top-tag"                            
@@ -164,7 +165,7 @@
                   class="tag"
                   [ngStyle]="{'animation-delay': i * 10 + 'ms'}"
                   (click)="onTagClick(tag)"
-                  [ngClass]="{'active': selectedTags.includes(tag), 'unhelpful': onIgnoreList(tag)}"
+                  [ngClass]="{'active': selectedTags.includes(tag), 'unhelpful': tagService.onIgnoreList(tag)}"
                 >
                 <mat-icon>local_offer</mat-icon> {{tag}}
                 </div>
@@ -182,42 +183,42 @@
     </div>
     
     <!-- Card Explore Column -->
-    <div *ngIf="appMode === AppMode.EXPLORE" class="flex-column w50" [ngClass]="{'full-screen': altModeFullscreen}">
+    <div *ngIf="spellChromaService.appMode === AppMode.EXPLORE" class="flex-column flex-basis-transition w50" [ngClass]="{'full-screen': spellChromaService.altModeFullscreen}">
       <div class="section-header flex-row flex-align-space-between ">
         Card Explorer
-        <button mat-icon-button (click)="altModeFullscreen = !altModeFullscreen">
-          <mat-icon *ngIf="!altModeFullscreen">open_in_full</mat-icon>
-          <mat-icon *ngIf="altModeFullscreen">close_fullscreen</mat-icon>
+        <button mat-icon-button (click)="spellChromaService.altModeFullscreen = !spellChromaService.altModeFullscreen">
+          <mat-icon *ngIf="!spellChromaService.altModeFullscreen">open_in_full</mat-icon>
+          <mat-icon *ngIf="spellChromaService.altModeFullscreen">close_fullscreen</mat-icon>
         </button>
       </div>
       <div class="sort-row flex-wrap flex-row flex-align-space-between">
         <div class="flex-row gap-24">
           <div class="left-container flex-row">
             <mat-icon>sort</mat-icon>
-            <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'name'}"(click)="sortRelatedBy($event)" value="name">
+            <button mat-raised-button class="sort-button" [ngClass]="{'active': spellChromaService.lastSortMode === 'name'}"(click)="sortRelatedBy($event)" value="name">
               Name
-              <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
-              <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+              <mat-icon *ngIf="!spellChromaService.sortAscending">arrow_upward</mat-icon>
+              <mat-icon *ngIf="spellChromaService.sortAscending">arrow_downward</mat-icon>
             </button>
-            <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'cmc'}" (click)="sortRelatedBy($event)" value="cmc">
+            <button mat-raised-button class="sort-button" [ngClass]="{'active': spellChromaService.lastSortMode === 'cmc'}" (click)="sortRelatedBy($event)" value="cmc">
               CMC
-              <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
-              <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+              <mat-icon *ngIf="!spellChromaService.sortAscending">arrow_upward</mat-icon>
+              <mat-icon *ngIf="spellChromaService.sortAscending">arrow_downward</mat-icon>
             </button>
-            <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'color'}" (click)="sortRelatedBy($event)" value="color">
+            <button mat-raised-button class="sort-button" [ngClass]="{'active': spellChromaService.lastSortMode === 'color'}" (click)="sortRelatedBy($event)" value="color">
               Color
-              <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
-              <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+              <mat-icon *ngIf="!spellChromaService.sortAscending">arrow_upward</mat-icon>
+              <mat-icon *ngIf="spellChromaService.sortAscending">arrow_downward</mat-icon>
             </button>
-            <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'type'}" (click)="sortRelatedBy($event)" value="type">
+            <button mat-raised-button class="sort-button" [ngClass]="{'active': spellChromaService.lastSortMode === 'type'}" (click)="sortRelatedBy($event)" value="type">
               Type
-              <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
-              <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+              <mat-icon *ngIf="!spellChromaService.sortAscending">arrow_upward</mat-icon>
+              <mat-icon *ngIf="spellChromaService.sortAscending">arrow_downward</mat-icon>
             </button>
-            <button mat-raised-button class="sort-button" [ngClass]="{'active': lastSortMode === 'latest'}" (click)="sortRelatedBy($event)" value="latest">
+            <button mat-raised-button class="sort-button" [ngClass]="{'active': spellChromaService.lastSortMode === 'latest'}" (click)="sortRelatedBy($event)" value="latest">
               Latest
-              <mat-icon *ngIf="!sortAscending">arrow_upward</mat-icon>
-              <mat-icon *ngIf="sortAscending">arrow_downward</mat-icon>
+              <mat-icon *ngIf="!spellChromaService.sortAscending">arrow_upward</mat-icon>
+              <mat-icon *ngIf="spellChromaService.sortAscending">arrow_downward</mat-icon>
             </button>
           </div>
 
@@ -252,7 +253,9 @@
             {{ selectedTag }}
           </span>
         </div>
-        <app-tag-add class="flex-row" (tagClick)="selectedTags.push($event)"></app-tag-add>
+        <button mat-icon-button (click)="incrementPreviewCardSize(1)" matTooltip="Increase card size"><mat-icon>add_circle_outline</mat-icon></button>
+        <button mat-icon-button (click)="incrementPreviewCardSize(-1)" matTooltip="Decrease card size"><mat-icon>remove_circle_outline</mat-icon></button>
+        <app-tag-add class="flex-row" (tagClick)="onTagClick($event)"></app-tag-add>
        
       </div>
       <!-- Related cards by tag -->
@@ -263,7 +266,7 @@
             *ngIf="displayRelatedCards"
             [cardsToDisplay]="filteredRelatedCardsByTag"
             (previewCardEmit)="onCardClick($event)"
-            [sortingMode]="lastSortMode"
+            [sortingMode]="spellChromaService.lastSortMode"
           ></app-card-grid>
           <div class="flex-row flex-align-center filler-card load-more" *ngIf="scryfallService.moreRelatedCardsLink !== ''">
             <button class="filler-card" mat-stroked-button color="primary" (click)="loadNextRecommendedPage()">Load More</button>
@@ -273,26 +276,51 @@
     </div>
 
     <!-- Extra deck info for view mode -->
-    <div class="deck-view-stats" class="flex-column w50" [ngClass]="{'full-screen': altModeFullscreen}" *ngIf="appMode === AppMode.VIEW">
-      <button mat-icon-button (click)="altModeFullscreen = !altModeFullscreen">
-        <mat-icon *ngIf="!altModeFullscreen">open_in_full</mat-icon>
-        <mat-icon *ngIf="altModeFullscreen">close_fullscreen</mat-icon>
-      </button>
-      <div class="all-tags-container">
-        <div *ngFor="let tag of getObjectKeys(tags)">
-          {{ tag }}: {{ tags[tag] }}
-        </div>
+    <div class="deck-view-stats flex-column flex-basis-transition w50" [ngClass]="{'full-screen': this.spellChromaService.altModeFullscreen}" *ngIf="spellChromaService.appMode === AppMode.VIEW">
+      <div class="section-header flex-row flex-align-space-between ">
+        Deck View
+        <button mat-icon-button (click)="spellChromaService.altModeFullscreen = !spellChromaService.altModeFullscreen" style="margin-left: auto;">
+          <mat-icon *ngIf="!spellChromaService.altModeFullscreen">open_in_full</mat-icon>
+          <mat-icon *ngIf="spellChromaService.altModeFullscreen">close_fullscreen</mat-icon>        
+        </button>
+      </div>
+
+      <!-- Sorting -->
+      <div class="flex-row padding-16 gap-10">        
+        <mat-icon>sort</mat-icon>
+        <button mat-raised-button class="sort-button" [ngClass]="{'active': spellChromaService.allTagsLastSortMode === 'name'}"(click)="spellChromaService.allTagsLastSortMode = 'name'">
+          Name
+          <mat-icon *ngIf="!spellChromaService.sortAscending">arrow_upward</mat-icon>
+          <mat-icon *ngIf="spellChromaService.sortAscending">arrow_downward</mat-icon>
+        </button>
+        <button mat-raised-button class="sort-button" [ngClass]="{'active': spellChromaService.allTagsLastSortMode === 'number'}" (click)="spellChromaService.allTagsLastSortMode = 'number'">
+          Number
+          <mat-icon *ngIf="!spellChromaService.sortAscending">arrow_upward</mat-icon>
+          <mat-icon *ngIf="spellChromaService.sortAscending">arrow_downward</mat-icon>
+        </button>        
+      </div>
+      
+      <div class="all-tags-container flex-row flex-wrap">
+        <button
+          class="line-tag"
+          *ngFor="let tag of getSortedAllTags()"
+          (click)="filterDeckByTag(tag[0])"
+          [ngStyle]="{'font-size': 12 + tag[1] * 0.65 + 'px'}"
+          [ngClass]="{'active': activeFilters.includes(tag[0])}"
+        >
+          {{ tag[0] }}: {{ tag[1] }}
+        </button>
         
       </div>
     </div>
 
-    <app-optimize class="app-optimize" *ngIf="appMode === AppMode.OPTIMIZE"></app-optimize>
-
+    <app-optimize class="app-optimize" *ngIf="spellChromaService.appMode === AppMode.OPTIMIZE" (cmcButtonClickEmitter)="filterDeckByCmc($event)"></app-optimize>
+    <app-welcome *ngIf="spellChromaService.appMode === AppMode.WELCOME"></app-welcome>
   </div>
 
   
 
-  <app-explore *ngIf="appMode === AppMode.EXPLORE"></app-explore>
+  <!-- <app-explore *ngIf="spellChromaService.appMode === AppMode.EXPLORE"></app-explore> -->
 
   <div class="flex-row">
     
