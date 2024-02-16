@@ -86,7 +86,7 @@ export class CardGridComponent {
           this.isCardMoving = false;
         });
     }
-}
+  }
 
 
 
