@@ -4,41 +4,54 @@
     display: grid;
     position: relative;
     grid-template-columns: repeat(auto-fit, minmax(calc(var(--preview-card-size) + 10px), 1fr));
-    gap: 10px;
+    gap: 24px;
     margin: 0;
     padding: 10px;
     background-color: #999;
     border: 2px var(--border-color) solid;
     border-top: none;
+    background: #777 url(../../assets/grey-wave-background.png) repeat;
+    background-blend-mode: exclusion;
 
     img {
         z-index: 1;
     }
 }
 
-img.card {
+img.card, img.card-shadow {
     max-width: 225px;
     border-radius: 10px;
     margin: auto;
     cursor: pointer;
     transition: .2s ease-out;
     box-shadow: 0px 0px 30px #000000b0;
+    transform: translateZ(0);
+
+    perspective: 1000px;
+    position: absolute;
+    transform-style: preserve-3d;
+   
+    outline: 2px solid #000; /* Add an outline */    
 
     &:hover, &:focus-visible {
-        transform: scale(1.10);
         box-shadow: 0 0 10px #00000040;
     }
 
     &:active {
         transition: .1s;
-        transform: scale(1);
+        scale: .9;
     }
+}
+
+.card-shadow {
+    opacity: 0.5;
 }
 
 .card-container {
     margin: 1rem;
     z-index: 1;
     position: relative;
+    height: calc(var(--preview-card-size) * 1.255);
 
     .card-tags {
         position: absolute;
@@ -48,6 +61,7 @@ img.card {
 
         .tag {
             background-color: #ffff66cc;
+            cursor: help;
         }
     }
 }

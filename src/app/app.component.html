@@ -2,13 +2,19 @@
   <mat-spinner class="app-loading-spinner" >
     <img src="../assets/logo-transparent.png" height="32px"/>
   </mat-spinner>
-  <div>{{spellChromaService.loadingPhrase}}...</div>
+  <div class="loading-phrases">
+    {{spellChromaService.loadingPhrase}}...
+    <div class="loading-bar-container">
+      <div class="loading-bar" [ngStyle]="{'width': loadingAmount + '%' }"></div>
+    </div>
+  </div>
+  
 </div>
 
 <div class="page-container flex-column">
   <img class="page-background" [src]="spellChromaService.getBackgroundFromColorIdentity(deckColorIdentity)" />
   <!-- Navbar -->
-  <div class="flex-row flex-align-space-between navbar">
+  <div class="flex-row flex-align-space-between navbar app-default-theme">
     <div class="flex-row">
       <img src="../assets/logo-transparent.png" height="36px" />
       <div class="title white">MTG: SpellChroma - Card search simplified</div>
@@ -28,7 +34,7 @@
       <div class="flex-column fullheight w100">
         
         <!-- Header -->
-        <div class="section-header flex-align-space-between flex-row deck-list-header">
+        <div class="section-header flex-align-space-between flex-row deck-list-header app-default-theme">
           <div>Deck List</div>
           <div>
             <mat-button-toggle-group [(ngModel)]="deckListMode" class="input-deck-button">
@@ -55,7 +61,7 @@
 
         <!-- Input view -->
         <ng-container *ngIf="deckListMode === 'input'">
-          <textarea class="input-area flex-grow" [(ngModel)]="deckTextInput" placeholder="Enter your decklist"></textarea>
+          <textarea class="input-area flex-grow" [(ngModel)]="deckTextInput" placeholder="Enter your decklist&#10;&#10;Example:&#10;1x Harmonize&#10;1 Opt&#10;Beast Within"></textarea>
         </ng-container>
 
         <!-- Text view -->
@@ -122,7 +128,7 @@
 
     <!-- Top deck stats -->
     <div class="flex-column w25 deck-stats-column" *ngIf="this.spellChromaService.deck.length !== 0 && (deckListMode === 'visual' || deckListMode === 'text')">      
-      <div class="section-header">Top Deck Tags</div>
+      <div class="section-header app-default-theme">Top Deck Tags</div>
       <div class="deck-top-tags flex-row flex flex-wrap">
         <div class="flex-row" *ngFor="let tag of spellChromaService.topTags">
           <div
@@ -153,7 +159,7 @@
 
       <!-- Preview Card -->
       <div class="preview-container flex-column" *ngIf="spellChromaService.previewCard && (deckListMode === 'visual' || deckListMode === 'text')">
-        <div class="flex-row flex-align-space-between section-header relative" *ngIf="spellChromaService.previewCard">
+        <div class="flex-row flex-align-space-between section-header app-default-theme relative" *ngIf="spellChromaService.previewCard">
           {{spellChromaService.previewCard.name}} Tags
           <button class="mat-button-24" (click)="spellChromaService.previewCard = undefined" mat-icon-button><mat-icon>close</mat-icon></button>
         </div>
@@ -184,14 +190,14 @@
     
     <!-- Card Explore Column -->
     <div *ngIf="spellChromaService.appMode === AppMode.EXPLORE" class="flex-column flex-basis-transition w50" [ngClass]="{'full-screen': spellChromaService.altModeFullscreen}">
-      <div class="section-header flex-row flex-align-space-between ">
+      <div class="section-header app-default-theme flex-row flex-align-space-between ">
         Card Explorer
         <button mat-icon-button (click)="spellChromaService.altModeFullscreen = !spellChromaService.altModeFullscreen">
           <mat-icon *ngIf="!spellChromaService.altModeFullscreen">open_in_full</mat-icon>
           <mat-icon *ngIf="spellChromaService.altModeFullscreen">close_fullscreen</mat-icon>
         </button>
       </div>
-      <div class="sort-row flex-wrap flex-row flex-align-space-between">
+      <div class="sort-row flex-wrap flex-row flex-align-space-between app-default-theme">
         <div class="flex-row gap-24">
           <div class="left-container flex-row">
             <mat-icon>sort</mat-icon>
@@ -246,15 +252,15 @@
           </div>
         </div>
       </div>
-      <div class="tag-row flex-row flex-align-space-between">
+      <div class="tag-row flex-row flex-align-space-between app-default-theme">
         <div class="flex-grow">
           <mat-icon>local_offer</mat-icon>
           <span class="search-tag" *ngFor="let selectedTag of selectedTags" (click)="onTagClick(selectedTag);$event.stopPropagation()">
             {{ selectedTag }}
           </span>
         </div>
-        <button mat-icon-button (click)="incrementPreviewCardSize(1)" matTooltip="Increase card size"><mat-icon>add_circle_outline</mat-icon></button>
         <button mat-icon-button (click)="incrementPreviewCardSize(-1)" matTooltip="Decrease card size"><mat-icon>remove_circle_outline</mat-icon></button>
+        <button mat-icon-button (click)="incrementPreviewCardSize(1)" matTooltip="Increase card size"><mat-icon>add_circle_outline</mat-icon></button>
         <app-tag-add class="flex-row" (tagClick)="onTagClick($event)"></app-tag-add>
        
       </div>
@@ -277,7 +283,7 @@
 
     <!-- Extra deck info for view mode -->
     <div class="deck-view-stats flex-column flex-basis-transition w50" [ngClass]="{'full-screen': this.spellChromaService.altModeFullscreen}" *ngIf="spellChromaService.appMode === AppMode.VIEW">
-      <div class="section-header flex-row flex-align-space-between ">
+      <div class="section-header app-default-theme flex-row flex-align-space-between ">
         Deck View
         <button mat-icon-button (click)="spellChromaService.altModeFullscreen = !spellChromaService.altModeFullscreen" style="margin-left: auto;">
           <mat-icon *ngIf="!spellChromaService.altModeFullscreen">open_in_full</mat-icon>
@@ -286,7 +292,7 @@
       </div>
 
       <!-- Sorting -->
-      <div class="flex-row padding-16 gap-10">        
+      <div class="flex-row padding-16 gap-10 settings-row app-default-theme">        
         <mat-icon>sort</mat-icon>
         <button mat-raised-button class="sort-button" [ngClass]="{'active': spellChromaService.allTagsLastSortMode === 'name'}"(click)="spellChromaService.allTagsLastSortMode = 'name'">
           Name
@@ -300,7 +306,7 @@
         </button>        
       </div>
       
-      <div class="all-tags-container flex-row flex-wrap">
+      <div class="all-tags-container flex-row flex-wrap app-default-theme">
         <button
           class="line-tag"
           *ngFor="let tag of getSortedAllTags()"

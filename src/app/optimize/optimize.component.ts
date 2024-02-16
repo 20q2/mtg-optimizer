@@ -21,7 +21,7 @@ export class OptimizeComponent implements OnInit {
   deckOptimalCurve: {[key: number | string]: number} = {};
 
   highValueTags: string[] = ['draw', 'ramp', 'removal'];
-  missingHighValueTags: string[] = [];
+  warningMessage: string= '';
 
   constructor(
     public spellChromaService: SpellChromaService,
@@ -31,7 +31,10 @@ export class OptimizeComponent implements OnInit {
 
   ngOnInit(): void {
     this.getOptimalDeckCurve();
-    this.missingHighValueTags = this.checkHighValueTags();
+    const warningTags = this.checkHighValueTags();
+    if (warningTags.length !== 0) {
+      this.warningMessage = `The following tags are missing from your deck: ${warningTags.join(', ')}`;
+    }
 
     for (let card of this.spellChromaService.deck) {
       if (card.type_line.toLocaleLowerCase().includes('land')) {
@@ -85,12 +88,23 @@ export class OptimizeComponent implements OnInit {
     return missingTags;
   }
 
+  // Find cards that stand out and dont really fit with the rest of the deck
+  findLoneCards() {
+
+  }
+
 
   updateManaCurve(number: number) {
-    if (!this.manaCurve[number.toString()]) {
-      this.manaCurve[number.toString()] = 1;
+    let numberString = number.toString();
+
+    if (numberString === '0') {
+      numberString = 'land';
+    }
+
+    if (!this.manaCurve[numberString]) {
+      this.manaCurve[numberString] = 1;
     } else {
-      this.manaCurve[number.toString()]++;
+      this.manaCurve[numberString]++;
     }
   }
 
@@ -103,5 +117,9 @@ export class OptimizeComponent implements OnInit {
       event = -1;
     }
     this.cmcButtonClickEmitter.emit(Number(event));
+  }
+
+  getDifference(key: string): number {
+    return this.manaCurve[key] - this.deckOptimalCurve[key];
   }
 }

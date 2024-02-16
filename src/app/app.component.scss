@@ -9,6 +9,13 @@
 
 }
 
+::ng-deep .app-default-theme {
+    background-color: $black-background-transparent;
+    border: 1px solid var(--border-color);
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
 @font-face {
     font-family: 'Beleren';
     src: url('../assets/Beleren.ttf') format('truetype');
@@ -38,9 +45,6 @@
     text-align: center;
     font-family: 'BELEREN';
     font-size: 1.3rem;
-    background-color: $black-background-transparent;
-    color: white;
-    border: solid yellow 1px;
     padding: 5px;
 
     &.deck-list-header {
@@ -242,11 +246,8 @@ button.parse-button {
 .sort-row {
     margin: 0 0 0 0;
     padding: 8px 16px;
-    background-color: #444;
-    border: #ffff00 1px solid;
     border-top: none;
     gap: 10px;
-    color: white;
 
     mat-icon {
         margin: auto inherit;
@@ -276,11 +277,8 @@ button.parse-button {
 .tag-row {
     margin: 0 0 0 0;
     padding: 8px 16px;
-    background-color: #555;
-    border: #ffff00 1px solid;
     border-top: none;
     gap: 10px;
-    color: white;
 
     
     .search-tag {
@@ -306,9 +304,7 @@ button.parse-button {
 }
 
 .navbar {
-    background-color: $black-background-transparent;
     padding: 16px;
-    border: solid thin #ffff00;
     border-radius: 2px;
     position: relative;
 
@@ -358,7 +354,7 @@ button.parse-button {
         }
     }
 
-    div {
+    .loading-phrases {
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -374,6 +370,27 @@ button.parse-button {
         margin-top: 150px;
         text-shadow: 1px 1px 3px #00000060;
     }
+
+    .loading-bar-container {
+        width: 300px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+        overflow: hidden;
+        margin: 0 auto;
+        z-index: 0;
+        height: 20px;
+    
+        .loading-bar {
+            height: 20px;
+            width: 0; /* Initial width is 0 */
+            background-color: #4caf50;
+            transition: width 0.5s ease-in-out; /* Animation for width changes */
+            isolation: isolate;
+            z-index: 1;
+        }
+    }
+  
+      
 }
 
 
@@ -393,10 +410,6 @@ button.parse-button {
     to { opacity: 1; transform: translate(0);}
     
 }
-
-.chart {
-    height: 400px;
-  }
 
 .top-tags-container {
     background-color: #444;
@@ -610,12 +623,8 @@ $button-toggle-height: 24px;
 }
 
 .deck-view-stats {
-    color: white;
-    background-color: #000000aa;
-    border: 1px solid gold;
     overflow: auto;
     max-height: calc(100vh - 162px);
-    gap: 10px;
 
     .all-tags-container {
         gap: 10px;

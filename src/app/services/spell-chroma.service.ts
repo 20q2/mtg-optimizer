@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CardTagObject, ScryfallCardObject } from '../model/tag-objects';
 import { HttpClient } from '@angular/common/http';
-import { loadingPhrases } from '../model/loading-phrases';
+import { loadingPhrases, rareQuotes } from '../model/loading-phrases';
 import { toIgnore } from '../model/proper-words';
 import { ScryfallService } from './scryfall.service';
 import { AppMode } from '../model/app-mode';
@@ -38,7 +38,13 @@ export class SpellChromaService {
   altModeFullscreen = false;
   previewCardSize = 3;
 
-
+  colorIdentity: {[key: string]: boolean } = {
+    'W': true,
+    'U': true,
+    'B': true,
+    'R': true,
+    'G': true,        
+  }
 
   constructor() {
     this.getRandomLoadingQuote();
@@ -155,8 +161,14 @@ export class SpellChromaService {
   }
 
   getRandomLoadingQuote() {
-    const i = Math.floor(Math.random() * loadingPhrases.length);
-    this.loadingPhrase = loadingPhrases[i];
+    const rare = Math.floor(Math.random() * 100) === 0;
+    if (rare) {
+      const i = Math.floor(Math.random() * rareQuotes.length);
+      this.loadingPhrase = rareQuotes[i];
+    } else {    
+      const i = Math.floor(Math.random() * loadingPhrases.length);
+      this.loadingPhrase = loadingPhrases[i];
+    }
   }  
 
 }

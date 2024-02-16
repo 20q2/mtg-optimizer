@@ -18,6 +18,7 @@ $x-mana-url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/MTG_%28X
     width: 24px;
     display: inline-block;
     background-size: contain;
+    background-repeat: no-repeat;
 
     &.small {
         height: 16px;

@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { SpellChromaService } from '../services/spell-chroma.service';
 
 @Component({
   selector: 'app-color-identity-picker',
@@ -10,20 +11,14 @@ export class ColorIdentityPickerComponent {
   @Output()
   reloadRecommendedCards: EventEmitter<boolean> = new EventEmitter();
 
-  colorIdentity: {[key: string]: boolean } = {
-    'W': true,
-    'U': true,
-    'B': true,
-    'R': true,
-    'G': true,        
-  }
+  constructor(public spellChromaService: SpellChromaService) {}
 
   onColorIdentityChange() {
     this.reloadRecommendedCards.emit(true);
   }
 
   resetColorIdentity() {
-    this.colorIdentity = {
+    this.spellChromaService.colorIdentity = {
       'W': false,
       'U': false,
       'B': false,
@@ -34,8 +29,8 @@ export class ColorIdentityPickerComponent {
 
   getColorIdentityString(): string {
     let colorString = '';
-    for (let key of Object.keys(this.colorIdentity)) {
-      if (this.colorIdentity[key]) {
+    for (let key of Object.keys(this.spellChromaService.colorIdentity)) {
+      if (this.spellChromaService.colorIdentity[key]) {
         colorString += key;
       }
     }

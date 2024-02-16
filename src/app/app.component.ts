@@ -1,5 +1,5 @@
 import { Component,  OnInit,  ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ColorIdentityPickerComponent } from './color-identity-picker/color-identity-picker.component';
 import { ignoreLayouts, toIgnore } from './model/proper-words';
 import { CardTagObject, ScryfallCardObject } from './model/tag-objects';
@@ -8,6 +8,7 @@ import { AppMode } from './model/app-mode';
 import { SpellChromaService } from './services/spell-chroma.service';
 import { ScryfallService } from './services/scryfall.service';
 import { TagService } from './services/tag.service';
+import { Observable, Subscription, catchError, forkJoin, interval, mergeMap, of } from 'rxjs';
 
 
 
@@ -25,6 +26,8 @@ export class AppComponent implements OnInit {
   searchInput!: HTMLInputElement;
   
   appMode = AppMode;
+  loadingAmount = 0; // Out of 100
+  loadingInterval: Subscription | undefined;
 
   deckTextInput = '';
   cardsToDisplay: ScryfallCardObject[] = [];
@@ -68,6 +71,7 @@ export class AppComponent implements OnInit {
     this.spellChromaService.deck = [];
     this.spellChromaService.tags = {};
     this.spellChromaService.appMode = AppMode.EXPLORE;
+    this.startLoadingBar();
 
     if (this.deckTextInput.trim() === '') {
       return;
@@ -85,6 +89,15 @@ export class AppComponent implements OnInit {
         });
       }
     }
+
+    if (this.spellChromaService.deck.length === 0) {
+      this.snackbarService.showSnackbar('No cards were found in your decklist');
+      this.spellChromaService.appIsLoading = false;
+      return;
+    }
+
+    await this.fetchCardTags(this.spellChromaService.deck).toPromise();
+
     this.spellChromaService.appIsLoading = false;
     this.spellChromaService.deck.sort((a,b) => a.name.localeCompare(b.name));
     this.assignColorIdentity();
@@ -109,7 +122,7 @@ export class AppComponent implements OnInit {
     this.colorPicker.resetColorIdentity();    
 
     mostColors.forEach(color => {
-      this.colorPicker.colorIdentity[color] = true;      
+      this.spellChromaService.colorIdentity[color] = true;      
     })
 
     this.updateDeckColorIdentity();
@@ -120,9 +133,7 @@ export class AppComponent implements OnInit {
       (response) => {
         if (response.object === 'card') {
           response = this.assignCardImageUrl(response);
-          // this.manaCurve.updateManaCurve((response as ScryfallCardObject).cmc);
           this.spellChromaService.deck.push(response);
-          this.fetchCardTags(response);
         } else {
           console.error(response);
         }
@@ -135,24 +146,63 @@ export class AppComponent implements OnInit {
     );
   }
 
-  async fetchPreviewCardTags(cardSetName: string, cardCollectorNumber: string) {
+  async fetchPreviewCardTags(card: ScryfallCardObject) {
     this.spellChromaService.appIsLoading = true;
-    const callUrl = this.serverUrl + '?setname=' + cardSetName + '&number=' + cardCollectorNumber;
-    this.http.get(callUrl).subscribe((result: any) => {
-      if (this.spellChromaService.previewCard) {
-        this.spellChromaService.previewCard.tags = result['data']['card']['taggings'];      
-      }
+    this.http.post(this.serverUrl, {'cards': [card]}).subscribe((results: any) => {
       this.spellChromaService.appIsLoading = false;
+      if (this.spellChromaService.previewCard) {
+        card.tags = results[0]['data']['card']['taggings'];          
+      }
     });
   }
 
-  async fetchCardTags(card: ScryfallCardObject) {
-    const callUrl = this.serverUrl + '?setname=' + card['set'] + '&number=' + card['collector_number'];
-
-    this.http.get(callUrl).subscribe(((result: any) => {
-      card.tags = result['data']['card']['taggings'];
-      card.showingTags = false;
-    }))
+  fetchCardTags(cards: ScryfallCardObject[]): Observable<any> {
+    const batchSize = 15;
+    const totalCards = cards.length;
+  
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+    });
+  
+    const options = {
+      headers: headers,
+      timeout: 30000, // Max 30 seconds for each batch
+    };
+  
+    const observables = [];
+  
+    // Divide cards into batches
+    for (let i = 0; i < totalCards; i += batchSize) {
+      const batch = cards.slice(i, i + batchSize);
+  
+      // Create an observable for each batch
+      const observable = this.http.post(this.serverUrl, { 'cards': batch }, options).pipe(
+        catchError(error => {
+          this.stopLoadingBar();
+          return of(error);
+        })
+      );
+  
+      observables.push(observable);
+    }
+  
+    // Combine all observables using forkJoin
+    return forkJoin(observables).pipe(
+      mergeMap((results: any[]) => {
+        results = results.flat();
+        for (let i = 0; i < totalCards; i++) {
+          if (results[i] instanceof Error) {
+            // Handle error for this card if needed
+          } else {
+            cards[i].tags = results[i]['data']['card']['taggings'];
+            cards[i].showingTags = false;
+          }
+        }
+  
+        this.stopLoadingBar();
+        return of(true); // Notify that the operation is complete
+      })
+    );
   }
 
   assignCardImageUrl(card: ScryfallCardObject): ScryfallCardObject {
@@ -178,7 +228,7 @@ export class AppComponent implements OnInit {
 
   onCardClick(card: ScryfallCardObject) {
     this.spellChromaService.previewCard = card;
-    this.fetchPreviewCardTags(this.spellChromaService.previewCard['set'], this.spellChromaService.previewCard['collector_number']);
+    this.fetchPreviewCardTags(this.spellChromaService.previewCard);
   }
 
   sendToSearch(key: string) {
@@ -458,6 +508,27 @@ export class AppComponent implements OnInit {
   
   getObjectKeys(obj: { [key: string]: any }) {
     return Object.keys(obj).sort();
+  }
+
+  private startLoadingBar() {
+    this.loadingAmount = 0;
+    this.loadingInterval = interval(2000).subscribe(() => {
+      if (this.loadingAmount < 100) {
+        if (this.spellChromaService.deck.length >= 15) {
+          this.loadingAmount += 100 / 15;
+        } else {
+          this.loadingAmount += 100 / this.spellChromaService.deck.length;
+        }
+      } else {
+        // If the loading is complete, stop the interval
+        this.stopLoadingBar();
+      }
+    });
+  }
+
+  private stopLoadingBar() {
+    // Stop the loading bar interval
+    this.loadingInterval?.unsubscribe();
   }
     
 }

@@ -1,19 +1,19 @@
 export const loadingPhrases = [
     'Tapping mana',
     'Summoning Saprolings',
-    'Casting at instant speed',
-    'I\'ll allow it',
+    'Unstacking the stack',
+    'Holding 2 blue mana',
     'Planeshifting',
     'Drawing a new hand',
     'Just Loading',
     'Meeting my rate limit',
     'Finding your new favorite',
-    'Competing with EDH Rec',
+    'Compeating with EDH Rec',
     'Moving to main phase',
     'Shuffling Kozilek',
     'Rolling up the elves',
     'Flinging goblins',
-    '<3ing the cards',
+    'Assembling the web workers',
     'Searching through grandpa\'s deck',
     'Bolting the 🐓',
     'Pulling in more IPs',
@@ -21,17 +21,21 @@ export const loadingPhrases = [
     'Blocking with squirrels',
     'Cooking with Asmoranomardicadaistinaculdacar',
     'Cooking with Gyome',
-    'Adding 3 mana',
+    'Losing the coin flip',
     'Cutting lands',
     'Paying the 1',
     'Hating bears',
     'Admiring Drawdmaws',
     'Chilling with Chillerpillar',
     'Finding something new',
-    'Tempted to discover',
+    'Discovering something new',
     'Traversing the outlands',
     'Adding loyalty counters',
     'Plowing the swords',
     'Almost there',
+    ''
+]
 
+export const rareQuotes = [
+    'Sh*tting on an Iphone'
 ]

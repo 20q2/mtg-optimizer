@@ -1,17 +1,17 @@
 <div class="flex-row flex-align-space-evenly color-identity-row" >
-  <button class="color-identity white" mat-raised-button (click)="colorIdentity['W'] = !colorIdentity['W']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['W']}">
+  <button class="color-identity white" mat-raised-button (click)="spellChromaService.colorIdentity['W'] = !spellChromaService.colorIdentity['W']; onColorIdentityChange()" [ngClass]="{'active': spellChromaService.colorIdentity['W']}">
     <span class="mana-symbol white"></span>
   </button>  
-  <button class="color-identity blue" mat-raised-button (click)="colorIdentity['U'] = !colorIdentity['U']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['U']}">
+  <button class="color-identity blue" mat-raised-button (click)="spellChromaService.colorIdentity['U'] = !spellChromaService.colorIdentity['U']; onColorIdentityChange()" [ngClass]="{'active': spellChromaService.colorIdentity['U']}">
     <span class="mana-symbol blue"></span>
   </button>
-  <button class="color-identity black" mat-raised-button (click)="colorIdentity['B'] = !colorIdentity['B']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['B']}">
+  <button class="color-identity black" mat-raised-button (click)="spellChromaService.colorIdentity['B'] = !spellChromaService.colorIdentity['B']; onColorIdentityChange()" [ngClass]="{'active': spellChromaService.colorIdentity['B']}">
     <span class="mana-symbol black"></span>
   </button>
-  <button class="color-identity red" mat-raised-button (click)="colorIdentity['R'] = !colorIdentity['R']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['R']}">
+  <button class="color-identity red" mat-raised-button (click)="spellChromaService.colorIdentity['R'] = !spellChromaService.colorIdentity['R']; onColorIdentityChange()" [ngClass]="{'active': spellChromaService.colorIdentity['R']}">
     <span class="mana-symbol red"></span>
   </button>
-  <button class="color-identity green" mat-raised-button  (click)="colorIdentity['G'] = !colorIdentity['G']; onColorIdentityChange()" [ngClass]="{'active': colorIdentity['G']}">
+  <button class="color-identity green" mat-raised-button  (click)="spellChromaService.colorIdentity['G'] = !spellChromaService.colorIdentity['G']; onColorIdentityChange()" [ngClass]="{'active': spellChromaService.colorIdentity['G']}">
     <span class="mana-symbol green"></span>
   </button>
 </div>

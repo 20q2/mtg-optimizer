@@ -2,10 +2,7 @@
 @import '../model/mana-symbols.scss';
 
 .welcome-container {
-    background-color: $black-background-transparent;
-    border: 1px solid var(--border-color);
     overflow:auto;
-    color: white;
     padding: 24px;
     font-size: 24px;
 

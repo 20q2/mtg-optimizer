@@ -15,13 +15,14 @@
             [src]="card.imageUrl"
             (click)="previewCardEmit.emit(card)" 
         />
-        <div class="flex-row flex-align-center card-description" (click)="copyCardName(card.name)">
+
+        <!-- <div class="flex-row flex-align-center card-description" (click)="copyCardName(card.name)">
             <div class="flex-column description">
                 <div class="card-name">{{ card.name }}</div>
                 <div class="card-detail" *ngIf="sortingMode === 'latest'">{{ card.released_at }}</div>
                 <div class="card-detail" *ngIf="sortingMode !== 'latest'">{{ card.type_line }}</div>
                 <div class="card-detail" *ngIf="sortingMode === 'cmc'">{{ card.cmc }}</div>
             </div>  
-        </div>
+        </div> -->
     </div>
 </div>

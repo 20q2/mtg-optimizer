@@ -1,10 +1,10 @@
 <div class="optimize-container flex-column flex-grow">
-  <div class="section-header flex-row flex-align-space-between ">
+  <div class="section-header app-default-theme  flex-align-space-between ">
     Deck Optimizer
   </div>
 
-  <div class="missing-tags" *ngIf="missingHighValueTags.length > 0">
-    <p>Warning: Your deck is missing any cards with the following tags: {{ missingHighValueTags.join(', ') }}</p>
+  <div class="missing-tags" *ngIf="warningMessage !== ''">
+    <p>{{ warningMessage }}</p>
   </div>
 
   <div class="mana-curve-charts flex-row flex-grow">
@@ -13,15 +13,23 @@
       <div class="chart-header">Your deck</div>
       <div #echart echarts [options]="chartOptions" class="chart flex-column flex-grow"></div>
       <div class="legend flex-row flex-wrap">
-        <button *ngFor="let item of manaCurve | keyvalue" class="legend-item" (click)="onCmcButtonClick(item.key)" matTooltip="Filter decklist by cmc">
-          <div class="key">
-            {{ item.key !== 'land' ? 'CMC ' + item.key : item.key }}
+        <div class="flex-column" *ngFor="let item of manaCurve | keyvalue">
+          <button  class="legend-item" (click)="onCmcButtonClick(item.key)" matTooltip="Filter decklist by cmc">
+            <div class="key">
+              {{ item.key !== 'land' ? 'CMC ' + item.key : item.key }}
+            </div>
+            <div class="value">
+              {{ item.value }}
+            </div>
+          </button>
+
+          <div class="suggestion-label" [ngStyle]="{'color': getDifference(item.key) > 0 ? 'green' : 'red'}">
+            {{ getDifference(item.key) > 0 ? '+' + getDifference(item.key) : getDifference(item.key) }}
           </div>
-          <div class="value">
-            {{ item.value }}
-          </div>
-        </button>
+        </div>
       </div>
+      <div class="difference">
+       
     </div>
 
     <!-- Preferred deck curve -->
