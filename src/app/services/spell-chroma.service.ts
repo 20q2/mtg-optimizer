@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CardTagObject, ScryfallCardObject } from '../model/tag-objects';
-import { HttpClient } from '@angular/common/http';
 import { loadingPhrases, rareQuotes } from '../model/loading-phrases';
 import { toIgnore } from '../model/proper-words';
-import { ScryfallService } from './scryfall.service';
 import { AppMode } from '../model/app-mode';
+import { TagService } from './tag.service';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +27,9 @@ export class SpellChromaService {
   appMode: AppMode = AppMode.EXPLORE;
   sortAscending: boolean = true;
   lastSortMode = 'name';
+  
   appIsLoading = false;
+  loadingDeckList = false;
 
   allTagsSortAscending: boolean = true;
   allTagsLastSortMode = 'name';
@@ -46,32 +46,12 @@ export class SpellChromaService {
     'G': true,        
   }
 
-  constructor() {
+  constructor(private tagService: TagService) {
     this.getRandomLoadingQuote();
     
     setInterval(() => {
       this.getRandomLoadingQuote();
     }, 7000);
-  }
-
-  
-
-  filterDeckByTag(tagSlug: string) {
-    if (!this.activeFilters.includes(tagSlug)) {
-      this.activeFilters.push(tagSlug);
-    } else {
-      this.activeFilters = this.activeFilters.filter(item => item !== tagSlug);
-    }
-
-    this.filteredDeck = this.deck.filter(item => {
-      for (const filter of this.activeFilters) {
-        const allCardTags = this.getCardTagsAsArray(item);
-        if (!allCardTags.includes(filter)) {
-          return false;
-        }
-      }
-      return true;
-    });
   }
 
   /**
@@ -103,13 +83,9 @@ export class SpellChromaService {
       
     }
 
-    ret.sort(value => this.onIgnoreList(value) ? 1 : -1);
+    ret.sort(value => this.tagService.onIgnoreList(value) ? 1 : -1);
 
     return ret;
-  }
-
-  onIgnoreList(tag: string) {
-    return toIgnore.includes(tag) || /cycle-/.test(tag) || /-storyline-in-cards/.test(tag);
   }
 
   getBackgroundFromColorIdentity(colorIdentity: string) {

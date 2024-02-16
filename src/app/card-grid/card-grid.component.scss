@@ -6,7 +6,7 @@
     grid-template-columns: repeat(auto-fit, minmax(calc(var(--preview-card-size) + 10px), 1fr));
     gap: 24px;
     margin: 0;
-    padding: 10px;
+    padding: 24px;
     background-color: #999;
     border: 2px var(--border-color) solid;
     border-top: none;
@@ -32,6 +32,8 @@ img.card, img.card-shadow {
     transform-style: preserve-3d;
    
     outline: 2px solid #000; /* Add an outline */    
+
+    inset: 0 0 0 0;
 
     &:hover, &:focus-visible {
         box-shadow: 0 0 10px #00000040;

@@ -19,13 +19,16 @@
     background-color: $black-background-transparent;
     border: 1px solid var(--border-color);
     overflow:auto;
+    max-height: calc(100vh - 120px);
     
     .mana-curve-charts {
         padding: 24px;
         gap: 24px;
         .chart-container {
-            background-color: #00000080;
-            border: 1px solid var(--border-color);
+            // background-color: #00000080;
+            // border: 1px solid var(--border-color);
+            max-width: 25vw;
+            max-height: 300px;
             
             .chart-header {
                 font-size: 1.4rem;
@@ -38,6 +41,7 @@
             
             .chart {                
                 display: flex;
+                max-height: 300px;
 
                 div {
                     align-self: center;
@@ -52,6 +56,7 @@
                 justify-content: center;
                 gap:10px;
                 padding: 10px;
+                
 
                 .legend-item {
                     background-color: #ffffff40;

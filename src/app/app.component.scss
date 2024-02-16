@@ -13,7 +13,25 @@
     background-color: $black-background-transparent;
     border: 1px solid var(--border-color);
     color: white;
-    backdrop-filter: blur(10px);
+    // backdrop-filter: blur(10px);
+}
+
+::ng-deep .mat-icon-button-small {
+    height: 24px !important;
+    width: 24px !important;
+
+    mat-icon {
+        inset: 0 0 0 0;
+        position: absolute;
+        margin: auto;        
+        font-size: 14px;
+        line-height: 24px;
+    }
+}
+
+::ng-deep .centered-row {
+    display: flex;
+    margin-block: auto;
 }
 
 @font-face {
@@ -22,7 +40,7 @@
 }
 
 .page-container {
-    padding: 24px;
+    padding: 0 24px 24px 24px;
     min-height: calc(100dvh - 48px);
     max-height: calc(100dvh - 48px);
     position: relative;   
@@ -30,8 +48,7 @@
 
 .title {
     font-family: Beleren, sans-serif;
-    font-size: 1.3rem;
-    line-height: 32px;
+    font-size: 1.3rem;    
 }
 
 .header {
@@ -95,11 +112,15 @@ button.parse-button {
     }
 }
 
+.mid-section {
+    gap: 10px;
+}
+
 .preview-container {
     animation: growIn .3s ease-out;
     border: yellow solid 1px;
     overflow: hidden;
-    margin-top: 10px;
+    max-width: 20vw;
 
     .section-header {
         background-color: $black-background-transparent;
@@ -257,6 +278,7 @@ button.parse-button {
         background:#303547; 
         color: white;
         font-weight: bold;
+        min-width: 110px;
 
         &.active {
             background: #415abd;
@@ -276,7 +298,7 @@ button.parse-button {
 
 .tag-row {
     margin: 0 0 0 0;
-    padding: 8px 16px;
+    padding: 2px 16px;
     border-top: none;
     gap: 10px;
 
@@ -284,11 +306,12 @@ button.parse-button {
     .search-tag {
         border: solid #00000090 1px;
         border-radius: 10px;
-        margin: 0 5px;
+        margin: auto 5px;
         padding: 2px;
         background-color: #ccc;
         cursor: pointer;
         color: #a000a0;
+        height: fit-content;
 
         &:hover, &:focus-visible {
             background-color: #ddd;
@@ -303,14 +326,16 @@ button.parse-button {
     }
 }
 
+.whiteout {
+    filter: brightness(1000);
+}
+
 .navbar {
     padding: 16px;
     border-radius: 2px;
     position: relative;
-
-    img {
-        filter: brightness(100);
-    }
+    border-top: none;
+    border-radius: 0 0 10px 10px;
 
     .title {
         margin-left: 5px;
@@ -324,6 +349,10 @@ button.parse-button {
 
         &.active {
             color: var(--border-color);
+        }
+
+        &[disabled=true] {
+            color: grey;
         }
     }
 }
@@ -372,6 +401,8 @@ button.parse-button {
     }
 
     .loading-bar-container {
+        animation: fadeIn 0.5s ease-in-out .5s;
+        animation-fill-mode: both;
         width: 300px;
         background-color: #f0f0f0;
         border-radius: 5px;
@@ -387,6 +418,11 @@ button.parse-button {
             transition: width 0.5s ease-in-out; /* Animation for width changes */
             isolation: isolate;
             z-index: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     }
   
@@ -417,11 +453,6 @@ button.parse-button {
     margin: 0;
     border: 2px var(--border-color) solid;
     border-top: none;
-}
-
-.filler-card {
-    background-color: white;
-    box-shadow: 2px 2px 10px #00000040;
 }
 
 .workspace-container {
@@ -533,7 +564,7 @@ $button-toggle-height: 24px;
 
 ::ng-deep .app-card-explorer {
     .grid-container {
-        max-height: calc(100vh - 360px);
+        max-height: calc(100vh - 290px);
         overflow: auto;
     }
 }
@@ -549,9 +580,10 @@ $button-toggle-height: 24px;
     bottom: 0;
     width: 100%;
     z-index: 1;
-    background-color: $black-background-transparent-dark;
     padding: 5px 0;
-    border: 1px solid var(--border-color);    
+    color: white;
+    line-height: 35px;
+    gap: 10px;  
 }
 
 .full-screen {
@@ -623,7 +655,8 @@ $button-toggle-height: 24px;
 }
 
 .deck-view-stats {
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     max-height: calc(100vh - 162px);
 
     .all-tags-container {

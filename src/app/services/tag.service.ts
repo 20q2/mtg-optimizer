@@ -29,7 +29,12 @@ export class TagService implements OnInit {
   }
 
   onIgnoreList(tag: string) {
-    return toIgnore.includes(tag) || /cycle-/.test(tag) || /-storyline-in-cards/.test(tag);
+    return toIgnore.includes(tag)
+    || /-cycle-/.test(tag)
+    || /cycle-/.test(tag)
+    || /-storyline-in-cards/.test(tag)
+    || /draft-/.test(tag)
+    ;
   }
 
 }

@@ -11,10 +11,10 @@
     <!-- Your deck curve -->
     <div class="chart-container my-deck flex-grow">
       <div class="chart-header">Your deck</div>
-      <div #echart echarts [options]="chartOptions" class="chart flex-column flex-grow"></div>
+      <div #echart echarts [options]="chartOptions" class="chart flex-column flex-grow app-default-theme"></div>
       <div class="legend flex-row flex-wrap">
         <div class="flex-column" *ngFor="let item of manaCurve | keyvalue">
-          <button  class="legend-item" (click)="onCmcButtonClick(item.key)" matTooltip="Filter decklist by cmc">
+          <button class="legend-item" (click)="onCmcButtonClick(item.key)" matTooltip="Filter decklist by cmc">
             <div class="key">
               {{ item.key !== 'land' ? 'CMC ' + item.key : item.key }}
             </div>
@@ -28,14 +28,13 @@
           </div>
         </div>
       </div>
-      <div class="difference">
        
     </div>
 
     <!-- Preferred deck curve -->
     <div class="chart-container preferred-deck flex-grow">
       <div class="chart-header">Preferred deck {{ '(60 Cards)' }}</div>
-      <div #echart echarts [options]="optimalChartOptions" class="chart flex-column flex-grow"></div>
+      <div #echart echarts [options]="optimalChartOptions" class="chart flex-column flex-grow app-default-theme"></div>
       <div class="legend flex-row flex-wrap">
         <button *ngFor="let item of deckOptimalCurve | keyvalue" class="legend-item" (click)="onCmcButtonClick(item.key)" matTooltip="Filter decklist by cmc">
           <div class="key">

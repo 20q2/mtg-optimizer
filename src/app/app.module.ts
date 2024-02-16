@@ -27,7 +27,8 @@ import { TagAddComponent } from './tag-add/tag-add.component';
 import { MatInputModule } from '@angular/material/input';
 import { KeyValuePipe } from '@angular/common';
 import { WelcomeComponent } from './welcome/welcome.component';
-
+import { MatMenuModule } from '@angular/material/menu';
+import { StopPropagationDirective } from './directives/stop-propagation.directive';
 
 
 
@@ -42,7 +43,8 @@ import { WelcomeComponent } from './welcome/welcome.component';
     ExploreComponent,
     ReplacePlaceholderDirective,
     TagAddComponent,
-    WelcomeComponent
+    WelcomeComponent,
+    StopPropagationDirective
   ],
   imports: [
     BrowserModule,
@@ -62,6 +64,7 @@ import { WelcomeComponent } from './welcome/welcome.component';
     MatAutocompleteModule,
     MatFormFieldModule,
     MatInputModule,
+    MatMenuModule
     
   ],
   providers: [SnackbarService, KeyValuePipe],

@@ -4,6 +4,7 @@ import { SpellChromaService } from '../services/spell-chroma.service';
 import { ScryfallService } from '../services/scryfall.service';
 import { ManaCurveComponent } from '../mana-curve/mana-curve.component';
 import { ManaCurveService } from '../services/mana-curve.service';
+import { ScryfallCardObject } from '../model/tag-objects';
 
 @Component({
   selector: 'app-optimize',
@@ -37,11 +38,11 @@ export class OptimizeComponent implements OnInit {
     }
 
     for (let card of this.spellChromaService.deck) {
-      if (card.type_line.toLocaleLowerCase().includes('land')) {
-        continue;
-      }
+      // if (card.type_line.toLocaleLowerCase().includes('land')) {
+      //   continue;
+      // }
       
-      this.updateManaCurve(card.cmc);
+      this.updateManaCurve(card);
     }
 
     this.chartOptions = {
@@ -94,10 +95,11 @@ export class OptimizeComponent implements OnInit {
   }
 
 
-  updateManaCurve(number: number) {
+  updateManaCurve(card: ScryfallCardObject) {
+    const number = card.cmc;
     let numberString = number.toString();
 
-    if (numberString === '0') {
+    if (numberString === '0' && card.type_line.includes('Land')) {
       numberString = 'land';
     }
 

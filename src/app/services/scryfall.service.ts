@@ -21,6 +21,7 @@ export class ScryfallService {
 
   moreRelatedCardsLink = '';
   hasMoreRelatedCards = false;
+  numberOfUnloadedCards = 0;
 
   /**
    * Calls scryfall to fetch the given card

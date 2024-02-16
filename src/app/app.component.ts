@@ -37,7 +37,6 @@ export class AppComponent implements OnInit {
   relatedCardsByTag: ScryfallCardObject[] = [];
   filteredRelatedCardsByTag: ScryfallCardObject[] = [];
   selectedTags: string[] = [];
-  displayRelatedCards = true;
 
   lastSearchedColors = '';
 
@@ -190,14 +189,23 @@ export class AppComponent implements OnInit {
     return forkJoin(observables).pipe(
       mergeMap((results: any[]) => {
         results = results.flat();
-        for (let i = 0; i < totalCards; i++) {
-          if (results[i] instanceof Error) {
+        for (const result of results) {
+          if (result instanceof Error) {
             // Handle error for this card if needed
-          } else {
-            cards[i].tags = results[i]['data']['card']['taggings'];
-            cards[i].showingTags = false;
+          }
+          const matchingCard = cards.find(item => item.id === result['data']['card']['id'])
+          if (matchingCard) {
+            matchingCard.tags = result['data']['card']['taggings'];
           }
         }
+        // for (let i = 0; i < totalCards; i++) {
+        //   if (results[i] instanceof Error) {
+        //     // Handle error for this card if needed
+        //   } else {
+        //     cards[i].tags = results[i]['data']['card']['taggings'];
+        //     cards[i].showingTags = false;
+        //   }
+        // }
   
         this.stopLoadingBar();
         return of(true); // Notify that the operation is complete
@@ -250,6 +258,7 @@ export class AppComponent implements OnInit {
     
     if (this.selectedTags.length === 0) {
       this.relatedCardsByTag = [];
+      this.filteredRelatedCardsByTag = [];
       return;
     }
 
@@ -279,7 +288,7 @@ export class AppComponent implements OnInit {
 
       if (this.scryfallService.hasMoreRelatedCards) {
         this.scryfallService.moreRelatedCardsLink = result.next_page;
-        result.total_cards
+        this.scryfallService.numberOfUnloadedCards = result.total_cards
       }
 
       for (let card of result.data) {
@@ -340,10 +349,7 @@ export class AppComponent implements OnInit {
 
   }
 
-  sortRelatedBy(event: MouseEvent) {
-    const value = ((event.target as HTMLButtonElement).parentElement as any).value;
-    
-
+  sortRelatedBy(value: string) {
     if (value === 'cmc') {
       this.relatedCardsByTag.sort((a, b) => {
         return (a['cmc'] - b['cmc'] || (a['name'] as string).localeCompare(b['name']))
@@ -452,19 +458,14 @@ export class AppComponent implements OnInit {
   }
 
   findTop10Tags(): { key: string, instances: number }[] {
-    let topTags: { key: string, instances: number }[] = [];
-    const tagKeys = Object.keys(this.spellChromaService.tags);
+    let entries =  Object.entries(this.spellChromaService.tags).sort((a,b) => {   
+      return b[1] - a[1];
+    }); 
 
-    for (let key of tagKeys) {
-      const found = topTags.find(item => item.instances <= this.spellChromaService.tags[key]);
-      if ((found || topTags.length < 10) && !this.tagService.onIgnoreList(key)) {
-        topTags = topTags.filter(item => item !== found);
-        topTags.push({instances: this.spellChromaService.tags[key], key: key});
-      }
-    }
-
-    topTags.sort((a,b) => b.instances - a.instances)
-    return topTags;
+    entries = entries.filter(item => !this.tagService.onIgnoreList(item[0]));
+    return entries.slice(0, 10).map(item => {
+      return {key: item[0], instances: item[1]}
+    });
   }
 
   activeFilters: string[] = [];
@@ -512,10 +513,11 @@ export class AppComponent implements OnInit {
 
   private startLoadingBar() {
     this.loadingAmount = 0;
+    this.spellChromaService.loadingDeckList = true;
     this.loadingInterval = interval(2000).subscribe(() => {
       if (this.loadingAmount < 100) {
         if (this.spellChromaService.deck.length >= 15) {
-          this.loadingAmount += 100 / 15;
+          this.loadingAmount += 100 / 6;
         } else {
           this.loadingAmount += 100 / this.spellChromaService.deck.length;
         }
@@ -529,6 +531,12 @@ export class AppComponent implements OnInit {
   private stopLoadingBar() {
     // Stop the loading bar interval
     this.loadingInterval?.unsubscribe();
+    this.spellChromaService.loadingDeckList = false;
+  }
+
+  copyToClipboard(string: string) {
+    navigator.clipboard.writeText(string);
+    this.snackbarService.showSnackbar('\'' + string + '\' copied to clipboard!');
   }
     
 }
