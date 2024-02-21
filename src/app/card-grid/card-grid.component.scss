@@ -13,6 +13,8 @@
     background: #777 url(../../assets/grey-wave-background.png) repeat;
     background-blend-mode: exclusion;
 
+    perspective: 1000px;
+
     img {
         z-index: 1;
     }
@@ -27,7 +29,7 @@ img.card, img.card-shadow {
     box-shadow: 0px 0px 30px #000000b0;
     transform: translateZ(0);
 
-    perspective: 1000px;
+    
     position: absolute;
     transform-style: preserve-3d;
    
