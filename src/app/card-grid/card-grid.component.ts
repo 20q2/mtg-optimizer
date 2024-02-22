@@ -69,7 +69,7 @@ export class CardGridComponent {
               const x = event.clientX - cardRect.left - cardRect.width / 2;
               const y = event.clientY - cardRect.top - cardRect.height / 2;
 
-              let rotateX = (y / cardRect.height) * 30;
+              let rotateX = (y / cardRect.height) * 30 * -1;
               let rotateY = (x / cardRect.width) * 30;
 
               if (rotateX > 20) {
