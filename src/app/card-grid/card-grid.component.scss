@@ -13,7 +13,6 @@
     background: #777 url(../../assets/grey-wave-background.png) repeat;
     background-blend-mode: exclusion;
 
-    perspective: 1000px;
 
     img {
         z-index: 1;
@@ -57,6 +56,7 @@ img.card, img.card-shadow {
     position: relative;
     height: calc(var(--preview-card-size) * 1.255);
 
+    perspective: 1000px;
     .card-tags {
         position: absolute;
         inset: 0 0 0 0;
