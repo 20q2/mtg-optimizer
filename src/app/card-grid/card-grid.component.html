@@ -15,6 +15,20 @@
             [src]="card.imageUrl"
             (click)="previewCardEmit.emit(card)" 
         />
+        <div class="link-container">
+            <button (click)="goToScryfall(card)">
+                <!-- <img src="../assets/logo-transparent.png" /> -->
+                scryfall
+            </button>
+            <button (click)="goToEdhrec(card)">
+                <!-- <img src="../assets/logo-transparent.png" /> -->
+                edhrec
+            </button>
+            <button (click)="addToDeck(card)">
+                <!-- <img src="../assets/logo-transparent.png" /> -->
+                add <-
+            </button>
+        </div>
 
         <!-- <div class="flex-row flex-align-center card-description" (click)="copyCardName(card.name)">
             <div class="flex-column description">

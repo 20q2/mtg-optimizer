@@ -114,6 +114,8 @@ button.parse-button {
 
 .mid-section {
     gap: 10px;
+    max-width: 20vw;
+    max-height: calc(100vh - 96px);
 }
 
 .preview-container {
@@ -159,6 +161,8 @@ button.parse-button {
         color: white;
         padding: 3px;
         white-space: pre-line;
+        overflow: auto;
+        min-height: 75px;
     }
 }
 
@@ -176,6 +180,8 @@ button.parse-button {
         border: 1px solid yellow;
         border-top: none;
         gap: 10px;
+        overflow: auto;
+        min-height: 100px;
     }
 }
 

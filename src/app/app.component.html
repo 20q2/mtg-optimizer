@@ -200,7 +200,7 @@
     </div>
     
     <!-- Card Explore Column -->
-    <div *ngIf="spellChromaService.appMode === AppMode.EXPLORE" class="flex-column flex-basis-transition w50" [ngClass]="{'full-screen': spellChromaService.altModeFullscreen}">
+    <div *ngIf="spellChromaService.appMode === AppMode.EXPLORE" class="flex-column flex-basis-transition w50 margin-left-auto" [ngClass]="{'full-screen': spellChromaService.altModeFullscreen}">
       <div class="section-header app-default-theme flex-row flex-align-space-between ">
         Card Explorer
         <button class="mat-icon-button-small" mat-icon-button (click)="spellChromaService.altModeFullscreen = !spellChromaService.altModeFullscreen">
@@ -281,7 +281,7 @@
     </div>
 
     <!-- Extra deck info for view mode -->
-    <div class="deck-view-stats flex-column flex-basis-transition w50" [ngClass]="{'full-screen': this.spellChromaService.altModeFullscreen}" *ngIf="spellChromaService.appMode === AppMode.VIEW">
+    <div class="deck-view-stats flex-column flex-basis-transition w50 margin-left-auto" [ngClass]="{'full-screen': this.spellChromaService.altModeFullscreen}" *ngIf="spellChromaService.appMode === AppMode.VIEW">
       <div class="section-header app-default-theme flex-row flex-align-space-between ">
         Deck View
         <button class="mat-icon-button-small" mat-icon-button (click)="spellChromaService.altModeFullscreen = !spellChromaService.altModeFullscreen" style="margin-left: auto;">
