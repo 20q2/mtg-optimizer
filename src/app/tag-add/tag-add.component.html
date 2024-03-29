@@ -14,4 +14,12 @@
     </mat-option>
   </mat-autocomplete>
 </mat-form-field>
-<button class="mat-button-24 margin-vertical-auto" [disabled]="inputValue === ''" mat-icon-button matTooltip="Add a new tag" (click)="addTag()"><mat-icon>add</mat-icon></button>
+<button
+  class="mat-button-24 margin-vertical-auto add-tag"
+  *ngIf="inputValue !== ''"
+  mat-icon-button
+  matTooltip="Add a new tag"
+  (click)="addTag()"
+>
+  <mat-icon>add</mat-icon>
+</button>

@@ -517,7 +517,7 @@ export class AppComponent implements OnInit {
     this.loadingInterval = interval(2000).subscribe(() => {
       if (this.loadingAmount < 100) {
         if (this.spellChromaService.deck.length >= 15) {
-          this.loadingAmount += 100 / 6;
+          this.loadingAmount += 100 / 5;
         } else {
           this.loadingAmount += 100 / this.spellChromaService.deck.length;
         }

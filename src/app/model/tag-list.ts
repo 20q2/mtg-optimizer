@@ -12332,7 +12332,7 @@ export const allTags = [
       "namespace": "card",
       "pendingRevisions": false,
       "slug": "recursion-instant",
-      "status": "GOOD_STANDING",
+      "status": "GOOD_STANDING","category": true,
       "type": "ORACLE_CARD_TAG",
       "taggingCount": 16
     },

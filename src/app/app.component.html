@@ -65,7 +65,11 @@
 
         <!-- Input view -->
         <ng-container *ngIf="deckListMode === 'input'">
-          <textarea class="input-area flex-grow" [(ngModel)]="deckTextInput" placeholder="Enter your decklist&#10;&#10;Example:&#10;1x Harmonize&#10;1 Opt&#10;Beast Within"></textarea>
+          <textarea
+            class="input-area flex-grow"
+            [(ngModel)]="deckTextInput"
+            placeholder="Enter your decklist&#10;&#10;Example:&#10;1x Harmonize&#10;1 Opt&#10;Beast Within">
+          </textarea>
         </ng-container>
 
         <!-- Text view -->
@@ -138,7 +142,7 @@
           <div class="flex-row" *ngFor="let tag of spellChromaService.topTags">
             <div
                 [ngStyle]="{'font-size': tag.instances + 12 + 'px'}"
-                class="tag top-tag"                            
+                class="tag top-tag flex-row"                            
             >
               <button
                 class="instances-button"

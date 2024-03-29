@@ -11,6 +11,7 @@ export const toIgnore = [
     'sth-storyline-in-cards',
     'usg-storyline-in-cards',
     'creature-type-erratum',
+    'post-release-addition',
     
 ]
 
@@ -33,5 +34,6 @@ export const ignoreLayouts = [
     'scheme',
     'planar',
     'hero',
-    'vanguard'
+    'vanguard',
+    'dungeon'
 ]

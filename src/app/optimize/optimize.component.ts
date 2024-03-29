@@ -21,7 +21,7 @@ export class OptimizeComponent implements OnInit {
 
   deckOptimalCurve: {[key: number | string]: number} = {};
 
-  highValueTags: string[] = ['draw', 'ramp', 'removal'];
+  highValueTags: string[] = ['draw', 'ramp', 'removal', 'sweeper'];
   warningMessage: string= '';
 
   constructor(

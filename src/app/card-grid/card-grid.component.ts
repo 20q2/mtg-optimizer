@@ -33,8 +33,8 @@ export class CardGridComponent {
     private clipboard: Clipboard
     ) {}
 
-  copyCardName(cardName: string) {
-    this.clipboard.copy(cardName);
+  copyCardName(card: ScryfallCardObject) {
+    this.clipboard.copy(card.name);
   }
 
   assignCardEvents() {
@@ -89,17 +89,17 @@ export class CardGridComponent {
   }
 
   goToEdhrec(card: ScryfallCardObject) {
-    window.open('https://edhrec.com/cards/' + card.name.replace(/ /g, '-'), '_blank');
+    window.open('https://edhrec.com/cards/' + card.name.toLocaleLowerCase().replace(/ /g, '-'), '_blank');
   }
 
   goToScryfall(card: ScryfallCardObject) {
-    window.open(`https://scryfall.com/card/${card.set}/${card.collector_number}/${card.name.toLocaleLowerCase().replace(/ /g, '-')}`, '_blank');
+    window.open(`https://scryfall.com/card/${card.set}/${card.collector_number}/${card.name.toLocaleLowerCase().replace(/[ \/]/g, '-')}`, '_blank');
   }
 
   addToDeck(card: ScryfallCardObject) {
     this.spellChromaService.deck.push(card);
   }
-
+  
 
 
 }

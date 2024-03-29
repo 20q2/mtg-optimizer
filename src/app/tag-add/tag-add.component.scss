@@ -21,3 +21,13 @@ input {
 .margin-vertical-auto {
     margin: auto 0px auto 12px;
 }
+
+.add-tag {
+    animation: growIn .2s ease-out;
+    animation-fill-mode: both;
+}
+
+@keyframes growIn {
+    from { margin-left: -24px; clip-path: inset(0 100% 0 100%); }
+    to { margin-left: 12px; clip-path: inset(0 0 0 0); }    
+}
