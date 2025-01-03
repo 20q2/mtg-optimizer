@@ -17,7 +17,7 @@
   <div class="flex-row flex-align-space-between navbar app-default-theme">
     <div class="flex-row">
       <img class="whiteout" src="../assets/logo-transparent.png" height="36px" />
-      <div class="title white centered-row">MTG: SpellChroma - Card search simplified</div>
+      <div class="title white centered-row">MTG: SpellChroma - Card search simplified (BETA)</div>
     </div>
     <div>
       <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.WELCOME)" [ngClass]="{'active': spellChromaService.appMode === AppMode.WELCOME}"><img src='../assets/explore-icon.png' height="16" /> Welcome</button>
@@ -111,11 +111,10 @@
             <div 
               class="flex-row card-entry" 
               *ngFor="let card of cardsToDisplay"
-              (click)="onCardClick(card)"
             >
-              <img class="my-list-card-image" [src]="card.imageUrl" />
+              <img class="my-list-card-image" [src]="card.imageUrl" (click)="onCardClick(card)" />
               <div class="card-description flex-column">
-                <div class="flex-row flex-align-start" appReplacePlaceholder><b>{{ card.name }} {{ card.mana_cost }}</b></div>
+                <div class="flex-row flex-align-start card-name" appReplacePlaceholder><b>{{ card.name }} {{ card.mana_cost }}</b></div>
                 <div class="card-text" appReplacePlaceholder>{{ card.oracle_text }}</div>
               </div>
             </div>
@@ -136,8 +135,16 @@
 
     <!-- Top deck stats -->
     <div class="flex-column mid-section">
-      <div class="flex-column w25 deck-stats-column" *ngIf="this.spellChromaService.deck.length !== 0 && (deckListMode === 'visual' || deckListMode === 'text')">      
-        <div class="section-header app-default-theme">Top Deck Tags</div>
+      <div
+        class="flex-column w25 deck-stats-column"        
+        *ngIf="this.spellChromaService.deck.length !== 0 && (deckListMode === 'visual' || deckListMode === 'text') && !minimizeTopTags"
+      >      
+        <div class="section-header app-default-theme flex-row flex-align-space-between">
+          <span>Top Deck Tags</span>
+          <button mat-icon-button class="mat-icon-button-small" (click)="minimizeTopTags = !minimizeTopTags">
+            <mat-icon>remove</mat-icon>
+          </button>
+        </div>
         <div class="deck-top-tags flex-row flex flex-wrap">
           <div class="flex-row" *ngFor="let tag of spellChromaService.topTags">
             <div
@@ -167,6 +174,15 @@
         </div>
       </div>
 
+      <div
+        class="app-default-theme"
+        *ngIf="this.spellChromaService.deck.length !== 0 && (deckListMode === 'visual' || deckListMode === 'text') && minimizeTopTags"
+      >
+        <button mat-icon-button class="mat-icon-button-small" (click)="minimizeTopTags = !minimizeTopTags" matTooltip="Show top tags">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+
       <!-- Preview Card -->
       <div class="preview-container flex-column" *ngIf="spellChromaService.previewCard">
         <div class="flex-row flex-align-space-between section-header app-default-theme relative" *ngIf="spellChromaService.previewCard">
@@ -178,6 +194,22 @@
           </div>
           <button class="mat-button-24" (click)="spellChromaService.previewCard = undefined" mat-icon-button><mat-icon>close</mat-icon></button>
         </div>
+        <div class="link-container">
+          <a (click)="goToScryfall(spellChromaService.previewCard)">
+              <img src="../assets/icons/header-logo.svg" />
+          </a>
+          <a (click)="goToEdhrec(spellChromaService.previewCard)">
+              <img src="../assets/icons/edhrec_logo.jpg" />
+          </a>
+          <!-- <button (click)="addToDeck(card)">
+               <img src="../assets/logo-transparent.png" /> 
+              add <-
+          </button> -->
+          <button (click)="copyCardName(spellChromaService.previewCard)">
+              <!-- <img src="../assets/logo-transparent.png" /> -->
+              Copy
+          </button>
+      </div>
         <div *ngIf="spellChromaService.previewCard" class="flex-column tag-container relative" [style.background-image]="'url(' + scryfallService.getCardFullArt(spellChromaService.previewCard) + ')'">          
           <div class="flex-column">
             <div class="tags flex-row flex-wrap">
@@ -261,11 +293,14 @@
           <span class="search-tag" *ngFor="let selectedTag of selectedTags" (click)="onTagClick(selectedTag);$event.stopPropagation()">
             {{ selectedTag }}
           </span>
+          <app-tag-add *ngIf="showingAddTag" class="flex-row" (tagClick)="onTagClick($event); showingAddTag = !showingAddTag"></app-tag-add>
+          <button mat-icon-button matTooltip="Add a new tag" (click)="showingAddTag = !showingAddTag">
+            <mat-icon *ngIf="!showingAddTag">add</mat-icon>            
+          </button>
+
         </div>
         <button mat-icon-button (click)="incrementPreviewCardSize(-1)" matTooltip="Decrease card size"><mat-icon>remove_circle_outline</mat-icon></button>
-        <button mat-icon-button (click)="incrementPreviewCardSize(1)" matTooltip="Increase card size"><mat-icon>add_circle_outline</mat-icon></button>
-        <app-tag-add class="flex-row" (tagClick)="onTagClick($event)"></app-tag-add>
-       
+        <button mat-icon-button (click)="incrementPreviewCardSize(1)" matTooltip="Increase card size"><mat-icon>add_circle_outline</mat-icon></button>       
       </div>
       <!-- Related cards by tag -->
       <div class="relative">
@@ -312,12 +347,12 @@
       <div class="all-tags-container flex-row flex-wrap app-default-theme">
         <button
           class="line-tag"
-          *ngFor="let tag of getSortedAllTags()"
+          *ngFor="let tag of sortedTags"
           (click)="filterDeckByTag(tag[0])"
-          [ngStyle]="{'font-size': 12 + tag[1] * 0.65 + 'px'}"
           [ngClass]="{'active': activeFilters.includes(tag[0])}"
         >
-          {{ tag[0] }}: {{ tag[1] }}
+        <div>{{ tag[1] }}</div>
+        <div>{{ tag[0] }}</div>
         </button>
         
       </div>

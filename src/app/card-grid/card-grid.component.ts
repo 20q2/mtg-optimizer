@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ScryfallCardObject } from '../model/tag-objects';
 import { SpellChromaService } from '../services/spell-chroma.service';
-import { Clipboard } from '@angular/cdk/clipboard';
 import { Element } from '@angular/compiler';
 
 @Component({
@@ -30,12 +29,7 @@ export class CardGridComponent {
 
   constructor(
     public spellChromaService: SpellChromaService,
-    private clipboard: Clipboard
     ) {}
-
-  copyCardName(card: ScryfallCardObject) {
-    this.clipboard.copy(card.name);
-  }
 
   assignCardEvents() {
     setTimeout(() => {    
@@ -86,20 +80,6 @@ export class CardGridComponent {
           this.isCardMoving = false;
         });
     }
-  }
-
-  goToEdhrec(card: ScryfallCardObject) {
-    window.open('https://edhrec.com/cards/' + card.name.toLocaleLowerCase().replace(/ /g, '-'), '_blank');
-  }
-
-  goToScryfall(card: ScryfallCardObject) {
-    window.open(`https://scryfall.com/card/${card.set}/${card.collector_number}/${card.name.toLocaleLowerCase().replace(/[ \/]/g, '-')}`, '_blank');
-  }
-
-  addToDeck(card: ScryfallCardObject) {
-    this.spellChromaService.deck.push(card);
-  }
-  
-
+  }  
 
 }

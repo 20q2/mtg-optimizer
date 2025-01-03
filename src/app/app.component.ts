@@ -1,4 +1,4 @@
-import { Component,  OnInit,  ViewChild } from '@angular/core';
+import { Component,  HostListener,  OnInit,  ViewChild } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ColorIdentityPickerComponent } from './color-identity-picker/color-identity-picker.component';
 import { ignoreLayouts, toIgnore } from './model/proper-words';
@@ -9,6 +9,7 @@ import { SpellChromaService } from './services/spell-chroma.service';
 import { ScryfallService } from './services/scryfall.service';
 import { TagService } from './services/tag.service';
 import { Observable, Subscription, catchError, forkJoin, interval, mergeMap, of } from 'rxjs';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 
 
@@ -18,6 +19,13 @@ import { Observable, Subscription, catchError, forkJoin, interval, mergeMap, of 
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.showingAddTag) {
+      this.showingAddTag = false;
+    }
+  }
 
   @ViewChild('colorPicker')
   colorPicker!: ColorIdentityPickerComponent;
@@ -48,12 +56,17 @@ export class AppComponent implements OnInit {
   deckListMode = 'input';
   deckColorIdentity = "WUBRG";
 
+  showingAddTag = false;
+  sortedTags: any[] = [];
+  minimizeTopTags = false;
+
   constructor(
     private http: HttpClient,
     public snackbarService: SnackbarService,
     public spellChromaService: SpellChromaService,
     public scryfallService: ScryfallService,
-    public tagService: TagService
+    public tagService: TagService,
+    private clipboard: Clipboard
   ) {
     
   }
@@ -232,6 +245,10 @@ export class AppComponent implements OnInit {
 
   swapAppMode(mode: AppMode) {
     this.spellChromaService.appMode = mode;
+
+    if (mode === AppMode.VIEW) {
+      this.sortedTags = this.getSortedAllTags();
+    }
   }
 
   onCardClick(card: ScryfallCardObject) {
@@ -537,6 +554,22 @@ export class AppComponent implements OnInit {
   copyToClipboard(string: string) {
     navigator.clipboard.writeText(string);
     this.snackbarService.showSnackbar('\'' + string + '\' copied to clipboard!');
+  }
+
+  goToEdhrec(card: ScryfallCardObject) {
+    window.open('https://edhrec.com/cards/' + card.name.toLocaleLowerCase().replace(/ /g, '-'), '_blank');
+  }
+
+  goToScryfall(card: ScryfallCardObject) {
+    window.open(`https://scryfall.com/card/${card.set}/${card.collector_number}/${card.name.toLocaleLowerCase().replace(/[ \/]/g, '-')}`, '_blank');
+  }
+
+  addToDeck(card: ScryfallCardObject) {
+    this.spellChromaService.deck.push(card);
+  }
+
+  copyCardName(card: ScryfallCardObject) {
+    this.clipboard.copy(card.name);
   }
     
 }

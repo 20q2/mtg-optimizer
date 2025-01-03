@@ -132,11 +132,12 @@ button.parse-button {
     }
 
     .tag-container {
-        background-size: 150%;
-        background-position: 25% -125px;
         background-color: rgba(255, 255, 255, 0.2);
         background-blend-mode: overlay;
         overflow: auto;
+        background-repeat: no-repeat;
+        background-size: auto;
+        background-position: center;
 
         .preview-description {
             margin-left: 1rem;
@@ -147,6 +148,46 @@ button.parse-button {
         .tags {
             gap: 5px;
             padding: 16px;
+        }
+    }
+
+    .link-container {
+        background-color: $black-background-transparent;
+        border-bottom: 1px solid yellow;
+        display: grid;
+        grid-template-columns: auto auto auto;
+
+        button {
+            cursor: pointer;
+        }
+
+        a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            padding: 2px 0;
+
+            &:hover {
+                filter: brightness(.9);
+            }
+
+            &:nth-child(1) {
+                background-color: #3f51b5;
+            }
+
+            &:nth-child(2) {
+                background-color: #222;
+            }
+
+            &:nth-child(3) {
+                background-color: #ffffff;
+            }
+
+            img {
+                height: 24px;
+            }
         }
     }
 
@@ -172,8 +213,13 @@ button.parse-button {
     to { transform: scale(1) }
 }
 
-.deck-stats-column {
-    margin-right: 26px; 
+.deck-stats-column {    
+
+    &.collapsed {
+        max-width: 24px;
+        max-height: 24px;
+        overflow: hidden;
+    }
 
     .deck-top-tags {
         padding: 12px;
@@ -279,6 +325,7 @@ button.parse-button {
 
     mat-icon {
         margin: auto inherit;
+        margin-right: 4px;
     }
 
     button.sort-button {
@@ -305,7 +352,7 @@ button.parse-button {
 
 .tag-row {
     margin: 0 0 0 0;
-    padding: 2px 16px;
+    padding: 2px 0px 2px 16px;
     border-top: none;
     gap: 10px;
 
@@ -508,28 +555,34 @@ $button-toggle-height: 24px;
     }
 
     .card-entry {
-        padding: 5px;
-        border-bottom: yellow 1px solid;
+        font-family: sans-serif;
+        border-bottom: #ffffff70  1px solid;
         color: white;
 
         &:hover, &:focus-visible {
-            filter: brightness(1.2);
-
             background-color: $black-background-transparent-dark;
+        }
+                
+        .card-description {
+            flex-grow: 1;
+            border-left: 1px solid #ffffff60;
+            white-space: pre-line;
+            line-height: 1rem;
 
-            .my-list-card-image {
-                transform: scale(1.1);
+            .card-name {
+                padding: 8px;
+                font-size: 16px;
+                border-bottom: 1px solid #ffffff60;
+
+                .mana-symbol {
+                    margin-left: 4px;
+                }
             }
 
-        }
-
-        .card-description {
-            padding: 10px;
-            white-space: pre-line;
-
             .card-text {
-                margin-top: 5px;
-                line-height: 1.3rem;
+                padding: 4px 4px 4px 8px;
+                line-height: 1.2rem;
+                font-size: 12px;
             }
         }
     }
@@ -539,6 +592,14 @@ $button-toggle-height: 24px;
         transition: 0.2s;
         height: 100px;
         cursor: pointer;
+        margin: 2px 4px;
+        border-radius: 6px;
+
+        &:hover, &:focus-visible {
+            filter: brightness(1.2);
+            background-color: $black-background-transparent-dark;
+            transform: scale(1.1);            
+        }
     }
 }
 
@@ -663,13 +724,29 @@ $button-toggle-height: 24px;
 }
 
 .deck-view-stats {
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: calc(100vh - 162px);
+    max-height: calc(100vh - 102px);
 
     .all-tags-container {
+        overflow-y: auto;
+        overflow-x: hidden;
         gap: 10px;
         padding: 16px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+
+        button {
+            display: flex;
+            flex-direction: row;
+            padding: 0;
+
+            div {
+                padding: 10px;
+            }
+
+            div:nth-child(1) {
+                border-right: 1px solid yellow;
+            }
+        }
     }
 
     .line-tag {
@@ -679,6 +756,7 @@ $button-toggle-height: 24px;
         padding: 10px;
         border-radius: 4px;
         background-color: #ffffaa40;
+        height: auto;
 
         &:hover, &:focus-visible {
             filter: brightness(1.4);
