@@ -20,13 +20,13 @@
       <div class="title white centered-row">MTG: SpellChroma - Card search simplified (BETA)</div>
     </div>
     <div>
-      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.WELCOME)" [ngClass]="{'active': spellChromaService.appMode === AppMode.WELCOME}"><img src='../assets/explore-icon.png' height="16" /> Welcome</button>
+      <!-- <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.WELCOME)" [ngClass]="{'active': spellChromaService.appMode === AppMode.WELCOME}"><img src='../assets/explore-icon.png' height="16" /> Welcome</button>       -->
+      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.EXPLORE)" [ngClass]="{'active': spellChromaService.appMode === AppMode.EXPLORE}"><img src='../assets/explore-icon.png' height="16" /> Card Explorer</button>
       <span [matTooltip]="spellChromaService.deck.length === 0 ? 'Import a decklist to get started' : ''">
         <button [disabled]="spellChromaService.deck.length === 0" mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.VIEW)" [ngClass]="{'active': spellChromaService.appMode === AppMode.VIEW}"><img src='../assets/explore-icon.png' height="16" /> Deck View</button>
       </span>
-      <button mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.EXPLORE)" [ngClass]="{'active': spellChromaService.appMode === AppMode.EXPLORE}"><img src='../assets/explore-icon.png' height="16" /> Card Explorer</button>
       <span [matTooltip]="spellChromaService.deck.length === 0 ? 'Import a decklist to get started' : ''">
-        <button [disabled]="spellChromaService.deck.length === 0" mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.OPTIMIZE)" [ngClass]="{'active': spellChromaService.appMode === AppMode.OPTIMIZE}"><img src='../assets/explore-icon.png' height="16" /> Deck Optimizer</button>
+        <!-- <button [disabled]="spellChromaService.deck.length === 0" mat-stroked-button class="app-mode" (click)="swapAppMode(AppMode.OPTIMIZE)" [ngClass]="{'active': spellChromaService.appMode === AppMode.OPTIMIZE}"><img src='../assets/explore-icon.png' height="16" /> Deck Optimizer</button> -->
       </span>
     </div>
   </div>
@@ -187,10 +187,7 @@
       <div class="preview-container flex-column" *ngIf="spellChromaService.previewCard">
         <div class="flex-row flex-align-space-between section-header app-default-theme relative" *ngIf="spellChromaService.previewCard">
           <div>
-            {{spellChromaService.previewCard.name}} Tags
-            <button mat-icon-button (click)="copyToClipboard(spellChromaService.previewCard.name)" class="mat-icon-button-small">
-              <mat-icon>content_copy</mat-icon>
-            </button>
+            {{spellChromaService.previewCard.name}} Tags            
           </div>
           <button class="mat-button-24" (click)="spellChromaService.previewCard = undefined" mat-icon-button><mat-icon>close</mat-icon></button>
         </div>
@@ -294,7 +291,7 @@
             {{ selectedTag }}
           </span>
           <app-tag-add *ngIf="showingAddTag" class="flex-row" (tagClick)="onTagClick($event); showingAddTag = !showingAddTag"></app-tag-add>
-          <button mat-icon-button matTooltip="Add a new tag" (click)="showingAddTag = !showingAddTag">
+          <button class="mat-icon-button-small centered-row" mat-icon-button matTooltip="Add a new tag" (click)="showingAddTag = !showingAddTag">
             <mat-icon *ngIf="!showingAddTag">add</mat-icon>            
           </button>
 
@@ -315,7 +312,27 @@
             Showing {{filteredRelatedCardsByTag.length}} of {{ scryfallService.numberOfUnloadedCards }} cards 
             <button mat-raised-button color="primary" (click)="loadNextRecommendedPage()">Load More</button>
           </div>
-        </ng-container>      
+        </ng-container>    
+        <ng-container *ngIf="relatedCardsByTag.length === 0">
+          <div class="flex-column flex-align-center app-default-theme no-cards-found" *ngIf="relatedCardsByTag.length === 0 && cardsToDisplay.length === 0">
+            <img src="../assets/logo-transparent.png" class="logo" />
+
+            
+            <div>Input your decklist on the left</div>
+            <div>or</div>            
+            <button mat-raised-button (click)="showingAddTagBottom = !showingAddTagBottom">Start a Search by Tag</button>
+            <!-- Add a tag using the Add Tag (+) button above -->
+            <app-tag-add *ngIf="showingAddTagBottom" class="flex-row" (tagClick)="onTagClick($event); showingAddTag = !showingAddTag"></app-tag-add>
+          </div>
+
+          <div class="flex-column flex-align-center app-default-theme no-cards-found" *ngIf="relatedCardsByTag.length === 0 && cardsToDisplay.length > 0">
+            <div>Select a tag from the list on the left</div>
+            <div>or</div>            
+            <button mat-raised-button (click)="showingAddTagBottom = !showingAddTagBottom">Start a Search by Tag</button>
+            <!-- Add a tag using the Add Tag (+) button above -->
+            <app-tag-add *ngIf="showingAddTagBottom" class="flex-row" (tagClick)="onTagClick($event); showingAddTag = !showingAddTag"></app-tag-add>
+          </div>
+        </ng-container>  
       </div>       
     </div>
 
@@ -330,14 +347,14 @@
       </div>
 
       <!-- Sorting -->
-      <div class="flex-row padding-16 gap-10 settings-row app-default-theme">        
+      <div class="flex-row padding-8 gap-10 settings-row app-default-theme">        
         <mat-icon>sort</mat-icon>
-        <button mat-raised-button class="sort-button" [ngClass]="{'active': spellChromaService.allTagsLastSortMode === 'name'}"(click)="spellChromaService.allTagsLastSortMode = 'name'">
+        <button mat-raised-button class="sort-button" [ngClass]="{'active': spellChromaService.allTagsLastSortMode === 'name'}"(click)="spellChromaService.allTagsLastSortMode = 'name'; sortedTags = getSortedAllTags()">
           Name
           <mat-icon *ngIf="!spellChromaService.sortAscending">arrow_upward</mat-icon>
           <mat-icon *ngIf="spellChromaService.sortAscending">arrow_downward</mat-icon>
         </button>
-        <button mat-raised-button class="sort-button" [ngClass]="{'active': spellChromaService.allTagsLastSortMode === 'number'}" (click)="spellChromaService.allTagsLastSortMode = 'number'">
+        <button mat-raised-button class="sort-button" [ngClass]="{'active': spellChromaService.allTagsLastSortMode === 'number'}" (click)="spellChromaService.allTagsLastSortMode = 'number'; sortedTags = getSortedAllTags()">
           Number
           <mat-icon *ngIf="!spellChromaService.sortAscending">arrow_upward</mat-icon>
           <mat-icon *ngIf="spellChromaService.sortAscending">arrow_downward</mat-icon>
@@ -351,8 +368,8 @@
           (click)="filterDeckByTag(tag[0])"
           [ngClass]="{'active': activeFilters.includes(tag[0])}"
         >
-        <div>{{ tag[1] }}</div>
-        <div>{{ tag[0] }}</div>
+        <div class="flex-row">{{ tag[1] }}</div>
+        <div class="flex-row">{{ tag[0] }}</div>
         </button>
         
       </div>

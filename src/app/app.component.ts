@@ -57,6 +57,7 @@ export class AppComponent implements OnInit {
   deckColorIdentity = "WUBRG";
 
   showingAddTag = false;
+  showingAddTagBottom = false;
   sortedTags: any[] = [];
   minimizeTopTags = false;
 
@@ -551,11 +552,6 @@ export class AppComponent implements OnInit {
     this.spellChromaService.loadingDeckList = false;
   }
 
-  copyToClipboard(string: string) {
-    navigator.clipboard.writeText(string);
-    this.snackbarService.showSnackbar('\'' + string + '\' copied to clipboard!');
-  }
-
   goToEdhrec(card: ScryfallCardObject) {
     window.open('https://edhrec.com/cards/' + card.name.toLocaleLowerCase().replace(/ /g, '-'), '_blank');
   }
@@ -570,6 +566,7 @@ export class AppComponent implements OnInit {
 
   copyCardName(card: ScryfallCardObject) {
     this.clipboard.copy(card.name);
+    this.snackbarService.showSnackbar('\'' + card.name + '\' copied to clipboard!');
   }
     
 }

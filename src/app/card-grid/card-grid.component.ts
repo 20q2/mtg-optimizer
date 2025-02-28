@@ -74,7 +74,6 @@ export class CardGridComponent {
               }
 
               (activeCard as HTMLElement).style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-              console.log(rotateX, rotateY);
           }
 
           this.isCardMoving = false;

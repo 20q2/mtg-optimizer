@@ -232,7 +232,31 @@ button.parse-button {
     }
 }
 
+.no-cards-found {
+    height: calc(100vh - 309px);
+    display: flex;    
+    font-size: 24px;
+    align-items: center;
+    gap: 24px;
+    overflow: auto;
 
+    button {
+        width: fit-content;
+    }
+
+    .logo {
+        margin-top: -128px;
+        animation: hueShiftShadow 10s infinite linear;
+        max-width: 200px;
+        filter: drop-shadow(1px 0px 2px #ffffdd40) drop-shadow(1px 1px 2px #ffffdd40) drop-shadow(-1px 0px 2px #ffffdd40) drop-shadow(-1px -1px 2px #ffffdd40); 
+        
+        @keyframes hueShiftShadow {
+            0% { filter: hue-rotate(0deg) drop-shadow(1px 0px 2px #ffffdd40) drop-shadow(1px 1px 2px #ffffdd40) drop-shadow(-1px 0px 2px #ffffdd40) drop-shadow(-1px -1px 2px #ffffdd40) }
+            50% { filter: hue-rotate(180deg) drop-shadow(1px 0px 2px #ffffdd40) drop-shadow(1px 1px 2px #ffffdd40) drop-shadow(-1px 0px 2px #ffffdd40) drop-shadow(-1px -1px 2px #ffffdd40) }
+            100% { filter: hue-rotate(360deg) drop-shadow(1px 0px 2px #ffffdd40) drop-shadow(1px 1px 2px #ffffdd40) drop-shadow(-1px 0px 2px #ffffdd40) drop-shadow(-1px -1px 2px #ffffdd40) }
+        }
+    }
+}
 
 .tag {
     animation: slideInRight .3s ease-out;
@@ -726,6 +750,11 @@ $button-toggle-height: 24px;
 .deck-view-stats {
     max-height: calc(100vh - 102px);
 
+    .settings-row {
+        align-items: center;
+        padding: 0 4px;
+    }
+
     .all-tags-container {
         overflow-y: auto;
         overflow-x: hidden;
@@ -739,12 +768,8 @@ $button-toggle-height: 24px;
             flex-direction: row;
             padding: 0;
 
-            div {
-                padding: 10px;
-            }
-
             div:nth-child(1) {
-                border-right: 1px solid yellow;
+                border-right: 1px solid #ffffff60;
             }
         }
     }
@@ -752,11 +777,17 @@ $button-toggle-height: 24px;
     .line-tag {
         cursor: pointer;
         color: white;
-        border: 1px solid var(--border-color);
-        padding: 10px;
+        border: 1px solid #ffffff60;
         border-radius: 4px;
         background-color: #ffffaa40;
-        height: auto;
+        height: 40px;
+
+        div {
+            padding: 0 8px;
+            align-items: center;
+            height: 100%;
+            font-size: 16px;
+        }
 
         &:hover, &:focus-visible {
             filter: brightness(1.4);

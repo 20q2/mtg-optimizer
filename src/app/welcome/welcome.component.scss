@@ -7,8 +7,16 @@
     font-size: 24px;
 
     .logo {
+        animation: hueShiftShadow 10s infinite linear;
         max-width: 200px;
         margin: 0 auto;
-        filter: drop-shadow(1px 0px 2px #ffffdd40) drop-shadow(1px 1px 2px #ffffdd40) drop-shadow(-1px 0px 2px #ffffdd40) drop-shadow(-1px -1px 2px #ffffdd40)        
+        filter: drop-shadow(1px 0px 2px #ffffdd40) drop-shadow(1px 1px 2px #ffffdd40) drop-shadow(-1px 0px 2px #ffffdd40) drop-shadow(-1px -1px 2px #ffffdd40); 
+        
+        @keyframes hueShiftShadow {
+            0% { filter: hue-rotate(0deg) drop-shadow(1px 0px 2px #ffffdd40) drop-shadow(1px 1px 2px #ffffdd40) drop-shadow(-1px 0px 2px #ffffdd40) drop-shadow(-1px -1px 2px #ffffdd40) }
+            50% { filter: hue-rotate(180deg) drop-shadow(1px 0px 2px #ffffdd40) drop-shadow(1px 1px 2px #ffffdd40) drop-shadow(-1px 0px 2px #ffffdd40) drop-shadow(-1px -1px 2px #ffffdd40) }
+            100% { filter: hue-rotate(360deg) drop-shadow(1px 0px 2px #ffffdd40) drop-shadow(1px 1px 2px #ffffdd40) drop-shadow(-1px 0px 2px #ffffdd40) drop-shadow(-1px -1px 2px #ffffdd40) }
+        }
     }
 }
+
