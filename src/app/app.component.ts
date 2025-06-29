@@ -1,7 +1,7 @@
 import { Component,  HostListener,  OnInit,  ViewChild } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ColorIdentityPickerComponent } from './color-identity-picker/color-identity-picker.component';
-import { ignoreLayouts, toIgnore } from './model/proper-words';
+import { ignoreLayouts } from './model/proper-words';
 import { CardTagObject, ScryfallCardObject } from './model/tag-objects';
 import { SnackbarService } from './services/snackbar.service';
 import { AppMode } from './model/app-mode';
@@ -10,7 +10,7 @@ import { ScryfallService } from './services/scryfall.service';
 import { TagService } from './services/tag.service';
 import { Observable, Subscription, catchError, forkJoin, interval, mergeMap, of } from 'rxjs';
 import { Clipboard } from '@angular/cdk/clipboard';
-
+import { CategoryButton } from './model/category-button';
 
 
 @Component({
@@ -36,6 +36,7 @@ export class AppComponent implements OnInit {
   appMode = AppMode;
   loadingAmount = 0; // Out of 100
   loadingInterval: Subscription | undefined;
+  loadedCards?: number;
 
   deckTextInput = '';
   cardsToDisplay: ScryfallCardObject[] = [];
@@ -45,6 +46,7 @@ export class AppComponent implements OnInit {
   relatedCardsByTag: ScryfallCardObject[] = [];
   filteredRelatedCardsByTag: ScryfallCardObject[] = [];
   selectedTags: string[] = [];
+  exploreCardCategories: CategoryButton[] = [];
 
   lastSearchedColors = '';
 
@@ -53,13 +55,13 @@ export class AppComponent implements OnInit {
 
   suggestedCommanders: ScryfallCardObject[] = [];
 
-  deckListMode = 'input';
-  deckColorIdentity = "WUBRG";
-
   showingAddTag = false;
   showingAddTagBottom = false;
   sortedTags: any[] = [];
   minimizeTopTags = false;
+  minimizeFocusedTags = false;
+
+  lastSortedMode: string = '';
 
   constructor(
     private http: HttpClient,
@@ -67,7 +69,7 @@ export class AppComponent implements OnInit {
     public spellChromaService: SpellChromaService,
     public scryfallService: ScryfallService,
     public tagService: TagService,
-    private clipboard: Clipboard
+    private clipboard: Clipboard,
   ) {
     
   }
@@ -116,9 +118,10 @@ export class AppComponent implements OnInit {
     this.assignColorIdentity();
     this.calculateDifferentCardTypes();
     this.spellChromaService.topTags = this.findTop10Tags();
+    this.sortRelatedBy('');
 
     this.cardsToDisplay = this.spellChromaService.deck.slice(0);
-    this.deckListMode = 'visual'
+    this.spellChromaService.deckListMode = 'visual'
   }
 
   clearPreviewCard() {
@@ -160,9 +163,13 @@ export class AppComponent implements OnInit {
   }
 
   async fetchPreviewCardTags(card: ScryfallCardObject) {
-    this.spellChromaService.appIsLoading = true;
+    if (card.tags) {
+      return;
+    }
+
+    this.spellChromaService.previewCardIsLoading = true;
     this.http.post(this.serverUrl, {'cards': [card]}).subscribe((results: any) => {
-      this.spellChromaService.appIsLoading = false;
+      this.spellChromaService.previewCardIsLoading = false;
       if (this.spellChromaService.previewCard) {
         card.tags = results[0]['data']['card']['taggings'];          
       }
@@ -212,14 +219,6 @@ export class AppComponent implements OnInit {
             matchingCard.tags = result['data']['card']['taggings'];
           }
         }
-        // for (let i = 0; i < totalCards; i++) {
-        //   if (results[i] instanceof Error) {
-        //     // Handle error for this card if needed
-        //   } else {
-        //     cards[i].tags = results[i]['data']['card']['taggings'];
-        //     cards[i].showingTags = false;
-        //   }
-        // }
   
         this.stopLoadingBar();
         return of(true); // Notify that the operation is complete
@@ -254,6 +253,7 @@ export class AppComponent implements OnInit {
 
   onCardClick(card: ScryfallCardObject) {
     this.spellChromaService.previewCard = card;
+    this.minimizeFocusedTags = false;
     this.fetchPreviewCardTags(this.spellChromaService.previewCard);
   }
 
@@ -363,11 +363,46 @@ export class AppComponent implements OnInit {
     )
   }
 
-  loadPreviousPage() {
+  loadAllRecommendedPages(url: string = this.scryfallService.moreRelatedCardsLink): void {
+    if (!url) return;
 
+    this.spellChromaService.appIsLoading = true;
+    this.loadedCards = this.relatedCardsByTag.length;
+
+    this.http.get(url).subscribe((result: any) => {
+      const { data, has_more, next_page } = result;
+
+      // Append filtered cards
+      for (let card of data) {
+        if (
+          (card as ScryfallCardObject).games.includes('paper') &&
+          !ignoreLayouts.includes((card.layout as string).toLowerCase()) &&
+          !ignoreLayouts.includes((card.type_line as string).toLowerCase())
+        ) {
+          this.relatedCardsByTag.push(this.assignCardImageUrl(card));
+          this.loadedCards! += 1;
+        }
+      }
+
+      // Continue if there's more
+      if (has_more && next_page) {
+        this.loadAllRecommendedPages(next_page);
+      } else {
+        this.scryfallService.hasMoreRelatedCards = false;
+        this.scryfallService.moreRelatedCardsLink = '';
+        this.spellChromaService.appIsLoading = false;
+        this.loadedCards = undefined;
+        this.filterTagResults(this.searchInput.value);
+      }
+    });
   }
 
   sortRelatedBy(value: string) {
+    if (value === '') {
+      value = this.lastSortedMode;
+    }
+
+    this.lastSortedMode = value;
     if (value === 'cmc') {
       this.relatedCardsByTag.sort((a, b) => {
         return (a['cmc'] - b['cmc'] || (a['name'] as string).localeCompare(b['name']))
@@ -396,8 +431,44 @@ export class AppComponent implements OnInit {
     } else {
       this.spellChromaService.lastSortMode = value;
       this.spellChromaService.sortAscending = true;
-    }    
+    }
+
+    this.updateExplorerCardCategories();
   }
+
+  updateExplorerCardCategories() {
+    // Populate exploreCardCategories based on current sort mode
+    const categorySet = new Set<string>();
+
+    this.filteredRelatedCardsByTag.forEach(card => {
+      switch (this.lastSortedMode) {
+        case 'cmc':
+          categorySet.add(card.cmc.toString());
+          break;
+
+        case 'color':
+          card.color_identity.forEach(color => categorySet.add(color));
+          break;
+
+        case 'type':
+          const mainType = card.type_line.split('—')[0].trim();
+          categorySet.add(mainType);
+          break;
+      }
+    });
+
+    const buttonMap = Array.from(categorySet).map(item => {
+      return {
+        category: item,
+        selected: 0
+      } as CategoryButton
+    })
+
+    // Just assign — no sorting
+    this.exploreCardCategories = buttonMap;
+  }
+
+
 
   getSortedAllTags() {  
     let entries =  Object.entries(this.spellChromaService.tags).sort((a,b) => {
@@ -419,12 +490,71 @@ export class AppComponent implements OnInit {
     return entries;
   }
 
+  /* filters tag (Explorer) results based on a string. Updates filteredRelatedCardsByTag*/
   filterTagResults(filterString: string): void {
     this.filteredRelatedCardsByTag = this.relatedCardsByTag.filter(item => {
       return (item.name && item.name.toLocaleLowerCase().includes(filterString.toLocaleLowerCase())) || 
         (item.oracle_text && item.oracle_text.toLocaleLowerCase().includes(filterString.toLocaleLowerCase()));
     })
   }
+
+  onClickExplorerFilter(filter: CategoryButton) {
+    filter.selected += 1;
+    if (filter.selected === 2) {
+      filter.selected = -1;
+    }
+    const selected = this.exploreCardCategories.filter(item => item.selected).map(item => item.category);
+
+    this.filterExplorerByCategory();
+  }
+
+  /* filters tag (Explorer) results based on a  string category. Updates filteredRelatedCardsByTag*/
+  filterExplorerByCategory() {
+  // Get included and excluded categories
+  const included = this.exploreCardCategories
+    .filter(btn => btn.selected === 1)
+    .map(btn => btn.category);
+
+  const excluded = this.exploreCardCategories
+    .filter(btn => btn.selected === -1) // or === -1 if that was intended
+    .map(btn => btn.category);
+
+  if (included.length === 0 && excluded.length === 0) {
+    this.filteredRelatedCardsByTag = this.relatedCardsByTag;
+    return;
+  }
+
+  if (this.lastSortedMode === 'cmc') {
+    this.filteredRelatedCardsByTag = this.relatedCardsByTag.filter(item => {
+      const cmcStr = item.cmc.toString();
+      return (
+        (included.length === 0 || included.includes(cmcStr)) &&
+        !excluded.includes(cmcStr)
+      );
+    });
+  }
+
+  if (this.lastSortedMode === 'color') {
+    this.filteredRelatedCardsByTag = this.relatedCardsByTag.filter(item => {
+      const colors = item.color_identity;
+      return (
+        (included.length === 0 || colors.some(c => included.includes(c))) &&
+        !colors.some(c => excluded.includes(c))
+      );
+    });
+  }
+
+  if (this.lastSortedMode === 'type') {
+    this.filteredRelatedCardsByTag = this.relatedCardsByTag.filter(item => {
+      const types = item.type_line.split(' ');
+      return (
+        (included.length === 0 || types.some(t => included.includes(t))) &&
+        !types.some(t => excluded.includes(t))
+      );
+    });
+  }
+}
+
 
   /**
    * Given a card, return a string[] of its tags
@@ -522,7 +652,7 @@ export class AppComponent implements OnInit {
   }
 
   updateDeckColorIdentity(): void {
-    this.deckColorIdentity = this.colorPicker.getColorIdentityString();
+    this.spellChromaService.deckColorIdentity = this.colorPicker.getColorIdentityString();
   }
   
   getObjectKeys(obj: { [key: string]: any }) {

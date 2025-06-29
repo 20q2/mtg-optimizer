@@ -30,13 +30,17 @@ export class SpellChromaService {
   
   appIsLoading = false;
   loadingDeckList = false;
+  previewCardIsLoading = false;
 
   allTagsSortAscending: boolean = true;
   allTagsLastSortMode = 'name';
-  
+
   /** Used to make explorer/optimizer fullscreen */
   altModeFullscreen = false;
   previewCardSize = 3;
+
+  deckListMode = 'input';
+  deckColorIdentity = "WUBRG";
 
   colorIdentity: {[key: string]: boolean } = {
     'W': true,

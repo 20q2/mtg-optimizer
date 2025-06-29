@@ -29,6 +29,7 @@ import { KeyValuePipe } from '@angular/common';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { StopPropagationDirective } from './directives/stop-propagation.directive';
+import { ReplacePlaceholderPipe } from './pipe/replace-placeholder.pipe';
 
 
 
@@ -44,7 +45,8 @@ import { StopPropagationDirective } from './directives/stop-propagation.directiv
     ReplacePlaceholderDirective,
     TagAddComponent,
     WelcomeComponent,
-    StopPropagationDirective
+    StopPropagationDirective,
+    ReplacePlaceholderPipe,
   ],
   imports: [
     BrowserModule,

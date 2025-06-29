@@ -7,12 +7,16 @@
     <div class="loading-bar-container" *ngIf="spellChromaService.loadingDeckList">
       <div class="loading-bar" [ngStyle]="{'width': loadingAmount + '%' }"></div>
     </div>
+    <div class="loading-cards-container" *ngIf="loadedCards">
+      {{loadedCards}}/{{scryfallService.numberOfUnloadedCards}} cards loaded
+    </div>
   </div>
+  
   
 </div>
 
 <div class="page-container flex-column">
-  <img class="page-background" [src]="spellChromaService.getBackgroundFromColorIdentity(deckColorIdentity)" />
+  <img class="page-background" [src]="spellChromaService.getBackgroundFromColorIdentity(spellChromaService.deckColorIdentity)" />
   <!-- Navbar -->
   <div class="flex-row flex-align-space-between navbar app-default-theme">
     <div class="flex-row">
@@ -41,16 +45,16 @@
         <div class="section-header flex-align-space-between flex-row deck-list-header app-default-theme">
           <div>Deck List</div>
           <div>
-            <mat-button-toggle-group [(ngModel)]="deckListMode" class="input-deck-button">
+            <mat-button-toggle-group [(ngModel)]="spellChromaService.deckListMode" class="input-deck-button">
               <mat-button-toggle value="input" matTooltip="View deck in text view"><mat-icon>subject</mat-icon>Deck Input</mat-button-toggle>            
             </mat-button-toggle-group>        
-            <mat-button-toggle-group [(ngModel)]="deckListMode">
+            <mat-button-toggle-group [(ngModel)]="spellChromaService.deckListMode">
               <mat-button-toggle [disabled]="this.spellChromaService.deck.length === 0" value="text" matTooltip="View deck in text view"><mat-icon>subject</mat-icon>List</mat-button-toggle>
               <mat-button-toggle [disabled]="this.spellChromaService.deck.length === 0" value="visual" matTooltip="View deck in visual view"><mat-icon>dashboard_customize</mat-icon>Visual</mat-button-toggle>
             </mat-button-toggle-group>
           </div>
         </div>
-        <div class="flex-row flex-align-space-between deck-list-stats" *ngIf="deckListMode === 'text' || deckListMode === 'visual'">
+        <div class="flex-row flex-align-space-between deck-list-stats" *ngIf="spellChromaService.deckListMode === 'text' || spellChromaService.deckListMode === 'visual'">
           <div>Showing {{ cardsToDisplay.length }} cards</div>
           <div class="tags flex-row">
           <div
@@ -64,7 +68,7 @@
         </div>
 
         <!-- Input view -->
-        <ng-container *ngIf="deckListMode === 'input'">
+        <ng-container *ngIf="spellChromaService.deckListMode === 'input'">
           <textarea
             class="input-area flex-grow"
             [(ngModel)]="deckTextInput"
@@ -73,7 +77,7 @@
         </ng-container>
 
         <!-- Text view -->
-        <ng-container *ngIf="deckListMode === 'text'">
+        <ng-container *ngIf="spellChromaService.deckListMode === 'text'">
           <div class="text-view-container flex-column">
             <div
               class="text-view-card flex-column" 
@@ -106,7 +110,7 @@
         </ng-container>
 
         <!-- Visual View -->
-        <ng-container *ngIf="deckListMode === 'visual'">
+        <ng-container *ngIf="spellChromaService.deckListMode === 'visual'">
           <div class="my-card-list flex-column flex-grow relative" [ngClass]="{'fullheight': !spellChromaService.previewCard}">
             <div 
               class="flex-row card-entry" 
@@ -123,7 +127,7 @@
         </ng-container>
         
         <button 
-          *ngIf="deckListMode === 'input'"
+          *ngIf="spellChromaService.deckListMode === 'input'"
           class="hover-darken parse-button"
           [disabled]="spellChromaService.appIsLoading"
           (click)="parseDeckList()"
@@ -137,7 +141,7 @@
     <div class="flex-column mid-section">
       <div
         class="flex-column w25 deck-stats-column"        
-        *ngIf="this.spellChromaService.deck.length !== 0 && (deckListMode === 'visual' || deckListMode === 'text') && !minimizeTopTags"
+        *ngIf="this.spellChromaService.deck.length !== 0 && (spellChromaService.deckListMode === 'visual' || spellChromaService.deckListMode === 'text') && !minimizeTopTags"
       >      
         <div class="section-header app-default-theme flex-row flex-align-space-between">
           <span>Top Deck Tags</span>
@@ -175,8 +179,8 @@
       </div>
 
       <div
-        class="app-default-theme"
-        *ngIf="this.spellChromaService.deck.length !== 0 && (deckListMode === 'visual' || deckListMode === 'text') && minimizeTopTags"
+        class="app-default-theme fit-content"
+        *ngIf="this.spellChromaService.deck.length !== 0 && (spellChromaService.deckListMode === 'visual' || spellChromaService.deckListMode === 'text') && minimizeTopTags"
       >
         <button mat-icon-button class="mat-icon-button-small" (click)="minimizeTopTags = !minimizeTopTags" matTooltip="Show top tags">
           <mat-icon>add</mat-icon>
@@ -184,14 +188,17 @@
       </div>
 
       <!-- Preview Card -->
-      <div class="preview-container flex-column" *ngIf="spellChromaService.previewCard">
+      <div class="preview-container flex-column"  [ngClass]="{'fit-content': minimizeFocusedTags}" *ngIf="spellChromaService.previewCard">
         <div class="flex-row flex-align-space-between section-header app-default-theme relative" *ngIf="spellChromaService.previewCard">
-          <div>
+          <div *ngIf="!minimizeFocusedTags">
             {{spellChromaService.previewCard.name}} Tags            
           </div>
-          <button class="mat-button-24" (click)="spellChromaService.previewCard = undefined" mat-icon-button><mat-icon>close</mat-icon></button>
+          <div class="flex-row">
+            <button class="mat-button-24 mat-icon-button-small" (click)="minimizeFocusedTags = !minimizeFocusedTags" mat-icon-button><mat-icon>{{ minimizeFocusedTags ? 'add' : 'remove' }}</mat-icon></button>
+            <button class="mat-button-24 mat-icon-button-small" *ngIf="!minimizeFocusedTags" (click)="spellChromaService.previewCard = undefined" mat-icon-button><mat-icon>close</mat-icon></button>
+          </div>
         </div>
-        <div class="link-container">
+        <div class="link-container" *ngIf="!minimizeFocusedTags">
           <a (click)="goToScryfall(spellChromaService.previewCard)">
               <img src="../assets/icons/header-logo.svg" />
           </a>
@@ -206,8 +213,8 @@
               <!-- <img src="../assets/logo-transparent.png" /> -->
               Copy
           </button>
-      </div>
-        <div *ngIf="spellChromaService.previewCard" class="flex-column tag-container relative" [style.background-image]="'url(' + scryfallService.getCardFullArt(spellChromaService.previewCard) + ')'">          
+        </div>
+        <div *ngIf="spellChromaService.previewCard && !minimizeFocusedTags" class="flex-column tag-container relative" [style.background-image]="'url(' + scryfallService.getCardFullArt(spellChromaService.previewCard) + ')'">          
           <div class="flex-column">
             <div class="tags flex-row flex-wrap">
               <ng-container *ngFor="let tag of compressAllCardTags(spellChromaService.previewCard.tags); let i=index" >
@@ -220,14 +227,19 @@
                 <mat-icon>local_offer</mat-icon> {{tag}}
                 </div>
               </ng-container>
+              <div class="flex-row" *ngIf="spellChromaService.previewCardIsLoading" style="position: relative; height: 50px">
+                <mat-spinner class="app-loading-spinner" style="transform: translateX(-50%); margin: auto">
+                  <img src="../assets/logo-transparent.png" height="32px"/>
+                </mat-spinner>
+              </div>
             </div>
           </div>
         </div>
-        <div class="helper-row flex-row flex-align-center">
+        <div class="helper-row flex-row flex-align-center" *ngIf="!minimizeFocusedTags && !spellChromaService.previewCardIsLoading">
           Clicking on a tag will begin a search using that tag
         </div>
-        <div class="card-description" appReplacePlaceholder>
-          {{ spellChromaService.previewCard.oracle_text }}
+        <div class="card-description" *ngIf="!minimizeFocusedTags" [innerHTML]="spellChromaService.previewCard.oracle_text | replacePlaceholder">
+          <!-- {{ spellChromaService.previewCard.oracle_text | replacePlaceholder }} -->
         </div>
       </div>
     </div>
@@ -246,7 +258,7 @@
           <div class="left-container flex-row">
             <mat-icon class="centered-row" matTooltip="Sort cards in the explorer using various options">sort</mat-icon>
             <button mat-raised-button class="sort-button active" [matMenuTriggerFor]="sortMenu">
-              {{ spellChromaService.lastSortMode | titlecase }}
+              {{ (spellChromaService.lastSortMode ? spellChromaService.lastSortMode : 'Sort') | titlecase }}
               <mat-icon *ngIf="!spellChromaService.sortAscending">arrow_upward</mat-icon>
               <mat-icon *ngIf="spellChromaService.sortAscending">arrow_downward</mat-icon>
             </button>
@@ -300,37 +312,52 @@
         <button mat-icon-button (click)="incrementPreviewCardSize(1)" matTooltip="Increase card size"><mat-icon>add_circle_outline</mat-icon></button>       
       </div>
       <!-- Related cards by tag -->
-      <div class="relative">
+      <div class="relative flex-row">
+
+        <div class="flex-column explore-card-categories">
+          <div class="filter-topper flex-row flex-align-center" *ngIf="exploreCardCategories.length > 0">
+            <mat-icon>filter_alt</mat-icon>
+          </div>
+          <button
+            class="category-button"
+            mat-button
+            *ngFor="let category of exploreCardCategories"
+            (click)="onClickExplorerFilter(category)"
+            [ngClass]="{'selected': category.selected, 'unselected': category.selected === -1}"
+          >
+            {{ category.category }}
+          </button>
+        </div>
+
+        <!-- Normal card exploration -->
         <ng-container *ngIf="relatedCardsByTag.length > 0">
           <app-card-grid
-            class="app-card-explorer"
+            class="app-card-explorer full-width"
             [cardsToDisplay]="filteredRelatedCardsByTag"
             (previewCardEmit)="onCardClick($event)"
             [sortingMode]="spellChromaService.lastSortMode"
           ></app-card-grid>
           <div class="flex-row flex-align-center load-more centered-row app-default-theme" *ngIf="scryfallService.moreRelatedCardsLink !== ''">
             Showing {{filteredRelatedCardsByTag.length}} of {{ scryfallService.numberOfUnloadedCards }} cards 
-            <button mat-raised-button color="primary" (click)="loadNextRecommendedPage()">Load More</button>
+            <button mat-raised-button color="primary" (click)="loadAllRecommendedPages()">Load All</button>
           </div>
         </ng-container>    
+
+        <!-- If the app just started or the deck is empty -->
         <ng-container *ngIf="relatedCardsByTag.length === 0">
-          <div class="flex-column flex-align-center app-default-theme no-cards-found" *ngIf="relatedCardsByTag.length === 0 && cardsToDisplay.length === 0">
+          <div class="flex-column flex-align-center app-default-theme no-cards-found full-width" *ngIf="relatedCardsByTag.length === 0 && cardsToDisplay.length === 0">
             <img src="../assets/logo-transparent.png" class="logo" />
 
             
             <div>Input your decklist on the left</div>
             <div>or</div>            
-            <button mat-raised-button (click)="showingAddTagBottom = !showingAddTagBottom">Start a Search by Tag</button>
-            <!-- Add a tag using the Add Tag (+) button above -->
-            <app-tag-add *ngIf="showingAddTagBottom" class="flex-row" (tagClick)="onTagClick($event); showingAddTag = !showingAddTag"></app-tag-add>
+            <app-tag-add  class="flex-row" (tagClick)="onTagClick($event); showingAddTag = !showingAddTag"></app-tag-add>
           </div>
 
-          <div class="flex-column flex-align-center app-default-theme no-cards-found" *ngIf="relatedCardsByTag.length === 0 && cardsToDisplay.length > 0">
+          <div class="flex-column flex-align-center app-default-theme no-cards-found full-width" *ngIf="relatedCardsByTag.length === 0 && cardsToDisplay.length > 0">
             <div>Select a tag from the list on the left</div>
             <div>or</div>            
-            <button mat-raised-button (click)="showingAddTagBottom = !showingAddTagBottom">Start a Search by Tag</button>
-            <!-- Add a tag using the Add Tag (+) button above -->
-            <app-tag-add *ngIf="showingAddTagBottom" class="flex-row" (tagClick)="onTagClick($event); showingAddTag = !showingAddTag"></app-tag-add>
+            <app-tag-add  class="flex-row" (tagClick)="onTagClick($event); showingAddTag = !showingAddTag"></app-tag-add>
           </div>
         </ng-container>  
       </div>       
@@ -381,7 +408,6 @@
 
   
 
-  <!-- <app-explore *ngIf="spellChromaService.appMode === AppMode.EXPLORE"></app-explore> -->
 
   <div class="flex-row">
     
